@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リダイレクトボタン</title>
+</head>
+<body>
+    <h1>リダイレクトの例</h1>
+    <p>ボタンを押すと指定されたページに移動します。</p>
+
+    <!-- フォームを使ってPHPにデータを送信 -->
+    <form action="redirect.php" method="POST">
+        <!-- ボタンが押されたことをPHPに通知 -->
+        <input type="hidden" name="target" value="yju">
+        <button type="submit">YJUのページへ移動</button>
+    </form>
+</body>
+</html>
