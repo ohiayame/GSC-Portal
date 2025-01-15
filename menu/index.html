@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSC Portal</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          text-align: center;
+          margin-top: 50px;
+        }
+        h1 {
+          color: #333;
+        }
+        button {
+          padding:  3px;
+          font-size: 16px;
+          color: #fff;
+          background-color: #007bff;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        button:hover {
+          background-color: #0056b3;
+        }
+      </style>
+</head>
+<body>
+    <h1>GSC Portal</h1>
+    <p>ボタンを押すと指定されたページに移動します。</p>
+
+    <!-- vol.1 버튼 -->
+    <!-- フォームを使ってPHPにデータを送信 -->
+    <!-- ボタンが押されたことをPHPに通知 -->
+    <form id="redirectForm" action="../Notice/notice_main.html" method="get">
+        <button type="submit">공지사항 확인</button>
+    </form>
+    <form id="redirectForm" action="../Timetable/timetable.php" method="get">
+      <button type="submit">시간표 확인</button>
+  </form>
+
+    <a href="redirect.php?target=yju" style="text-decoration: none; color: blue; font-size: 16px;">
+        学科ページへ移動
+    </a><br>
+
+    <!-- vol.2 문자 -->
+    <a href="redirect.php?target=yjp" style="text-decoration: none; color: blue; font-size: 16px;">
+        YJPのページへ移動
+    </a>
+</body>
+</html>
