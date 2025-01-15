@@ -10,10 +10,17 @@
     <p>ボタンを押すと指定されたページに移動します。</p>
 
     <!-- フォームを使ってPHPにデータを送信 -->
+    <!-- ボタンが押されたことをPHPに通知 -->
+
+    <!-- vol.1 버튼 -->
     <form action="redirect.php" method="POST">
-        <!-- ボタンが押されたことをPHPに通知 -->
         <input type="hidden" name="target" value="yju">
-        <button type="submit">YJUのページへ移動</button>
+        <button type="submit">学科ページへ移動</button>
     </form>
+
+    <!-- vol.2 문자 -->
+    <a href="redirect.php?target=yjp" style="text-decoration: none; color: blue; font-size: 16px;">
+        YJPのページへ移動
+    </a>
 </body>
 </html>
