@@ -1,0 +1,108 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 300px;
+}
+
+table {
+    border-collapse: collapse;
+    margin: auto; /* 가로 중앙 정렬 */
+    width: 100%;
+    height: 300px; /* 고정된 높이 (필요에 따라 조정) */
+    overflow-y: auto; /* 높이가 넘치면 스크롤바 추가 */
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    font-size: 0.9em;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #007acc;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+}
+
+td {
+    background-color: #fff;
+    box-shadow: none; /* 불필요한 그림자 제거 */
+}
+h1 {
+    font-size: 1.5em;
+    margin-bottom: 25px;
+    color: #007acc;
+}
+.btn {
+    width:  40px;
+    margin: 10px auto;
+    padding: 4px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #3abac4;
+    color: rgb(247, 244, 244);
+}
+.btn.back{
+    background-color: #ffcc00;
+    color: #000;
+    width:  70px;
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+input, select, textarea {
+    margin-bottom: 15px;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+}
+
+textarea {
+    height: 100px;
+    resize: none;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+}
+
+button#backButton {
+    background-color: #ffcc00;
+    color: #000;
+}
