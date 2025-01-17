@@ -1,51 +1,40 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입</title>
-    <style>
-        h1 {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-          }
-          body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-          }
-    </style>
-    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>회원가입</h1>
-    <form id="redirectForm" action="../menu/index.html" method="get">
-        <div>
-            <!-- テキストを表示 -->
-            <span class="input-label">성 함함</span>
-            <!-- 入力ボックス -->
-            <input type="text" id="textInput" name="name" placeholder="홍 길동">
-        </div>
-
-        <div>
-            <!-- テキストを表示 -->
-            <span class="input-label">학 번</span>
-            <!-- 入力ボックス -->
-            <input type="stdNumber" id="textInput" name="stdNumber" placeholder="000000">
-        </div>
-        
-        <div>
-            <!-- テキストを表示 -->
-            <span class="input-label">Password</span>
-            <!-- 入力ボックス -->
-            <input type="text" id="textInput" name="Password" placeholder="Password">
-        </div>
-
-        
-        <input type="hidden" name="target" value="createAccount">
-
-        <button type="submit">회원가입</button>
-    </form>
+    <div class="register-container">
+        <h1>회원가입</h1>
+        <form action="register.php" method="POST">
+            <input type="number" name="stdNumber" placeholder="학번을 입력하세요" required>
+            
+            <input type="text" name="name" placeholder="이름을 입력하세요" required>
+            
+            <input type="text" name="address" placeholder="주소를 입력하세요" required>
+            
+            <input type="password" name="pass" placeholder="비밀번호를 입력하세요" required>
+            
+            <select name="permission" required>
+                <option value="user">사용자</option>
+                <option value="admin">관리자</option>
+            </select>
+            
+            <input type="text" name="MgrCode" placeholder="관리자 코드(선택)" optional>
+            
+            <div class="buttons">
+                <button type="submit" class="btn complete">회원가입</button>
+                <button type="button" class="btn back" onclick="goBack()">돌아가기</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
 </body>
 </html>
