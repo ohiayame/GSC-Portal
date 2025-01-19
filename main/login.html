@@ -14,13 +14,12 @@
         <h1>GSC Portal</h1>
         <h1>글로벌시스템융합과</h1>
         <form class="login-form"  action="/submit" method="POST">
-            <input type="text" placeholder="학번" required>
-            <input type="password" placeholder="PASSWORD" required>
+            <input type="text" id="stdNumber" placeholder="학번" required>
+            <input type="password" id="pass" placeholder="PASSWORD" required>
             <div class="select-box">
-                <select>
-                    <option value="학생">학생</option>
-                    <option value="교수">교수</option>
-                    <option value="관리자">관리자</option>
+                <select id="permission">
+                    <option value="user">학생</option>
+                    <option value="admin">관리자</option>
                 </select>
             </div>
             <button type="submit" class="btn login">LOG IN</button>
