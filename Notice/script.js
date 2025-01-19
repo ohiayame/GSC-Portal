@@ -1,86 +1,119 @@
+document.addEventListener('DOMContentLoaded', function () {
+    let currentPage = 1;
+    const itemsPerPage = 5;
 
+    // 현재 페이지 URL 확인
+    const currentPath = window.location.pathname;
 
-// 항목 데이터
-const notices = [
-    { title: "공지사항 제목 1", date: "2025-01-15" },
-    { title: "공지사항 제목 2", date: "2025-01-14" },
-    { title: "공지사항 제목 3", date: "2025-01-13" },
-    { title: "공지사항 제목 4", date: "2025-01-12" },
-    { title: "공지사항 제목 5", date: "2025-01-11" },
-    { title: "공지사항 제목 6", date: "2025-01-10" },
-    { title: "공지사항 제목 7", date: "2025-01-09" },
-    { title: "공지사항 제목 8", date: "2025-01-08" },
-    { title: "공지사항 제목 9", date: "2025-01-07" },
-    { title: "공지사항 제목 10", date: "2025-01-06" },
-    { title: "공지사항 제목 11", date: "2025-01-05" },
-    { title: "공지사항 제목 12", date: "2025-01-04" }
-];
-// 페이지 항목 수
-const itemsPerPage = 5;
-let currentPage = 1;
+    // 공지사항 등록 페이지 처리
+    if (currentPath.includes('create.html')) {
+        const form = document.getElementById('noticeForm');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
 
-function addEmptyRows() {
-    const totalRows = notices.length;
-    const remainder = totalRows % itemsPerPage;
-    
-    if (remainder !== 0) {
-        const emptyRows = itemsPerPage - remainder;  // 부족한 빈 행의 개수
-        for (let i = 0; i < emptyRows; i++) {
-            notices.push({ title: "", date: "" });  // 빈 항목 추가
+                // action 추가
+                formData.append('action', 'add');
+
+                // 디버깅: FormData 내용 확인
+                for (let pair of formData.entries()) {
+                    console.log(`${pair[0]}: ${pair[1]}`);
+                }
+
+                fetch('notice.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.text())
+                    .then(result => {
+                        console.log('Result:', result.trim());
+                        if (result.trim() === 'success') {
+                            alert('공지사항이 등록되었습니다.');
+                            window.location.href = 'notice_main.html';
+                        } else {
+                            alert('등록에 실패했습니다: ' + result);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+        } 
+        const backButton = document.getElementById('backButton');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                window.history.back();
+            });
         }
     }
-}
 
-function displayNotices(page) {
-    addEmptyRows();  // 부족한 행을 빈 항목으로 추가
-    const start = (page - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    const paginatedNotices = notices.slice(start, end);
+    // 공지사항 표시 페이지 처리
+    if (currentPath.includes('notice_main.html')) {
+        function fetchNotices(page) {
+            fetch(`notice.php?page=${page}&itemsPerPage=${itemsPerPage}`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Fetched Notices:', data);
+                    displayNotices(data.notices);
+                    updatePagination(data.totalPages);
+                })
+                .catch(error => console.error('Error fetching notices:', error));
+        }
 
-    const tableBody = document.getElementById('noticeTableBody');
-    tableBody.innerHTML = '';  // 기존 내용 초기화
+        function displayNotices(notices) {
+            const tableBody = document.getElementById('noticeTableBody');
+            tableBody.innerHTML = '';
 
-    paginatedNotices.forEach(notice => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td><a href="#" class="view-more" onclick="viewNotice('${notice.title}')">${notice.title}</a></td>
-            <td class="date">${notice.date}</td>
-        `;
-        tableBody.appendChild(row);
-    });
+            const totalRows = 5; // 고정된 테이블 행 개수
+            const rowsToAdd = totalRows - notices.length; // 부족한 행 계산
 
-    document.getElementById('pageNum').textContent = page;
-    document.getElementById('prevBtn').disabled = page === 1;
-    document.getElementById('nextBtn').disabled = page * itemsPerPage >= notices.length;
-}
+            // 공지사항 데이터 렌더링
+            notices.forEach(notice => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${notice.title || ''}</td>
+                    <td>${notice.date || ''}</td>
+                `;
+                tableBody.appendChild(row);
+            });
 
-function changePage(direction) {
-    currentPage += direction;
-    displayNotices(currentPage);
-}
+            // 부족한 행만큼 빈 행 추가
+            for (let i = 0; i < rowsToAdd; i++) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td>&nbsp;</td> <!-- 빈 셀 -->
+                    <td>&nbsp;</td> <!-- 빈 셀 -->
+                `;
+                tableBody.appendChild(emptyRow);
+            }
+        }
 
-// 클릭한 제목의 상세내용 보기
-function viewNotice(title) {
-    alert('선택된 공지사항 제목: ' + title);
-}
+        function updatePagination(totalPages, page) {
+            currentPage = page;
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageNum = document.getElementById('pageNum');
 
-// 페이지가 로드되면 공지사항 표시
-window.onload = () => {
-    displayNotices(currentPage); // currentPage를 명시적으로 전달
-};
+            prevBtn.disabled = page === 1; // 첫 번째 페이지면 이전 버튼 비활성화
+            nextBtn.disabled = page >= totalPages; // 마지막 페이지면 다음 버튼 비활성화
+            pageNum.textContent = page // 현재 페이지 표시
+        }
 
+        function changePage(direction) {
+            const newPage = currentPage + direction;
+            fetchNotices(newPage);
+        }
+        
+        // 페이지네이션 버튼 이벤트
+        document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
+        document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
+        // 초기 로드
+        fetchNotices(currentPage);
 
-// script.js
-document.getElementById('backButton').addEventListener('click', () => {
-    alert('돌아가기 버튼이 눌렸습니다.');
-    window.history.back();
-});
-
-document.getElementById('noticeForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const title = document.getElementById('title').value;
-    const target = document.getElementById('target').value;
-    const content = document.getElementById('content').value;
-
-    alert(`제목: ${title}\n공지 대상: ${target}\n내용: ${content}`);
+        const backButton = document.getElementById('backButton');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
+                window.history.back();
+            });
+        }
+    }
 });

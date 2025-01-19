@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공지사항 작성</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="create_style.css">
 </head>
 <body>
     <div class="container">
         <h1>공지사항</h1>
         <form id="noticeForm">
-            <input type="text" id="title" placeholder="제목을 입력하세요" required />
-            <select id="target">
-                <option value="전체">전체</option>
-                <option value="1학년">1학년</option>
-                <option value="2학년">2학년</option>
-                <option value="3학년">3학년</option>
+            <input type="text" id="title" name="title" placeholder="제목을 입력하세요" required />
+            <select id="target" name="target">
+                <option value="all">전체</option>
+                <option value="grade1">1학년</option>
+                <option value="grade2">2학년</option>
+                <option value="grade3">3학년</option>
             </select>
-            <textarea id="content" placeholder="내용을 입력하세요." required></textarea>
+            <textarea id="contents"  name="contents" placeholder="내용을 입력하세요." required></textarea>
             <div class="buttons">
                 <button type="submit">완료</button>
                 <button type="button" id="backButton">돌아가기</button>
