@@ -15,21 +15,23 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 300px;
+    position: relative; 
 }
 
 table {
     border-collapse: collapse;
     margin: auto; /* 가로 중앙 정렬 */
     width: 100%;
-    height: 300px; /* 고정된 높이 (필요에 따라 조정) */
-    overflow-y: auto; /* 높이가 넘치면 스크롤바 추가 */
+    height: 300px; /* 고정된 높이 */
+    table-layout: fixed; /* 열 너비 고정 */
 }
 
 th, td {
-    padding: 12px;
-    text-align: left;
-    font-size: 0.9em;
+    padding: 10px;
+    text-align: center;
+    font-size: 14px;
     border: 1px solid #ddd;
+    height: 50px; /* 각 행의 높이 고정 */
 }
 
 th {
@@ -41,8 +43,18 @@ th {
 
 td {
     background-color: #fff;
-    box-shadow: none; /* 불필요한 그림자 제거 */
+    text-align: center; /* 텍스트 가운데 정렬 */
 }
+
+tbody tr {
+    height: 50px; /* 행 고정 높이 */
+}
+
+/* 빈 행 스타일 추가 (선택 사항) */
+tbody tr td:empty {
+    background-color: #f9f9f9; /* 빈 셀 배경색 */
+}
+
 h1 {
     font-size: 1.5em;
     margin-bottom: 25px;
@@ -55,54 +67,75 @@ h1 {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    background-color: #3abac4;
     color: rgb(247, 244, 244);
+}
+.btn.page{
+    background-color: #3abac4;
 }
 .btn.back{
     background-color: #ffcc00;
     color: #000;
+    
     width:  70px;
 }
-
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-input, select, textarea {
-    margin-bottom: 15px;
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    outline: none;
-}
-
-textarea {
-    height: 100px;
-    resize: none;
-}
-
-.buttons {
-    display: flex;
-    justify-content: space-between;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 14px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+.btn.delete{
+    position: absolute;
+    top: 75px;
+    right: 35px; 
+    width:  70px;
+    background-color: #b03a2e; 
 }
 
 button[type="submit"] {
     background-color: #007bff;
     color: #fff;
+    width:  70px;
+    position: absolute;
+    top: 75px;
+    left: 35px; 
+}
+select{
+    position: absolute;
+    top: 115px;
+    left: 40px;  
 }
 
-button#backButton {
-    background-color: #ffcc00;
-    color: #000;
+.notice-container {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    margin: auto;
+    border: 1px solid #ddd;
+    background-color: #f4faff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.notice-row {
+    display: grid;
+    grid-template-columns: 50px 100px 1fr 120px;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+}
+
+.notice-row:last-child {
+    border-bottom: none;
+}
+
+.notice-cell {
+    text-align: center;
+    font-size: 14px;
+}
+
+.notice-cell.number {
+    background-color: #007acc;
+    color: white;
+    font-weight: bold;
+}
+
+.notice-cell.target,
+.notice-cell.title,
+.notice-cell.date {
+    background-color: #ffffff;
 }
