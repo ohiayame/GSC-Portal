@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     console.log('Fetched Notices:', data);
-                    totalPages = data.totalPages; // totalPages 업데이트
+                    totalPages = data.totalPages; // 동적으로 totalPages 업데이트
                     displayNotices(data.notices);
                     updatePagination(totalPages);
                 })
@@ -71,6 +71,8 @@ document.addEventListener('DOMContentLoaded', function () {
             notices.forEach((notice, index) => {
                 if (index < rows.length){
                     const cells = rows[index].querySelectorAll('td');
+                    rows[index].setAttribute('data-id', notice.noticeID);
+                    console.log(`Row ${index}: Notice ID = ${notice.noticeID}`);
                     cells[0].textContent = (currentPage - 1) * itemsPerPage + index + 1;
                     cells[1].textContent = notice.target || '';
                     cells[2].textContent = notice.title || ''; // 제목
@@ -81,11 +83,25 @@ document.addEventListener('DOMContentLoaded', function () {
             // 남은 행은 빈칸으로 채우기
             for (let i = notices.length; i < rows.length; i++) {
                 const cells = rows[i].querySelectorAll('td');
+                rows[i].removeAttribute('data-id');
                 cells[0].textContent = (currentPage - 1) * itemsPerPage + i + 1;
                 cells[1].textContent = ''; // 빈 날짜
                 cells[2].textContent = '';
                 cells[3].textContent = '';
             }
+            attachRowClickEvents();
+        }
+        function attachRowClickEvents() {
+            const rows = document.querySelectorAll('#noticeTableBody tr');
+            rows.forEach(row => {
+                row.addEventListener('click', () => {
+                    const noticeID = row.getAttribute('data-id');
+                    console.log('Notice ID:', noticeID);
+                    if (noticeID) {
+                        window.location.href = `view_notice.html?id=${noticeID}`;
+                    }
+                });
+            });
         }
 
         function updatePagination(totalPages) {

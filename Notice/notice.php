@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $target = isset($_GET['target']) ? $_GET['target'] : ''; // 필터링 대상
 
     // 기본 쿼리 (대상 필터링이 없는 경우)
-    $query = "SELECT title, target, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM notice";
+    $query = "SELECT noticeID, title, target, DATE_FORMAT(date, '%Y-%m-%d') AS date FROM notice";
 
     // 대상 필터링 조건 추가
     if (!empty($target)) {

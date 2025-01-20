@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항</title>
+    <link rel="stylesheet" href="view_style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>공지사항</h1>
+        <div class="notice-detail">
+            <h2 id="notice-title"></h2>
+            <hr>
+            <p class="notice-meta">
+                <span class="target" id="notice-target"></span> &nbsp;
+                게시일: <span id="notice-date"></span> &nbsp;
+                작성자: <span id="notice-writer"></span>
+            </p>
+            <hr>
+            <div class="notice-content">
+                <p id="notice-content"></p>
+            </div>
+        </div>
+        <button id="backButton" class="btn-back">돌아가기</button>
+    </div>
+    <script src="view_notice.js"></script>
+</body>
+</html>
