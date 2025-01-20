@@ -15,25 +15,42 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 300px;
+    height: 500px;
     position: relative; 
 }
-
+tbody{
+    border-top: 1px solid #ddd;
+}
 table {
+    margin-top: 80px; /* select 아래로 50px 간격 추가 */
+    width: 100%; 
+    max-height: 400px;
     border-collapse: collapse;
-    margin: auto; /* 가로 중앙 정렬 */
-    width: 100%;
-    height: 300px; /* 고정된 높이 */
-    table-layout: fixed; /* 열 너비 고정 */
+    table-layout: fixed;
+    margin-left: auto; /* 중앙 정렬 */
+    margin-right: auto; /* 중앙 정렬 */
 }
 
 th, td {
-    padding: 10px;
+    padding: 12px;
     text-align: center;
     font-size: 14px;
-    border: 1px solid #ddd;
-    height: 50px; /* 각 행의 높이 고정 */
+    border-bottom: 1px solid #ddd;
+    width: px;
 }
-
+.target{
+    font-size: 12px;
+    width: 35px;
+}
+.num{
+    background-color: #8d8d8d8c;
+    width: 20px; 
+}
+.date{
+    font-size: 10px;
+    width: 54px;
+    border-right:1px solid #ddd;
+}
 th {
     background-color: #007acc;
     color: white;

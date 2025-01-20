@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
     let currentPage = 1;
     const itemsPerPage = 5;
+    let totalPages = 1;
+    let currentTarget = "";
 
     // 현재 페이지 URL 확인
     const currentPath = window.location.pathname;
@@ -48,66 +50,75 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 공지사항 표시 페이지 처리
     if (currentPath.includes('notice_main.html')) {
-        function fetchNotices(page) {
-            fetch(`notice.php?page=${page}&itemsPerPage=${itemsPerPage}`)
+        function fetchNotices(page, target = '') {
+            const targetParam = target ? `&target=${encodeURIComponent(target)}` : '';
+            fetch(`notice.php?page=${page}&itemsPerPage=${itemsPerPage}${targetParam}`)
                 .then(response => response.json())
                 .then(data => {
                     console.log('Fetched Notices:', data);
+                    totalPages = data.totalPages; // totalPages 업데이트
                     displayNotices(data.notices);
-                    updatePagination(data.totalPages);
+                    updatePagination(totalPages);
                 })
                 .catch(error => console.error('Error fetching notices:', error));
         }
 
         function displayNotices(notices) {
             const tableBody = document.getElementById('noticeTableBody');
-            tableBody.innerHTML = '';
-
-            const totalRows = 5; // 고정된 테이블 행 개수
-            const rowsToAdd = totalRows - notices.length; // 부족한 행 계산
+            const rows = tableBody.querySelectorAll('tr');
 
             // 공지사항 데이터 렌더링
-            notices.forEach(notice => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${notice.title || ''}</td>
-                    <td>${notice.date || ''}</td>
-                `;
-                tableBody.appendChild(row);
+            notices.forEach((notice, index) => {
+                if (index < rows.length){
+                    const cells = rows[index].querySelectorAll('td');
+                    cells[0].textContent = (currentPage - 1) * itemsPerPage + index + 1;
+                    cells[1].textContent = notice.target || '';
+                    cells[2].textContent = notice.title || ''; // 제목
+                    cells[3].textContent = notice.date || '';  // 날짜
+                }
             });
-
-            // 부족한 행만큼 빈 행 추가
-            for (let i = 0; i < rowsToAdd; i++) {
-                const emptyRow = document.createElement('tr');
-                emptyRow.innerHTML = `
-                    <td>&nbsp;</td> <!-- 빈 셀 -->
-                    <td>&nbsp;</td> <!-- 빈 셀 -->
-                `;
-                tableBody.appendChild(emptyRow);
+        
+            // 남은 행은 빈칸으로 채우기
+            for (let i = notices.length; i < rows.length; i++) {
+                const cells = rows[i].querySelectorAll('td');
+                cells[0].textContent = (currentPage - 1) * itemsPerPage + i + 1;
+                cells[1].textContent = ''; // 빈 날짜
+                cells[2].textContent = '';
+                cells[3].textContent = '';
             }
         }
 
-        function updatePagination(totalPages, page) {
-            currentPage = page;
+        function updatePagination(totalPages) {
             const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
             const pageNum = document.getElementById('pageNum');
-
-            prevBtn.disabled = page === 1; // 첫 번째 페이지면 이전 버튼 비활성화
-            nextBtn.disabled = page >= totalPages; // 마지막 페이지면 다음 버튼 비활성화
-            pageNum.textContent = page // 현재 페이지 표시
+        
+            prevBtn.disabled = currentPage === 1; // 이전 버튼 비활성화 조건
+            nextBtn.disabled = currentPage === totalPages; // 다음 버튼 비활성화 조건
+            pageNum.textContent = currentPage; // 현재 페이지 표시
         }
 
         function changePage(direction) {
             const newPage = currentPage + direction;
-            fetchNotices(newPage);
+            if (newPage < 1 || newPage > totalPages) return;
+            currentPage = newPage;
+            fetchNotices(currentPage, currentTarget);
         }
+    
+        // 필터링 이벤트 추가
+        document.getElementById('targetSelect').addEventListener('change', (e) => {
+            currentTarget = e.target.value; // 선택된 target 값
+            currentPage = 1; // 첫 페이지로 초기화
+            fetchNotices(currentPage, currentTarget); // 새로운 필터 값으로 데이터 로드
+        });
+        const targetSelect = document.getElementById('targetSelect');
+        currentTarget = targetSelect.value; // select의 기본값 가져오기
+        fetchNotices(currentPage, currentTarget); 
         
         // 페이지네이션 버튼 이벤트
         document.getElementById('prevBtn').addEventListener('click', () => changePage(-1));
         document.getElementById('nextBtn').addEventListener('click', () => changePage(1));
-        // 초기 로드
-        fetchNotices(currentPage);
+
 
         const backButton = document.getElementById('backButton');
         if (backButton) {
