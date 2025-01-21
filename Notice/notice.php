@@ -41,7 +41,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         } else {
             echo 'error: ' . $stmt->error; // SQL 에러 출력
         }
+    }elseif ($_POST['action'] === 'delete') {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $ids = $data['ids'] ?? []; // 삭제할 noticeID 배열
+    
+        if (empty($ids)) {
+            echo 'error: No IDs provided';
+            exit;
+        }
+    
+        // SQL IN 조건에 맞게 placeholder 생성
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $query = "DELETE FROM notice WHERE noticeID IN ($placeholders)";
+        $stmt = $conn->prepare($query);
+    
+        // 동적 바인딩 (배열 요소들을 쿼리에 매핑)
+        $stmt->bind_param(str_repeat('i', count($ids)), ...$ids);
+    
+        if ($stmt->execute()) {
+            echo 'success';
+        } else {
+            echo 'error: ' . $stmt->error;
+        }
     }
+    
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
     $itemsPerPage = isset($_GET['itemsPerPage']) ? intval($_GET['itemsPerPage']) : 5;
