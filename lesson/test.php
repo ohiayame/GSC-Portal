@@ -2,7 +2,7 @@
 $num = "790608-2552416";
 $numbers = str_split($num); // 한 글자 씩 리스트에 저장장
 
-if (count($numbers) > 14){ // 길이 13자리(- 포함함)
+if (count($numbers) < 0 || count($numbers) > 14){ // 길이 13자리(- 포함함)
     echo "숫자 13자리로!";
 }
 
