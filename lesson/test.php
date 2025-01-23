@@ -7,18 +7,28 @@ if (count($numbers) > 14){ // 길이 13자리(- 포함함)
 }
 
 //  생년월일
-if ($numbers[2] < 0 || $numbers[2] > 1){
+// if ($numbers[2] < 0 || $numbers[2] > 1){
+//     echo "유효하지 않습니다 (월)";
+//     if ($numbers[2] == 1 && $numbers[3] > 2){
+//         echo "유효하지 않습니다 (월월)";
+//     }
+// }
+
+// if ($numbers[4] < 0 || $numbers[4] > 3){
+//     echo "유효하지 않습니다 (일)";
+//     if ($numbers[4] == 3 && $numbers[5] > 1){
+//         echo "유효하지 않습니다 (일일일)";
+//     }
+// }
+$month = $numbers[2].$numbers[3];
+if ($month < 1 || $month > 12 ){
     echo "유효하지 않습니다 (월)";
-    if ($numbers[2] == 1 && $numbers[3] > 2){
-        echo "유효하지 않습니다 (월월)";
-    }
 }
-if ($numbers[4] < 0 || $numbers[4] > 3){
+$date = $numbers[4].$numbers[5];
+if ($month < 1 || $month > 31 ){
     echo "유효하지 않습니다 (일)";
-    if ($numbers[4] == 3 && $numbers[5] > 1){
-        echo "유효하지 않습니다 (일일일)";
-    }
 }
+
 if ($numbers[7] < 0 || $numbers[7] > 4){
     echo "유효하지 않습니다 (연도)";
 }
