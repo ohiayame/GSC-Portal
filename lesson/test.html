@@ -1,41 +1,48 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>簡単なWebページ</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      margin-top: 50px;
-    }
-    h1 {
-      color: #333;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      color: #fff;
-      background-color: #007bff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
+  <title>Document</title>
 </head>
 <body>
-  <h1>簡単なWebページ</h1>
-  <p>以下のボタンを押すと指定したページに移動します。</p>
-  <button id="moveButton">Google로 이동</button>
-
-  <script>
-    document.getElementById('moveButton').addEventListener('click', function() {
-      window.location.href = "https://www.google.com";
-    });
-  </script>
+  <form action="/submit" method="POST">
+  <!-- type -->
+  <!-- 문자 입력 text -->
+  <label for="username">사용자 이름:</label> 
+  <!-- label : form의 요소와 연결 접근성을 높이기 위해 사용 -->
+  <!-- for 속성 : 입력 요소의 id를 참조 -->
+  <input type="text" id="username" name="username" placeholder="이름을 입력하세요">
+  <br>
+  <!-- 비밀번호 입력 password ** -->
+  <label for="password">비밀번호:</label>
+  <input type="password" id="password" name="password">
+  <br>
+  <!-- 하나만 선택 radio -->
+  <label>성별:</label>
+  <input type="radio" name="gender" value="male"> 남성
+  <input type="radio" name="gender" value="female"> 여성
+  <br>
+  <!-- 체크 checkbox -->
+  <label>취미:</label>
+  <input type="checkbox" name="hobby" value="reading"> 독서
+  <input type="checkbox" name="hobby" value="traveling"> 여행
+  <br>
+  <!-- 입력  message -->
+  <label for="message">메시지:</label>
+  <textarea id="message" name="message" rows="4" cols="50"></textarea>
+  <br>
+  <!-- 하나만 선택 select -->
+  <label for="country">국가 선택:</label>
+  <select id="country" name="country">
+      <option value="kr">한국</option>
+      <option value="us">미국</option>
+      <option value="jp">일본</option>
+  </select>
+  <br>
+  <!-- 전송 submit -->
+  <input type="submit" value="제출">
+</form>
+  
 </body>
 </html>
