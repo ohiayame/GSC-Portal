@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>로그인</h1>
+    <form action="postTest.php" method="POST">
+        <!-- required : 입력하지 않으면 폼이 제출되지 않도록 강제 -->
+        <input type="text" id="stdNumber" name="stdNumber" placeholder="학번을 입력해주세요" required>
+
+        <input type="password" id="pass" name="pass" placeholder="비밀번호" required>
+
+        <select name="permission" id="permission">
+            <option value="student">학생</option>
+            <option value="teacher">선생님</option>
+        </select>
+        <button type="submit">로그인</button>
+    </form>
+</body>
+</html>
