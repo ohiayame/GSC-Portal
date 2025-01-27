@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <?php
@@ -31,7 +32,9 @@
             echo  "<h1>제목: " . $row["title"] ."</h1>"; 
             echo  "<br> - 날짜: " . $row["created_at"] . "- 작성자: " . $row["writer"];
             echo  "<br> - 내용: " . $row["content"];
-            echo "<button href='update.php?id=$id>'>수정하기</button>";
+
+            echo "<a href='update.php?id=$id>'>수정하기</a>";
+            echo "<button onclick=\"if(confirm('정말 삭제하시겠습니까?')) location.href='delete.php?id=$id';\">삭제하기</button>";
         }else{
             echo "error";
         }

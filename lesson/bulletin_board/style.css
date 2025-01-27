@@ -1,0 +1,15 @@
+body {
+    background-color: #f0f8ff;
+}
+h1{
+    color: #007acc;
+    
+}
+button{
+    padding: 5px 15px;
+    color: #FFF;
+    font-weight: 600;
+    background: #6bb6ff;
+    filter: drop-shadow(0px 2px 4px #ccc);
+    border-radius: 50px;
+}
