@@ -5,7 +5,7 @@ $id = intval($_GET['id'] ?? 0);
 
 if ($id > 0) {
     $sql = "SELECT title, DATE_FORMAT(date, '%Y-%m-%d') AS date, writer, contents 
-                FROM content WHERE id = ?";
+                FROM board2 WHERE id = ?";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {

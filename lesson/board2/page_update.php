@@ -1,10 +1,7 @@
 <?php
     session_start();
-    // page_get에서 해당id의 $_SESSION['notice']을 선언
-    $row = $_SESSION['notice'] ;
-    $id = intval($_GET['id']);
+    $row = $_SESSION['row'];
 ?>
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -16,7 +13,7 @@
     <h1>게시물 수정</h1>
     <form action="update.php" method="POST">
 
-        <input type="hidden" name="id" value="<?php echo $id; ?>">
+        <input type="hidden" name="id" value="<?php echo htmlspecialchars($row['id']); ?>">
 
         <label for="title">제목:</label>
         <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($row['title']); ?>" required>

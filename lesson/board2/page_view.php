@@ -1,9 +1,19 @@
 <?php
-require 'session_manager.php';
-session_start();
-// page_get에서 해당id의 $_SESSION['notice']을 선언
-$row = $_SESSION['notice'] ;
-$id = intval($_GET['id']);
+    session_start();
+    $id = intval($_GET['id']);
+    require 'db_connect.php';
+    
+    $sql = "SELECT * FROM board2 WHERE id = $id" ;
+    $result = $conn->query($sql);
+    
+    if(!$result){
+        echo "error";
+        exit;
+    }else{
+        $row = $result->fetch_assoc(); 
+        $_SESSION['row'] = $row;
+    }
+    $role = $_SESSION['role'] ?? "";
 ?>
 
 <!DOCTYPE html>
@@ -22,8 +32,8 @@ $id = intval($_GET['id']);
 
         <!-- 권한에 따라 표시  -->
         <?php if ($role == 'manager'): ?>
-            <a href="page_update.php?id=<?php echo $id; ?>">수정하기</a>
-            <button onclick="if(confirm('정말 삭제하시겠습니까?')) location.href='delete.php?id=<?php echo $id; ?>';">삭제하기</button>
+            <a href="page_update.php">수정하기</a>
+            <a href="delete.php?id=<?php echo $row['id']; ?>">삭제하기</a>
         <?php endif; ?>
     </section>
 

@@ -13,13 +13,13 @@
     $search = $_GET['search'] ?? "";
 
     if ($search == "") {
-        $sql = "SELECT * FROM content ORDER BY date DESC LIMIT $limit OFFSET $offset";
-        $count_sql = "SELECT COUNT(*) AS total FROM content"; // 전체 게시물 수
+        $sql = "SELECT * FROM board2 ORDER BY date DESC LIMIT $limit OFFSET $offset";
+        $count_sql = "SELECT COUNT(*) AS total FROM board2"; // 전체 게시물 수
     } else {
-        $sql = "SELECT * FROM content 
+        $sql = "SELECT * FROM board2 
                 WHERE contents LIKE '%$search%' OR title LIKE '%$search%' 
                 ORDER BY date DESC LIMIT $limit OFFSET $offset";
-        $count_sql = "SELECT COUNT(*) AS total FROM content 
+        $count_sql = "SELECT COUNT(*) AS total FROM board2 
                         WHERE contents LIKE '%$search%' OR title LIKE '%$search%'";
     }
 
@@ -30,6 +30,7 @@
     // 전체 게시물 수 계산
     $total = $count_result->fetch_assoc()['total'];
     $total_pages = ceil($total / $limit); // 전체 페이지 수( ceil: 올림연산)
+    
     $contents=[];
     // 게시물 출력
     if ($result->num_rows > 0) {
@@ -40,7 +41,7 @@
         }
         
         $_SESSION['contents'] = $contents;
-        header('Location: homepage.php');
+
     } else {
         echo "게시물 없음";
     }

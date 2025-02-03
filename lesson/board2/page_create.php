@@ -1,13 +1,13 @@
 <?php
 require 'db_connect.php';
-require 'session_manager.php';
+// require 'session_manager.php';
 
 $title = $_POST['title'];
 $contents = $_POST['contents'];
-$writer = $name;
+$writer = isset($name) ? $name : "";
 // date는 자동
 
-$sql = "INSERT INTO Board (title, contents, writer) VALUES ('$title', '$contents', '$writer')";
+$sql = "INSERT INTO board2 (title, contents, writer) VALUES ('$title', '$contents', '$writer')";
 if ($conn->query($sql) === TRUE) {
     header('Location: homepage.php');
 } else {
