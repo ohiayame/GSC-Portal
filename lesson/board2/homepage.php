@@ -1,5 +1,4 @@
 <?php
-    // require 'session_manager.php';
     require 'page.php';  
     session_start();
     $contents = $_SESSION['contents'] ?? [];
@@ -29,8 +28,8 @@
     </form>
     <!-- 항목 출력 -->
     <?php foreach ($contents as $row): ?>
-        <br><a href='view.php?id=<?php echo $row["id"]; ?>'>
-            <?php echo htmlspecialchars($row["offset"]) .
+        <br><a href='page_view.php?id=<?php echo $row["id"]; ?>'>
+            <?php echo htmlspecialchars($row["Num"]) .
             " : 제목: " . $row["title"] . 
             " - 날짜: " . $row["date"]; ?>
             </a><br>
