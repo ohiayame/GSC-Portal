@@ -22,7 +22,7 @@
     <?php endif; ?> 
         
     <!-- 검색 -->
-    <form action="page.php" method="GET">
+    <form action="homepage.php" method="GET">
         <input type="text" id="search" name="search" placeholder="search" value="<?php echo htmlspecialchars($_GET['search'] ?? ''); ?>">
         <button type="submit">조회</button>
     </form>
@@ -37,13 +37,13 @@
 
     <div class="navigation">
         <?php if ($page > 1): ?>
-            <a href="page.php?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>">이전</a>
+            <a href="homepage.php?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>">이전</a>
         <?php endif; ?>
 
         페이지 <?php echo $page; ?> / <?php echo $total_pages; ?>
 
         <?php if ($page < $total_pages): ?>
-            <a href="page.php?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>">다음</a>
+            <a href="homepage.php?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>">다음</a>
         <?php endif; ?>
     </div>
     <a href='logout.php'>로그아웃</a>  
