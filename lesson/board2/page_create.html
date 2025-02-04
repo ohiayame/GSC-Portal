@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>게시물 작성</h1>
-    <form action="page_create.php" method="POST">
+    <form action="page_create.php" method="POST" enctype="multipart/form-data">
 
         <label for="title">제목:</label>
         <input type="text" id="title" name="title">
@@ -16,7 +16,10 @@
         <label for="contents">내용:</label><br>
         <textarea id="content" name="contents" rows="10" cols="50"></textarea>
         <br><br>
-
+        
+        <label for="file">첨부파일:</label>
+        <input type="file" name="file" id="file">
+        <br>
         <button type="submit">게시하기</button>
     </form>
     <br>
