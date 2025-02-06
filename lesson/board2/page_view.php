@@ -73,16 +73,18 @@
     <h3>댓글</h3>
     <?php if(!$cmt_result){ ?>
         echo "<p>댓글 없음</p>";
-    <?php }else{ ?>
-        <?php while($cmt = $cmt_result->fetch_assoc()) { $i=1; ?>
-            <p style="font-size: 10px;"><?php echo $i++; ?>| 작성자: <?php echo htmlspecialchars($cmt['writer']); ?> | <?php echo htmlspecialchars($cmt['date']); ?> </p>
+    <?php }else{ 
+        $i=0; ?>
+        <?php while($cmt = $cmt_result->fetch_assoc()) {
+            $i++;  ?>
+            <p style="font-size: 12px;"><?php echo $i; ?>| 작성자: <?php echo htmlspecialchars($cmt['writer']); ?> | <?php echo htmlspecialchars($cmt['date']); ?> </p>
             <p><?php echo nl2br(htmlspecialchars($cmt['comment'])); ?></p>
         <?php } ?>
     <?php } ?>
 
     <form action="cmt_create.php?id=<?php echo $id; ?>" method="POST">
     <label for="comment">댓글:</label><br>
-        <textarea id="comment" name="comment" rows="10" cols="50"></textarea>
+        <textarea id="comment" name="comment" rows="5" cols="50"></textarea>
         <br>
         <button type="submit">댓글하기</button>
     </form>
