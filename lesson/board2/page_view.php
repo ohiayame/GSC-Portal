@@ -21,8 +21,9 @@
 
     $file_sql = "SELECT * FROM attachments WHERE noticeID = $id";
     $file_result = $conn->query($file_sql);
-
-
+    $file_result->num_rows > 0;
+    $file = $file_result->fetch_assoc();
+    $_SESSION['file'] = $file;
 ?>
 
 <!DOCTYPE html>
@@ -41,21 +42,19 @@
 
 
         <h3>첨부 파일</h3>
-        <?php if ($file_result && $file_result->num_rows > 0): ?>
-            <?php while ($file = $file_result->fetch_assoc()): ?>
-                <!-- 이미지 미리보기: 이미지 파일일 경우만 표시 -->
-                <?php if (preg_match('/\.(jpg|jpeg|png|gif)$/i', $file['fileName'])): ?>
-                    <p>미리보기:</p>
-                    <img src="<?php echo htmlspecialchars($file['filePath']); ?>" alt="첨부 이미지" style="max-width: 300px; max-height: 300px;">
-                <?php endif; ?>
+        <?php if ($file): ?>
+            <!-- 이미지 미리보기: 이미지 파일일 경우만 표시 -->
+            <?php if (preg_match('/\.(jpg|jpeg|png|gif)$/i', $file['fileName'])): ?>
+                <p>미리보기:</p>
+                <img src="<?php echo htmlspecialchars($file['filePath']); ?>" alt="첨부 이미지" style="max-width: 300px; max-height: 300px;">
+            <?php endif; ?>
 
-                <!-- 다운로드 링크 제공 -->
-                <p>첨부 파일: 
-                    <a href="<?php echo htmlspecialchars($file['filePath']); ?>" download>
-                        <?php echo htmlspecialchars($file['fileName']); ?>
-                    </a>
-                </p>
-            <?php endwhile; ?>
+            <!-- 다운로드 링크 제공 -->
+            <p>첨부 파일: 
+                <a href="<?php echo htmlspecialchars($file['filePath']); ?>" download>
+                    <?php echo htmlspecialchars($file['fileName']); ?>
+                </a>
+            </p>
         <?php else: ?>
             <p>첨부 파일이 없습니다.</p>
         <?php endif; ?>
