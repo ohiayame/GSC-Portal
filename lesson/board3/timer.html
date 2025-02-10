@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <title>아날로그 타이머</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #timer {
+            font-size: 48px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #circleContainer {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+        }
+
+        #circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #e0e0e0;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        #progress {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: conic-gradient(#00aaff 0%, transparent 0%);
+        }
+
+        input, button {
+            font-size: 20px;
+            padding: 10px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>아날로그 타이머 설정</h1>
+<label for="minutesInput">분 입력 (최대 60분): </label>
+<input type="number" id="minutesInput" min="1" max="60" placeholder="분 입력" />
+<button id="startButton">시작</button>
+
+<div id="circleContainer">
+    <div id="circle">
+        <div id="progress"></div>
+    </div>
+</div>
+
+<div id="timer">00:00</div>
+
+<script>
+    let timeRemaining = 0;
+    let totalTime = 0;
+    let timerInterval;
+
+    // 타이머 업데이트 함수
+    function updateTimer() {
+        const minutes = Math.floor(timeRemaining / 60);
+        const seconds = timeRemaining % 60;
+        document.getElementById("timer").textContent =
+            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        // 남은 시간에 따라 진행률 계산
+        const progressPercentage = (timeRemaining / totalTime) * 100;
+
+        // 원형 진행 상태 업데이트
+        document.getElementById("progress").style.background = `conic-gradient(
+                #00aaff ${progressPercentage}%,
+                transparent ${progressPercentage}%
+            )`;
+
+        timeRemaining--;
+
+        if (timeRemaining >= 0) {
+            timerInterval = setTimeout(updateTimer, 1000);
+        } else {
+            alert("타이머가 종료되었습니다!");
+            clearTimeout(timerInterval);
+        }
+    }
+
+    // 시작 버튼 클릭 이벤트
+    document.getElementById("startButton").addEventListener("click", function () {
+        const minutesInput = document.getElementById("minutesInput").value;
+
+        if (!minutesInput || minutesInput <= 0 || minutesInput > 60) {
+            alert("1에서 60 사이의 시간을 입력하세요.");
+            return;
+        }
+
+        // 초 단위로 변환 후 타이머 시작
+        timeRemaining = minutesInput * 60;
+        totalTime = timeRemaining;  // 전체 시간 저장
+        clearTimeout(timerInterval);  // 이전 타이머 초기화
+        updateTimer();  // 타이머 시작
+    });
+</script>
+</body>
+</html>
