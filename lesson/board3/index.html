@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue 시간표</title>
+    <!-- CDN(Content Delivery Network)을 이용하여 Vue 3를 불러옴 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+
+    <!-- script의 const app과 연결결 -->
+<div id="app">
+    <header>
+        <!-- methods의 showPage(page) 함수 실행행 -->
+        <button @click="showPage('schedule')">📅 시간표 보기</button>
+        <button @click="showPage('edit')">✏️ 시간표 수정</button>
+    </header>
+
+    <main>
+        <!-- currentPage == 현제 페이지 -->
+        <div v-if="currentPage === 'schedule'">
+            <h2>시간표</h2>
+            <p>{{count}}</p>
+            <button @click="count++">up</button>
+            <button @click="count--">down</button>
+        </div>
+        
+        <div v-if="currentPage === 'edit'">
+            <h2>시간표 수정</h2>
+            <input type="text" v-model="subject" placeholder="과목 입력">
+            <button @click="isVisible = true">저장</button>
+            <p v-if="isVisible">
+                입력한 값: {{ subject }}
+                <button @click="clearSubject">clear</button>
+            </p>
+
+        </div>
+    </main>
+</div>
+
+<script>
+const app = Vue.createApp({
+    data() {
+        return {
+            currentPage: "schedule", // 기본 페이지
+            subject: "", // 입력된 과목 데이터
+            count: 1,
+            isVisible: false
+        };
+    },
+    methods: {
+        showPage(page) {
+            this.currentPage = page;
+        },
+        saveSubject() {
+            alert(`저장된 과목: ${this.subject}`);
+            this.subject = ""; // 저장 후 입력 필드 초기화
+        },
+        clearSubject() {
+            this.saveSubject();
+            this.isVisible = false;
+        }
+    }
+});
+
+app.mount("#app");
+</script>
+
+</body>
+</html>

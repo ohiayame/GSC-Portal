@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>todo List</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+
+<div id="app">
+    <!-- 결과 출력 -->
+    <div v-if="subjects.length">
+        <p>📌 저장된 값: {{ savedText }}</p>
+            
+            <p v-for="(subject, index) in subjects" :key="index">
+                <input type="checkbox">{{ subject }}
+            </p>
+    </div>
+    <div class="input-container">
+        <!-- 체크박스 -->
+        <input type="checkbox">
+        
+        <!-- 입력창 (체크박스 선택 시 활성화) -->
+        <input type="text" v-model="text"  placeholder="내용 입력">
+        
+        <!-- 등록 버튼 (체크박스 선택 후 입력값이 있을 때만 활성화) -->
+        <button @click="saveData" :disabled="!text">등록</button>
+    </div>
+    
+</div>
+
+<script>
+const app = Vue.createApp({
+    data() {
+        return {
+            text: "",          // 입력된 값
+            subjects: []       // 저장된 목록
+        };
+    },
+    methods: {
+        saveData() {
+            this.subjects.push(this.text);
+            alert(`저장된 값: ${this.text}`);
+            this.text = "";  // 입력창 초기화
+        }
+    }
+});
+app.mount("#app");
+</script>
+
+</body>
+</html>
