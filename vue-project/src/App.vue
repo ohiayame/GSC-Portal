@@ -3,15 +3,32 @@ import { RouterView } from "vue-router";
 </script>
 
 <template>
-  <div>
-    <h1>🚀 내 프로젝트</h1>
-    <RouterView />  <!-- 라우터로 연결된 페이지가 여기에 표시됨 -->
-  </div>
+    <nav class="navbar">
+      <div class="nav-menu">
+        <router-link to="/">홈</router-link>
+        <router-link to="/check">체크박스</router-link>
+        <router-link to="/count">설정</router-link>
+      </div>
+    </nav>
+  <router-view />
 </template>
 
+
 <style scoped>
-h1 {
-  text-align: center;
-  color: blue;
+.navbar {
+  display: flex;
+  justify-content: center;
+  background: #222;
+  padding: 10px 0;
+}
+.nav-menu {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-menu a {
+  color: white;
+  text-decoration: none;
+  padding: 10px;
 }
 </style>
