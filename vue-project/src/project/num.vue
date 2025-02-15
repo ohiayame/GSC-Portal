@@ -1,34 +1,14 @@
 <template>
-    
 
-    <h3>{{ count }}</h3>
-    <button @click="add(true)">up</button>
-    <button @click="add(false)">down</button>
+
+    <h3>{{ store.count }}</h3>
+    <button @click="store.increment">up</button>
+    <button @click="store.decrement">down</button>
 
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"; 
+import { useDataStore } from '../stores/data';
+const store = useDataStore();
 
-const count = ref(0);
-
-const loadFromLocalStorage = () => {
-    const savedcount = localStorage.getItem("count");
-    if (savedcount) {
-        count.value = JSON.parse(savedcount);
-    }
-};
-const saveToLocalStorage = () =>{
-    localStorage.setItem("count", JSON.stringify(count.value));
-};
-const add = (isUp) => {
-    if (isUp) { // 입력 값이 있으면면
-        count.value++;
-    }else{
-        count.value--;
-    }
-    saveToLocalStorage();
-};
-
-onMounted(loadFromLocalStorage);
 </script>
