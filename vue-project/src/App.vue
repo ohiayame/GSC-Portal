@@ -9,6 +9,7 @@ import { RouterView } from "vue-router";
         <router-link to="/check">체크박스</router-link>
         <router-link to="/count">설정</router-link>
         <router-link to="/user">사용자</router-link>
+        <router-link to="/login">로그인</router-link>
       </div>
     </nav>
   <router-view />
