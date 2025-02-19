@@ -7,6 +7,25 @@ const openGoogleLogin = () => {
     window.location.href = 'http://localhost:3000/auth/google'; 
 };
 
+// ✅ 로그인 후 accessToken 저장
+const handleLoginSuccess = async () => {
+    try {
+        const response = await fetch('http://localhost:3000/auth/google/call', {
+        credentials: 'include',  // 쿠키 포함 요청
+        });
+
+        const data = await response.json();
+        if (data.success) {
+        localStorage.setItem('accessToken', data.accessToken);  // ✅ 저장
+        window.location.href = '/home';  // 로그인 후 이동
+        } else {
+        console.error("로그인 실패");
+        }
+    } catch (error) {
+        console.error("오류 발생:", error);
+    }
+};
+
 // Google 로그인 버튼을 초기화하고 렌더링 (컴포넌트가 DOM에 추가된 후 실행)
 onMounted(() => {
     if (window.google && window.google.accounts) { // Google API가 정상적으로 로드되었는지 확인
