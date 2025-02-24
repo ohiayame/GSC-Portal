@@ -8,11 +8,21 @@ const user = ref(null);
 
 onMounted(async () => {
     try {
-        //  API 요청 (쿠키 기반 인증을 사용)
+        // ✅ JWT 토큰이 저장된 쿠키를 포함하여 사용자 정보 요청
         const response = await axios.get('http://localhost:3000/auth/user', { withCredentials: true });
-        user.value = response.data;
+
+        // ✅ 응답 데이터에서 사용자 정보 추출
+        if (response.data.user) {
+            user.value = {
+                name: response.data.user.userName.givenName, // ✅ 이름 가져오기
+                email: response.data.user.email // ✅ 이메일 가져오기
+            };
+            console.log("✅ 사용자 정보 불러오기 성공:", user.value);
+        } else {
+            console.error("❌ 사용자 정보가 없습니다.");
+        }
     } catch (error) {
-        console.error('사용자 정보를 불러오지 못했습니다:', error);
+        console.error("❌ 사용자 정보를 불러오지 못했습니다:", error);
     }
 });
 // 로그아웃
@@ -29,7 +39,7 @@ const logout = async () => {
 
 <template>
     <div v-if="user">
-        <p>환영합니다, {{ user.displayName }} 님!</p>
+        <p>환영합니다, {{ user.name }} 님!</p>
 
         <h1>📌 데이터 요약</h1>
 
