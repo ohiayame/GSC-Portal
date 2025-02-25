@@ -59,6 +59,7 @@ watchEffect(() => {
       <router-link to="/check">체크박스</router-link>
       <router-link to="/count">설정</router-link>
       <router-link to="/user">사용자</router-link>
+      <router-link to="/schedule">스케줄</router-link>
     </div>
 
     <!-- ✅ 로그인 상태에 따라 UI 변경 -->
