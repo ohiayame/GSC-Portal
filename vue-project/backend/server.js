@@ -1,21 +1,27 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import connectDB from './config/db.js';  // DB 연결
-import noticesRoutes from './routes/notices.js';
-import usersRoutes from './routes/users.js';
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+require('dotenv').config();
+// console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
 
-dotenv.config();  // .env 설정 불러오기
 const app = express();
 
-app.use(express.json());  // JSON 요청 처리
-app.use(cors());  // CORS 허용
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// API 라우트 등록
-app.use('/api/notices', noticesRoutes);
-app.use('/api/users', usersRoutes);
+const authRoutes = require('./routes/users');
+console.log("🔍 authRoutes:", authRoutes); 
+app.use('/auth', authRoutes);
 
-// 서버 실행
-const PORT = process.env.PORT || 5000;
-connectDB();  // DB 연결 실행
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 3001;
+
+app.use((req, res, next) => {
+    console.log(`🔍 ${req.method} 요청 → ${req.url}`);
+    next();
+});
+
+app.listen(PORT, () => {
+    console.log(`🚀 서버 실행 중: http://localhost:${PORT}`);
+});
