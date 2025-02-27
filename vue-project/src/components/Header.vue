@@ -1,10 +1,24 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
-import { onMounted } from 'vue';
+import { onMounted, watch, nextTick } from 'vue';
 
 const auth = useAuthStore();
 
-// ✅ 로그인 상태 확인을 위한 fetchUser() 실행
+// ✅ Google 로그인 버튼 렌더링 함수
+function renderGoogleLoginButton() {
+    nextTick(() => {
+        const googleLoginDiv = document.getElementById("google-login-btn");
+        if (googleLoginDiv) {
+            googleLoginDiv.innerHTML = "";  // ⚠ 기존 버튼 삭제 (중복 생성 방지)
+            google.accounts.id.renderButton(googleLoginDiv, {
+                theme: "outline",
+                size: "large"
+            });
+        }
+    });
+}
+
+// ✅ 로그인 상태 확인 후 버튼 렌더링
 onMounted(async () => {
     await auth.fetchUser();  // 로그인 상태 확인
 
@@ -16,10 +30,8 @@ onMounted(async () => {
             login_uri: "http://localhost:3001/auth/google/callback"
         });
 
-        google.accounts.id.renderButton(
-            document.getElementById("google-login-btn"),
-            { theme: "outline", size: "large" }
-        );
+        // ✅ Google 버튼 렌더링 실행
+        renderGoogleLoginButton();
     };
 });
 
@@ -36,23 +48,32 @@ async function handleCredentialResponse(response) {
 
         const data = await res.json();
         if (data.success) {
-            await auth.fetchUser(); 
+            auth.setUser(data.user);
+            auth.isAuthenticated = true;  // ✅ 로그인 상태 업데이트
         }
     } catch (error) {
         console.error("로그인 요청 오류:", error);
     }
 }
+
+// ✅ 로그아웃 후 Google 버튼 다시 렌더링
 async function logout() {
     await auth.logout();  // ✅ 쿠키 삭제 요청
-    await auth.fetchUser();     // ✅ 로그아웃 후 로그인 상태 다시 확인
+    auth.fetchUser();     // ✅ 로그아웃 후 로그인 상태 다시 확인
 }
 
+// ✅ 로그인 상태 변화 감지 → Google 버튼 다시 렌더링
+watch(() => auth.isAuthenticated, (newVal) => {
+    if (!newVal) {
+        renderGoogleLoginButton();  // ✅ 로그아웃 후 버튼 다시 생성
+    }
+});
 </script>
 
 <template>
     <div class="header">
         <!-- ✅ 로그인 상태가 아닐 때만 Google 로그인 버튼 표시 -->
-        <div v-if="!auth.isAuthenticated" :key="auth.isAuthenticated" id="google-login-btn"></div>
+        <div v-if="!auth.isAuthenticated" id="google-login-btn"></div>
         <button v-if="auth.isAuthenticated" @click="logout">로그아웃</button>
     </div>
 </template>

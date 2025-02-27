@@ -28,15 +28,23 @@ export const useAuthStore = defineStore('auth', {
         },
         async logout() {
             try {
-                await fetch("http://localhost:3001/auth/logout", {
-                    method: "POST", 
-                    credentials: "include" 
-                });  // ✅ 서버에서 쿠키 삭제 요청
+                const response = await fetch("http://localhost:3001/auth/logout", {
+                    method: "POST",
+                    credentials: "include"
+                });
+        
+                if (!response.ok) {
+                    throw new Error("로그아웃 요청 실패");
+                }
+        
                 this.user = null;
                 this.isAuthenticated = false;
         
-                // ✅ UI 즉시 반영 보장
-                await nextTick();
+                // ✅ 로그아웃 후 0.5초 후 fetchUser 실행하여 로그인 버튼 갱신
+                setTimeout(() => {
+                    this.fetchUser();
+                }, 500);
+        
             } catch (error) {
                 console.error("로그아웃 오류:", error);
             }

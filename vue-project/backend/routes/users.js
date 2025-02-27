@@ -104,7 +104,7 @@ router.post('/logout', (req, res) => {
         sameSite: "Lax"
     });
     console.log("✅ 로그아웃 완료");
-    res.redirect("http://localhost:5173/")
+    res.status(200).json({ success: true, message: "로그아웃 완료" });
 });
 
 
