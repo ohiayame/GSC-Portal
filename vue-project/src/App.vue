@@ -10,7 +10,7 @@
       <router-link to="/timetable">시간표</router-link>
       <HeaderPage />
   </nav>
-  
+
   <router-view />
 </template>
 

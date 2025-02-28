@@ -1,8 +1,11 @@
-const express = require('express');
+import express from 'express';
+import axios from 'axios';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 const router = express.Router();
-const axios = require('axios');
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
 
 // ✅ GET 요청 처리 (기존 Authorization Code Flow 유지)
 router.get('/google/callback', async (req, res) => {
@@ -72,9 +75,7 @@ router.post('/google/callback', async (req, res) => {
 
         console.log("✅ JWT 생성 완료:", jwtToken);
         res.cookie("auth_token", jwtToken, { httpOnly: true });
-        // res.status(200).json({ success: true, user: decodedUser });
-        res.redirect("http://localhost:5173/")
-        
+        res.redirect("http://localhost:5173/");
 
     } catch (error) {
         console.error("❌ OAuth 인증 오류:", error.response ? error.response.data : error.message);
@@ -98,8 +99,8 @@ router.get('/user', (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-    res.clearCookie("auth_token", { 
-        httpOnly: true, 
+    res.clearCookie("auth_token", {
+        httpOnly: true,
         secure: false,   // 개발 환경에서는 false, 프로덕션에서는 true로 변경
         sameSite: "Lax"
     });
@@ -107,6 +108,4 @@ router.post('/logout', (req, res) => {
     res.status(200).json({ success: true, message: "로그아웃 완료" });
 });
 
-
-
-module.exports = router;
+export default router;

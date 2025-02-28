@@ -76,7 +76,7 @@ watch(() => auth.isAuthenticated, (newVal) => {
         <!-- ✅ 로그인 상태가 아닐 때만 Google 로그인 버튼 표시 -->
         <div v-if="!auth.isAuthenticated" id="google-login-btn"></div>
         <div v-else>
-            <span>{{ user?.name }} 님   </span> 
+            <span>{{ user?.name }} 님   </span>
             <button  @click="logout">로그아웃</button>
         </div>
     </div>

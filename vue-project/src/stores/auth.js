@@ -14,7 +14,7 @@ export const useAuthStore = defineStore('auth', {
 
                 console.log("🔍 서버 응답 데이터:", data); // 서버에서 받은 전체 응답 데이터 출력
 
-                if (data.user) { 
+                if (data.user) {
                     this.user = data.user;
                     this.isAuthenticated = true;
                     console.log("✅ 사용자 정보 설정됨:", this.user); // user가 설정될 때 로그 출력
