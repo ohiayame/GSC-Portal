@@ -27,6 +27,8 @@ export const getNoticeById = async (req, res) => {
 // ✅ 공지사항 추가
 export const createNotice = async (req, res) => {
   try {
+    console.log("📌 요청 받은 데이터:", req.body);
+
     const { title, content, author_id, target, priority } = req.body;
 
     if (!title || !content || !author_id) {

@@ -12,7 +12,7 @@ const fetchNotice = async () => {
   const id = route.params.id;
   if (!id) {
     console.error("🚨 공지사항 ID가 없습니다.");
-    router.push("/"); // ID가 없으면 목록으로 이동
+    router.push("/notices"); // ID가 없으면 목록으로 이동
     return;
   }
   try {
@@ -21,7 +21,7 @@ const fetchNotice = async () => {
     notice.value = await response.json();
   } catch (error) {
     console.error("공지사항 불러오기 실패:", error);
-    router.push("/");
+    router.push("/notices");
   }
 };
 
@@ -29,7 +29,7 @@ const deleteNotice = async () => {
   const id = route.params.id;
   try {
     await fetch(`http://localhost:3001/api/notices/${id}`, { method: "DELETE" });
-    router.push("/"); // 삭제 후 목록으로 이동
+    router.push("/notices"); // 삭제 후 목록으로 이동
   } catch (error) {
     console.error("공지사항 삭제 실패:", error);
   }

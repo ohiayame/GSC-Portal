@@ -9,6 +9,8 @@ const isEditing = props.id !== undefined;
 const title = ref("");
 const content = ref("");
 const author_id = ref(1);
+const target = ref(0);
+const priority = ref("normal");
 
 if (isEditing) {
   fetch(`http://localhost:3001/api/notices/${props.id}`)
@@ -27,7 +29,14 @@ const saveNotice = async () => {
 
   const method = isEditing ? "PUT" : "POST";
   const url = isEditing ? `http://localhost:3001/api/notices/${props.id}` : "http://localhost:3001/api/notices";
-  const body = JSON.stringify({ title: title.value, content: content.value });
+  const body = JSON.stringify({
+    title: title.value,
+    content: content.value,
+    author_id: author_id.value,
+    target: target.value,
+    priority: priority.value
+  });
+  console.log("📌 요청 데이터:", body);
 
   try {
     const response = await fetch(url, {
@@ -38,7 +47,7 @@ const saveNotice = async () => {
 
     if (!response.ok) throw new Error("공지사항 저장 실패");
 
-    router.push("/"); // ✅ 저장 후 목록으로 이동
+    router.push("/notices"); // ✅ 저장 후 목록으로 이동
   } catch (error) {
     console.error("🚨 공지사항 저장 중 오류:", error);
   }
