@@ -1,8 +1,9 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth';
-import { onMounted, watch, nextTick } from 'vue';
+import { onMounted, watch, nextTick, computed } from 'vue';
 
 const auth = useAuthStore();
+const user = computed(() => auth.user);
 
 // ✅ Google 로그인 버튼 렌더링 함수
 function renderGoogleLoginButton() {
@@ -74,6 +75,9 @@ watch(() => auth.isAuthenticated, (newVal) => {
     <div class="header">
         <!-- ✅ 로그인 상태가 아닐 때만 Google 로그인 버튼 표시 -->
         <div v-if="!auth.isAuthenticated" id="google-login-btn"></div>
-        <button v-if="auth.isAuthenticated" @click="logout">로그아웃</button>
+        <div v-else>
+            <span>{{ user?.name }} 님   </span> 
+            <button  @click="logout">로그아웃</button>
+        </div>
     </div>
 </template>
