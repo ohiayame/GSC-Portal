@@ -1,48 +1,120 @@
+<template>
+  <div class="notice-container" v-if="notice">
+    <h2>{{ notice.title }}</h2>
+
+    <table>
+      <tr>
+        <th>대상</th>
+        <th>작성자</th>
+        <th>작성일</th>
+      </tr>
+      <tr>
+        <td>{{ store.getTargetLabel(notice.target) }}</td>
+        <td>/</td>
+        <td>{{ formatDate(notice.created_at) }}</td>
+
+      </tr>
+    </table>
+
+    <div class="content-box">
+      <p>{{ notice.content }}</p>
+    </div>
+
+    <div class="button-container">
+      <button @click="editNotice">수정</button>
+      <button @click="deleteNotice">삭제</button>
+    </div>
+  </div>
+  <p v-else>공지사항을 불러오는 중...</p>
+</template>
+
 <script setup>
 import { useRoute, useRouter } from "vue-router";
-import { ref, onMounted  } from "vue";
-
-
+import { useNoticesStore } from "../stores/notices";
 
 const route = useRoute();
 const router = useRouter();
-const notice = ref(null);
+const store = useNoticesStore();
 
-const fetchNotice = async () => {
-  const id = route.params.id;
-  if (!id) {
-    console.error("🚨 공지사항 ID가 없습니다.");
-    router.push("/notices"); // ID가 없으면 목록으로 이동
-    return;
-  }
-  try {
-    const response = await fetch(`http://localhost:3001/api/notices/${id}`);
-    if (!response.ok) throw new Error("공지사항을 찾을 수 없습니다.");
-    notice.value = await response.json();
-  } catch (error) {
-    console.error("공지사항 불러오기 실패:", error);
-    router.push("/notices");
-  }
+const notice = store.getNoticeById(route.params.id);
+
+// ✅ 날짜 변환 함수
+const formatDate = (timestamp) => {
+  return new Date(timestamp).toLocaleString();
 };
 
+// ✅ 수정 버튼 클릭 시 편집 페이지로 이동
+const editNotice = () => {
+  router.push(`/notices/edit/${route.params.id}`);
+};
+
+// ✅ 삭제 기능 추가
 const deleteNotice = async () => {
-  const id = route.params.id;
-  try {
-    await fetch(`http://localhost:3001/api/notices/${id}`, { method: "DELETE" });
-    router.push("/notices"); // 삭제 후 목록으로 이동
-  } catch (error) {
-    console.error("공지사항 삭제 실패:", error);
-  }
+  if (!confirm("정말 삭제하시겠습니까?")) return;
+  await store.deleteNotice(route.params.id);
+  router.push("/notices");
 };
-
-onMounted(fetchNotice);
 </script>
 
-<template>
-  <div v-if="notice">
-    <h2>{{ notice.title }}</h2>
-    <p>{{ notice.content }}</p>
-    <button @click="router.push(`/notices/edit/${notice.id}`)">수정</button>
-    <button @click="deleteNotice">삭제</button>
-  </div>
-</template>
+<style scoped>
+.notice-container {
+  width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #b0c4de;
+  font-weight: bold;
+}
+
+.content-box {
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  min-height: 80px; /* ✅ 내용 박스를 최소 크기로 조정 */
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+button {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #485ff7;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #5fb7ff;
+}
+</style>

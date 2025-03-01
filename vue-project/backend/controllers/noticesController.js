@@ -46,13 +46,15 @@ export const createNotice = async (req, res) => {
 // ✅ 공지사항 수정
 export const updateNotice = async (req, res) => {
   try {
-    const { title, content } = req.body;
+    const { title, content, author_id, target, priority } = req.body; // ✅ 모든 필드 추가
     const { id } = req.params;
-    const affectedRows = await Notice.update(id, { title, content });
+
+    // ✅ DB 업데이트 수행
+    const affectedRows = await Notice.update(id, { title, content, author_id, target, priority });
 
     if (!affectedRows) return res.status(404).json({ error: "해당 공지사항이 존재하지 않습니다." });
 
-    res.json({ id, title, content });
+    res.json({ id, title, content, author_id, target, priority }); // ✅ 모든 필드 반환
   } catch (err) {
     console.error("🚨 공지사항 수정 오류:", err);
     res.status(500).json({ error: "공지사항 수정에 실패했습니다." });

@@ -14,22 +14,25 @@ class Notice {
   }
 
   // ✅ 공지사항 추가
-  static async create({ title, content, author_id, target, priority }) {
+  static async create({ title, content, author_id, target, priority}) {
     const [result] = await pool.query(
       `INSERT INTO notices (title, content, author_id, target, priority) VALUES (?, ?, ?, ?, ?)`,
-      [title, content, author_id, target || 0, priority || 'normal']
+      [title, content, author_id, target, priority]
     );
     return result.insertId;
   }
 
-  // ✅ 공지사항 수정
-  static async update(id, { title, content }) {
+  // ✅ 공지사항 수정 (모든 필드 반영)
+  static async update(id, { title, content, author_id, target, priority }) {
     const [result] = await pool.query(
-      `UPDATE notices SET title = ?, content = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-      [title, content, id]
+      `UPDATE notices
+      SET title = ?, content = ?, author_id = ?, target = ?, priority = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?`,
+      [title, content, author_id, target, priority, id]
     );
     return result.affectedRows;
   }
+
 
   // ✅ 공지사항 삭제
   static async delete(id) {
