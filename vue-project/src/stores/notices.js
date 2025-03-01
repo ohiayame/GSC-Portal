@@ -4,6 +4,8 @@ import { defineStore } from "pinia";
 export const useNoticesStore = defineStore("notices", {
   state: () => ({
     notices: [], // 공지사항 목록 저장
+    searchKeyword: "",
+    searchTarget: 0,
   }),
   actions: {
     // ✅ 공지사항 목록 불러오기
@@ -11,10 +13,21 @@ export const useNoticesStore = defineStore("notices", {
       try {
         const response = await fetch("http://localhost:3001/api/notices");
         if (!response.ok) throw new Error("공지사항을 불러오는 데 실패했습니다.");
-        this.notices = await response.json();
+        const data = await response.json();
+        console.log("📌 불러온 데이터:", data); // ✅ 데이터 확인 로그 추가
+        this.notices = data;
       } catch (error) {
         console.error("🚨 공지사항 불러오기 실패:", error);
       }
+    },
+
+    // ✅ 검색 필드 업데이트
+    setSearchKeyword(keyword) {
+      this.searchKeyword = keyword;
+    },
+
+    setSearchTarget(target) {
+      this.searchTarget = target;
     },
 
     // ✅ 특정 공지사항 가져오기 (store에서 찾기)

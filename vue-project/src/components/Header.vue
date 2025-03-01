@@ -81,3 +81,13 @@ watch(() => auth.isAuthenticated, (newVal) => {
         </div>
     </div>
 </template>
+
+<style scoped>
+button {
+  padding: 8px;
+  border: 1px solid #cccccc00;
+  background-color: #4d8eff;
+  color: white;
+  cursor: pointer;
+}
+</style>

@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  getAllNotices,
+  getNotices,
   getNoticeById,
   createNotice,
   updateNotice,
@@ -10,10 +10,11 @@ import {
 const router = express.Router();
 
 // ✅ API 라우팅 → 컨트롤러 호출
-router.get('/', getAllNotices);
+router.get("/", getNotices);
 router.get('/:id', getNoticeById);
 router.post('/', createNotice);
 router.put('/:id', updateNotice);
 router.delete('/:id', deleteNotice);
+
 
 export default router;

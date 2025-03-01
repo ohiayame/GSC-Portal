@@ -6,6 +6,29 @@ class Notice {
     const [rows] = await pool.query("SELECT * FROM notices ORDER BY created_at DESC");
     return rows;
   }
+  // ✅ 공지사항 목록 조회 (검색 기능 추가)
+  static async findAll({ target = 0, keyword = "" }) {
+    let query = `SELECT * FROM notices WHERE 1=1`;
+    let queryParams = [];
+
+    // ✅ 대상 학년 필터링 (전체 대상이 아닐 경우)
+    if (target && target != 0) {
+      query += " AND target = ?";
+      queryParams.push(target);
+    }
+
+    // ✅ 키워드 검색 (제목 또는 내용에 포함된 경우)
+    if (keyword) {
+      query += " AND (title LIKE ? OR content LIKE ?)";
+      queryParams.push(`%${keyword}%`, `%${keyword}%`);
+    }
+
+    query += " ORDER BY created_at DESC"; // 최신순 정렬
+
+    const [rows] = await pool.query(query, queryParams);
+    return rows;
+  }
+
 
   // ✅ 개별 공지사항 조회
   static async getById(id) {

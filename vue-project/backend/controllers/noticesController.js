@@ -1,15 +1,20 @@
 import Notice from '../models/Notices.js';
 
-// ✅ 공지사항 목록 조회
-export const getAllNotices = async (req, res) => {
+// ✅ 공지사항 목록 조회 (검색 기능 포함)
+export const getNotices = async (req, res) => {
   try {
-    const notices = await Notice.getAll();
+    const { target, keyword } = req.query;
+
+    console.log("📌 검색 요청:", { target, keyword });
+
+    const notices = await Notice.findAll({ target, keyword });
     res.json(notices);
   } catch (err) {
     console.error("🚨 공지사항 조회 오류:", err);
-    res.status(500).json({ error: "공지사항을 불러오는 데 실패했습니다." });
+    res.status(500).json({ error: "공지사항을 불러오지 못했습니다." });
   }
 };
+
 
 // ✅ 개별 공지사항 조회
 export const getNoticeById = async (req, res) => {
