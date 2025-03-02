@@ -4,10 +4,11 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
-import authRoutes from './routes/users.js'; // 확장자를 명시해야 함
-import noticesRouter from './routes/notices.js'; // 공지사항 추가
-
-// console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
+import authRoutes from './routes/users.js'; // 사용자 인증 라우트
+import noticesRouter from './routes/notices.js'; // 공지사항 라우트
+import timetableRouter from './routes/timetable.js'; // ✅ 시간표 라우트 추가
+import specialSessionsRouter from './routes/specialSessions.js'; // ✅ 휴·보강 라우트 추가
+import coursesRouter from "./routes/courses.js";
 
 const app = express();
 
@@ -19,6 +20,9 @@ app.use(cookieParser());
 console.log("🔍 authRoutes:", authRoutes);
 app.use('/auth', authRoutes);
 app.use('/api/notices', noticesRouter);
+app.use('/api/timetable', timetableRouter); // ✅ 추가
+app.use('/api/special-sessions', specialSessionsRouter); // ✅ 추가
+app.use("/api/courses", coursesRouter);
 
 const PORT = process.env.PORT || 3001;
 
@@ -28,7 +32,6 @@ app.use((req, res, next) => {
   console.log("🔍 요청 쿠키:", req.cookies);
   next();
 });
-
 
 app.listen(PORT, () => {
     console.log(`🚀 서버 실행 중: http://localhost:${PORT}`);
