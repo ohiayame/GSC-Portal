@@ -21,6 +21,7 @@
     </div>
 
     <div class="button-container">
+      <button @click="router.push('/notices')" class="back">돌아가기</button>
       <button @click="editNotice">수정</button>
       <button @click="deleteNotice">삭제</button>
     </div>
@@ -116,5 +117,12 @@ button {
 
 button:hover {
   background-color: #5fb7ff;
+}
+button.back {
+  background-color: #ccc;
+  color: black;
+}
+button.back:hover {
+  background-color: #b3b3b3;
 }
 </style>

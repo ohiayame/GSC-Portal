@@ -12,7 +12,7 @@ const router = express.Router();
 router.get("/", getAllTimetables);
 
 // ✅ 특정 학년 시간표 조회
-router.get("/grade/:grade", getTimetableByGrade);
+router.get("/:grade", getTimetableByGrade);
 
 // ✅ 시간표 추가
 router.post("/", createTimetable);

@@ -11,12 +11,15 @@ export const useTimetableStore = defineStore("timetable", {
     // ✅ 시간표 목록 불러오기
     async fetchTimetables() {
       try {
-        const response = await fetch("http://localhost:3001/api/timetable");
+        const response = await fetch(`http://localhost:3001/api/timetable/${this.searchTarget}`);
         if (!response.ok) throw new Error("시간표 데이터를 불러오는 데 실패했습니다.");
         this.timetables = await response.json();
       } catch (error) {
         console.error("🚨 시간표 불러오기 오류:", error);
       }
+    },
+    setSearchTarget(target) {
+      this.searchTarget = target;
     },
 
     // ✅ 보강/휴강 데이터 불러오기
