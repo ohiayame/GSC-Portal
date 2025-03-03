@@ -3,7 +3,15 @@ import db from "../config/db.js";
 const Timetable = {
   // ✅ 시간표 조회
   async getAll() {
-    const [rows] = await db.query("SELECT * FROM timetable");
+    const [rows] = await db.query(`
+      SELECT t.*,
+            c.name AS course_name,
+            c.professor,
+            c.grade,
+            c.class_section
+      FROM timetable t
+      JOIN courses c ON t.course_id = c.id
+    `);
     return rows;
   },
 

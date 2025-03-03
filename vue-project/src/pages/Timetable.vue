@@ -3,6 +3,9 @@ import { computed, onMounted, watch } from "vue";
 import { useTimetableStore } from "../stores/timetable";
 
 const store = useTimetableStore();
+// ✅ 요일과 시간 범위 설정
+const days = ["월", "화", "수", "목", "금"];
+const periods = Array.from({ length: 10 }, (_, i) => i + 1); // 1교시 ~ 10교시
 
 // ✅ 페이지 로드시 시간표 데이터 불러오기
 onMounted(async () => {
@@ -13,11 +16,19 @@ onMounted(async () => {
 // ✅ 특정 학년의 시간표만 필터링 (동적)
 const filteredTimetables = computed(() => {
   console.log(`🎯 선택된 학년: ${store.searchTarget}`);
+  console.log(`🎯 timetables : ${store.timetables}`);
   const selectedGrade = Number(store.searchTarget);
-  const result = store.timetables.filter((cls) => Number(cls.grade) === selectedGrade);
+  const result = store.timetables.filter(cls => Number(cls.grade) === selectedGrade);
+
   console.log(`🎯 선택된 학년: ${store.searchTarget}, 필터링된 시간표:`, result);
   return result;
 });
+
+// ✅ 학년 변경 감지
+watch(() => store.searchTarget, (newGrade) => {
+  console.log(`🎯 학년 변경 감지: ${newGrade}`);
+});
+
 
 // ✅ 특정 시간과 요일에 해당하는 수업 찾기 (연강 포함)
 const getClassAt = (day, period) => {
@@ -25,14 +36,6 @@ const getClassAt = (day, period) => {
     (cls) => cls.day === day && cls.period <= period && period < cls.period + cls.duration
   );
 };
-
-// ✅ 요일과 시간 범위 설정
-const days = ["월", "화", "수", "목", "금"];
-const periods = Array.from({ length: 10 }, (_, i) => i + 1); // 1교시 ~ 10교시
-
-watch(() => store.searchTarget, (newGrade) => {
-  console.log(`🎯 학년 변경 감지: ${newGrade}`);
-});
 </script>
 
 <template>

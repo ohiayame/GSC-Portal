@@ -11,7 +11,7 @@ export const useTimetableStore = defineStore("timetable", {
     // ✅ 시간표 목록 불러오기
     async fetchTimetables() {
       try {
-        const response = await fetch(`http://localhost:3001/api/timetable/${this.searchTarget}`);
+        const response = await fetch(`http://localhost:3001/api/timetable`);
         if (!response.ok) throw new Error("시간표 데이터를 불러오는 데 실패했습니다.");
         this.timetables = await response.json();
       } catch (error) {

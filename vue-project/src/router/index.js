@@ -21,7 +21,7 @@ const routes = [
 
   { path: "/timetable", component: TimetablePage }, // 전체 시간표 보기
   { path: "/timetable/new", component: TimetableForm }, // 신규 시간표 등록
-  { path: "/timetable/:id/edit", component: TimetableForm, props: true }, // 기존 시간표 수정
+  { path: "/timetable/edit/:id", component: TimetableForm, props: true }, // 기존 시간표 수정
   { path: "/timetable/special", component: SpecialSessionForm }, // 보강/휴강 추가
 ];
 
