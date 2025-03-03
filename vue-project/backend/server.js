@@ -21,7 +21,7 @@ console.log("🔍 authRoutes:", authRoutes);
 app.use('/auth', authRoutes);
 app.use('/api/notices', noticesRouter);
 app.use('/api/timetable', timetableRouter); // ✅ 추가
-app.use('/api/special-sessions', specialSessionsRouter); // ✅ 추가
+app.use('/api/specialSession', specialSessionsRouter); // ✅ 추가
 app.use("/api/courses", coursesRouter);
 
 const PORT = process.env.PORT || 3001;

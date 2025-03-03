@@ -1,43 +1,44 @@
-import pool from "../config/db.js";
+import pool from "../config/db.js"; // ✅ DB 연결 가져오기
 
-class SpecialSession {
-  // ✅ 전체 휴·보강 조회
-  static async getAll() {
-    const [rows] = await pool.query(`
-      SELECT s.*, c.name AS subject, c.professor
-      FROM special_sessions s
-      JOIN courses c ON s.course_id = c.id
-    `);
-    return rows;
-  }
+export const SpecialSession = {
+  // ✅ 새로운 보강/휴강 데이터 추가 (INSERT INTO)
+  async create(sessionData) {
+    const { course_id, date, type, start_period, duration, location } = sessionData;
 
-  // ✅ 특정 과목의 휴·보강 조회
-  static async getByCourse(course_id) {
-    const [rows] = await pool.query("SELECT * FROM special_sessions WHERE course_id = ?", [course_id]);
-    return rows;
-  }
+    try {
+      // 1️⃣ 먼저 `courses` 테이블에 `course_id`가 있는지 확인
+      const [courseExists] = await pool.execute("SELECT id FROM courses WHERE id = ?", [course_id]);
 
-  // ✅ 특정 날짜의 휴·보강 조회
-  static async getByDate(date) {
-    const [rows] = await pool.query("SELECT * FROM special_sessions WHERE date = ?", [date]);
-    return rows;
-  }
+      if (courseExists.length === 0) {
+        throw new Error(`❌ course_id ${course_id}가 존재하지 않습니다!`);
+      }
 
-  // ✅ 휴·보강 추가
-  static async create({ course_id, date, type, start_period, duration, location }) {
-    const [result] = await pool.query(`
-      INSERT INTO special_sessions (course_id, date, type, start_period, duration, location)
-      VALUES (?, ?, ?, ?, ?, ?)`,
-      [course_id, date, type, start_period, duration, location]
-    );
-    return result.insertId;
-  }
+      // 2️⃣ `special_sessions`에 데이터 삽입
+      const query = `
+        INSERT INTO special_sessions (course_id, date, type, start_period, duration, location)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
 
-  // ✅ 휴·보강 삭제
-  static async delete(id) {
-    const [result] = await pool.query("DELETE FROM special_sessions WHERE id = ?", [id]);
-    return result.affectedRows;
-  }
-}
+      const values = [course_id, date, type, start_period, duration, location];
 
-export default SpecialSession;
+      const [result] = await pool.execute(query, values); // ✅ pool 사용
+
+      return { message: "보강/휴강이 등록되었습니다.", insertId: result.insertId };
+    } catch (error) {
+      console.error("❌ 보강/휴강 등록 오류:", error);
+      throw error;
+    }
+  },
+
+  // ✅ 모든 보강/휴강 데이터 조회
+  async findAll() {
+    try {
+      const query = "SELECT * FROM special_sessions";
+      const [results] = await pool.execute(query); // ✅ pool 사용
+      return results;
+    } catch (error) {
+      console.error("❌ 보강/휴강 조회 오류:", error);
+      throw error;
+    }
+  },
+};

@@ -1,4 +1,4 @@
-import SpecialSession from "../models/SpecialSession.js";
+import { SpecialSession } from '../models/SpecialSession.js';
 
 // ✅ 전체 휴·보강 조회
 export const getAllSpecialSessions = async (req, res) => {
@@ -38,15 +38,8 @@ export const getSpecialSessionsByDate = async (req, res) => {
 // ✅ 휴·보강 추가
 export const createSpecialSession = async (req, res) => {
   try {
-    const { course_id, date, type, start_period, duration, location } = req.body;
-
-    // 🚨 필수 값 검증
-    if (!course_id || !date || !type) {
-      return res.status(400).json({ error: "필수 입력값이 누락되었습니다." });
-    }
-
-    const newSessionId = await SpecialSession.create({ course_id, date, type, start_period, duration, location });
-    res.status(201).json({ id: newSessionId, course_id, date, type, start_period, duration, location });
+    const result = await SpecialSession.create(req.body);
+    res.status(201).json(result);
   } catch (err) {
     console.error("🚨 휴·보강 추가 오류:", err);
     res.status(500).json({ error: "휴·보강 추가에 실패했습니다." });

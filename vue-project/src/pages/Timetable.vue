@@ -1,8 +1,11 @@
 <script setup>
 import { computed, onMounted, watch } from "vue";
 import { useTimetableStore } from "../stores/timetable";
+import { useRouter } from "vue-router";
 
 const store = useTimetableStore();
+const router = useRouter();
+
 // ✅ 요일과 시간 범위 설정
 const days = ["월", "화", "수", "목", "금"];
 const periods = Array.from({ length: 10 }, (_, i) => i + 1); // 1교시 ~ 10교시
@@ -29,12 +32,30 @@ watch(() => store.searchTarget, (newGrade) => {
   console.log(`🎯 학년 변경 감지: ${newGrade}`);
 });
 
-
 // ✅ 특정 시간과 요일에 해당하는 수업 찾기 (연강 포함)
 const getClassAt = (day, period) => {
   return filteredTimetables.value.find(
     (cls) => cls.day === day && cls.period <= period && period < cls.period + cls.duration
   );
+};
+
+// ✅ 시간표 셀 클릭 시 보강/휴강 등록 페이지 이동
+const goToSpecialSession = (course) => {
+  if (!course) return;
+
+  console.log("🚀 클릭된 수업 정보:", course);
+  console.log("📌 course_id 값 확인:", course.course_id);
+
+  router.push({
+    path: "/timetable/special",
+    query: {
+      course_id: course.course_id,
+      day: course.day,
+      start_period: course.period,
+      name: course.course_name,
+      type: '휴강'
+    },
+  });
 };
 </script>
 
@@ -54,7 +75,7 @@ const getClassAt = (day, period) => {
     <!-- ✅ 버튼 추가 -->
     <div class="button-container">
       <button @click="$router.push('/timetable/new')">새 시간표 등록</button>
-      <button @click="$router.push('/timetable/special')">보강/휴강 등록</button>
+      <button @click="$router.push({path:'/timetable/special', query:{type: '보강'}})">보강 등록</button>
     </div>
 
     <table class="timetable">
@@ -67,7 +88,12 @@ const getClassAt = (day, period) => {
       <tbody>
         <tr v-for="period in periods" :key="period">
           <td class="time-label">{{ period }}교시</td>
-          <td v-for="day in days" :key="day">
+          <td
+            v-for="day in days"
+            :key="day"
+            @click="getClassAt(day, period) ? goToSpecialSession(getClassAt(day, period)) : null"
+            class="clickable-cell"
+          >
             <div v-if="getClassAt(day, period)" class="class-info">
               <strong>{{ getClassAt(day, period).course_name }}</strong><br />
               <span>{{ getClassAt(day, period).location }}</span><br />
@@ -144,5 +170,15 @@ td {
   padding: 5px;
   border-radius: 5px;
   font-size: 14px;
+}
+
+/* ✅ 클릭 가능한 셀 스타일 추가 */
+.clickable-cell {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.clickable-cell:hover {
+  background-color: rgba(72, 95, 247, 0.2);
 }
 </style>

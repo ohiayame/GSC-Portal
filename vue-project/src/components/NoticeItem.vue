@@ -3,18 +3,22 @@
     <h2>{{ notice.title }}</h2>
 
     <table>
-      <tr>
-        <th>대상</th>
-        <th>작성자</th>
-        <th>작성일</th>
-      </tr>
-      <tr>
-        <td>{{ store.getTargetLabel(notice.target) }}</td>
-        <td>/</td>
-        <td>{{ formatDate(notice.created_at) }}</td>
+      <thead> <!-- ✅ <tr>를 <thead> 안으로 이동 -->
+        <tr>
+          <th>대상</th>
+          <th>작성자</th>
+          <th>작성일</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ store.getTargetLabel(notice.target) }}</td>
+          <td>/</td>
+          <td>{{ formatDate(notice.created_at) }}</td>
+        </tr>
+      </tbody>
+  </table>
 
-      </tr>
-    </table>
 
     <div class="content-box">
       <p>{{ notice.content }}</p>
