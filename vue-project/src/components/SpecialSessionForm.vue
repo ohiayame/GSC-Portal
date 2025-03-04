@@ -19,7 +19,7 @@
           <label>수업 선택:</label>
           <select v-model="form.course_id" class="input-field" @change="updateCourseName">
             <option value="" disabled>과목 선택</option>
-            <option v-for="course in filteredCourses" :key="course.id" :value="course.id">
+            <option v-for="course in filteredCourses" :key="course.course_id" :value="course.course_id">
               {{ course.course_name }} ({{ course.professor }})
             </option>
           </select>
@@ -36,15 +36,6 @@
       <div class="form-group">
         <label>날짜:</label>
         <input type="date" v-model="form.date" class="input-field" />
-      </div>
-
-      <!-- ✅ 구분 선택 -->
-      <div class="form-group">
-        <label>구분:</label>
-        <select v-model="form.type" class="input-field">
-          <option value="휴강">휴강</option>
-          <option value="보강">보강</option>
-        </select>
       </div>
 
       <!-- ✅ 보강 선택 시 추가 입력 필드 -->
@@ -78,7 +69,7 @@
 </template>
 
 <script>
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useSpecialSessionStore } from "../stores/specialSessions";
 import { useTimetableStore } from "../stores/timetable";
@@ -105,7 +96,7 @@ export default {
 
     // ✅ 페이지 진입 시 query에서 데이터 가져와서 기본값 설정
     onMounted(() => {
-      const { course_id, name, day, start_period, type } = route.query;
+      const { course_id, name, day, start_period, type} = route.query;
       if (course_id) {
         form.value.course_id = course_id;
         form.value.name = name;
@@ -221,5 +212,25 @@ button {
   font-size: 14px;
   border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button.back {
+  background-color: #ccc;
+  color: black;
+}
+
+button.back:hover {
+  background-color: #b3b3b3;
+}
+
+button.register {
+  background-color: #485ff7;
+  color: white;
+  border: none;
+}
+
+button.register:hover {
+  background-color: #5fb7ff;
 }
 </style>

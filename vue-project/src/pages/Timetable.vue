@@ -87,7 +87,10 @@ const goToSpecialSession = (course) => {
       </thead>
       <tbody>
         <tr v-for="period in periods" :key="period">
-          <td class="time-label">{{ period }}교시</td>
+          <td class="time-label">
+            {{ period }}교시
+            <br><span>{{ period+8 }}시~</span>
+          </td>
           <td
             v-for="day in days"
             :key="day"
