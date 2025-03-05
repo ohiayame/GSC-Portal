@@ -96,25 +96,16 @@ export default {
 
     // ✅ 페이지 진입 시 query에서 데이터 가져와서 기본값 설정
     onMounted(() => {
-      const { course_id, name, day, start_period, type} = route.query;
+      const { course_id, name, date, start_period, type} = route.query;
       if (course_id) {
         form.value.course_id = course_id;
         form.value.name = name;
         form.value.start_period = start_period;
         form.value.type = type || "보강";
-        form.value.date = getDefaultDate(day);
+        form.value.date = date || "";
       }
     });
 
-    // ✅ 날짜 기본값을 이번 주 해당 요일로 설정
-    const getDefaultDate = (day) => {
-      if (!day) return "";
-      const today = new Date();
-      const dayOfWeek = today.getDay(); // 0(일)~6(토)
-      const daysToAdd = { 월: 1, 화: 2, 수: 3, 목: 4, 금: 5 }[day] - dayOfWeek;
-      today.setDate(today.getDate() + daysToAdd);
-      return today.toISOString().split("T")[0];
-    };
 
     // ✅ 선택한 학년의 수업 목록 가져오기
     const fetchCourses = () => {

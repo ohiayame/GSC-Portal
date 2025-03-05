@@ -1,10 +1,11 @@
 <script setup>
-import { computed, onMounted, watch } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import { useTimetableStore } from "../stores/timetable";
 import { useRouter } from "vue-router";
 
 const store = useTimetableStore();
 const router = useRouter();
+const selectedDate = ref(new Date().toISOString().split("T")[0]); // ✅ 기본값: 오늘 날짜
 
 // ✅ 요일과 시간 범위 설정
 const days = ["월", "화", "수", "목", "금"];
@@ -16,20 +17,18 @@ onMounted(async () => {
   console.log("📌 초기 시간표 데이터:", store.timetables);
 });
 
-// ✅ 특정 학년의 시간표만 필터링 (동적)
+// ✅ 특정 학년 & 날짜 기준으로 시간표 필터링
 const filteredTimetables = computed(() => {
   console.log(`🎯 선택된 학년: ${store.searchTarget}`);
-  console.log(`🎯 timetables : ${store.timetables}`);
+  console.log(`🎯 선택된 날짜: ${selectedDate.value}`);
+
   const selectedGrade = Number(store.searchTarget);
-  const result = store.timetables.filter(cls => Number(cls.grade) === selectedGrade);
-
-  console.log(`🎯 선택된 학년: ${store.searchTarget}, 필터링된 시간표:`, result);
-  return result;
-});
-
-// ✅ 학년 변경 감지
-watch(() => store.searchTarget, (newGrade) => {
-  console.log(`🎯 학년 변경 감지: ${newGrade}`);
+  return store.timetables.filter(cls => {
+    const isCorrectGrade = Number(cls.grade) === selectedGrade;
+    const isWithinDateRange = new Date(cls.start_date) <= new Date(selectedDate.value) &&
+                              new Date(selectedDate.value) <= new Date(cls.end_date);
+    return isCorrectGrade && isWithinDateRange;
+  });
 });
 
 // ✅ 특정 시간과 요일에 해당하는 수업 찾기 (연강 포함)
@@ -50,10 +49,10 @@ const goToSpecialSession = (course) => {
     path: "/timetable/special",
     query: {
       course_id: course.course_id,
-      day: course.day,
+      date: selectedDate.value,
       start_period: course.period,
       name: course.course_name,
-      type: '휴강'
+      type: "휴강",
     },
   });
 };
@@ -72,10 +71,18 @@ const goToSpecialSession = (course) => {
       </select>
     </div>
 
+    <!-- ✅ 날짜 필터 추가 -->
+    <div class="filter-container">
+      <label for="date">날짜 선택:</label>
+      <input type="date" id="date" v-model="selectedDate" />
+    </div>
+
     <!-- ✅ 버튼 추가 -->
     <div class="button-container">
       <button @click="$router.push('/timetable/new')">새 시간표 등록</button>
-      <button @click="$router.push({path:'/timetable/special', query:{type: '보강'}})">보강 등록</button>
+      <button @click="$router.push({ path: '/timetable/special', query: { type: '보강' } })">
+        보강 등록
+      </button>
     </div>
 
     <table class="timetable">
@@ -89,7 +96,7 @@ const goToSpecialSession = (course) => {
         <tr v-for="period in periods" :key="period">
           <td class="time-label">
             {{ period }}교시
-            <br><span>{{ period+8 }}시~</span>
+            <br /><span>{{ period + 8 }}시~</span>
           </td>
           <td
             v-for="day in days"
@@ -115,6 +122,15 @@ const goToSpecialSession = (course) => {
   max-width: 800px;
   margin: 20px auto;
   text-align: center;
+}
+
+.filter-container {
+  margin-bottom: 15px;
+}
+
+.filter-container label {
+  font-weight: bold;
+  margin-right: 10px;
 }
 
 .button-container {
@@ -147,7 +163,8 @@ table {
   overflow: hidden;
 }
 
-th, td {
+th,
+td {
   border: 1px solid #ddd;
   padding: 12px;
   text-align: center;
