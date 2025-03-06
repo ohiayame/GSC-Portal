@@ -31,6 +31,20 @@ const filteredTimetables = computed(() => {
   });
 });
 
+const getWeekDates = (selectedDate) => {
+  const date = new Date(selectedDate);
+  const dayOfWeek = date.getDay(); // 0: 일요일 ~ 6: 토요일
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // 월요일로 이동
+  const monday = new Date(date);
+  monday.setDate(date.getDate() + mondayOffset);
+
+  return days.map((_, index) => {
+    const newDate = new Date(monday);
+    newDate.setDate(monday.getDate() + index); // 월요일 + index 일 후
+    return newDate.toISOString().split("T")[0]; // YYYY-MM-DD 형식 반환
+  });
+};
+
 // ✅ 특정 시간과 요일에 해당하는 수업 찾기 (연강 포함)
 const getClassAt = (day, period) => {
   return filteredTimetables.value.find(
@@ -45,11 +59,17 @@ const goToSpecialSession = (course) => {
   console.log("🚀 클릭된 수업 정보:", course);
   console.log("📌 course_id 값 확인:", course.course_id);
 
+  const weekDates = getWeekDates(selectedDate.value); // ✅ 주간 날짜 계산
+  const dayIndex = days.indexOf(course.day); // ✅ course.day의 요일 인덱스 찾기
+  const dateForSelectedDay = weekDates[dayIndex];
+
+  console.log("📌 day 값 확인:", dateForSelectedDay);
+
   router.push({
     path: "/timetable/special",
     query: {
       course_id: course.course_id,
-      date: selectedDate.value,
+      date: dateForSelectedDay ,
       start_period: course.period,
       name: course.course_name,
       type: "휴강",
