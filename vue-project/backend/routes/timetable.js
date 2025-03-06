@@ -3,7 +3,7 @@ import {
   getAllTimetables,
   getTimetableByGrade,
   createTimetable,
-  deleteTimetable,
+  updateTimetable
 } from "../controllers/timetableController.js";
 
 const router = express.Router();
@@ -17,7 +17,6 @@ router.get("/:grade", getTimetableByGrade);
 // ✅ 시간표 추가
 router.post("/", createTimetable);
 
-// ✅ 시간표 삭제
-router.delete("/:id", deleteTimetable);
+router.put('/:id', updateTimetable);
 
 export default router;

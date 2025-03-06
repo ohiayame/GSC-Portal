@@ -26,3 +26,19 @@ export const getCourses = async (req, res) => {
     res.status(500).json({ error: "과목 목록 불러오기 실패" });
   }
 };
+
+
+
+// ✅ 시간표 삭제
+export const deleteTimetable = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const affectedRows = await Course.delete(id);
+    if (!affectedRows) return res.status(404).json({ error: "해당 시간표가 존재하지 않습니다." });
+
+    res.json({ message: "시간표가 삭제되었습니다." });
+  } catch (err) {
+    console.error("🚨 시간표 삭제 오류:", err);
+    res.status(500).json({ error: "시간표 삭제에 실패했습니다." });
+  }
+};

@@ -15,6 +15,26 @@ const Course = {
     const [rows] = await db.query("SELECT * FROM courses");
     return rows;
   },
+
+
+  // ✅ 과목 정보 수정 추가
+  async update(id, { name, professor, grade, class_section, type }) {
+    const [result] = await db.query(
+      `UPDATE courses
+        SET name = ?, professor = ?, grade = ?, class_section = ?, type = ?
+        WHERE id = ?`,
+      [name, professor, grade, class_section, type, id]
+    );
+    return result.affectedRows; // 수정된 행 수 반환
+  },
+
+
+
+  // ✅ 과목 삭제 (ON DELETE CASCADE로 timetable도 자동 삭제됨)
+  async delete(id) {
+    const [result] = await db.query("DELETE FROM courses WHERE id = ?", [id]);
+    return result.affectedRows; // 삭제된 행 수 반환
+  },
 };
 
 export default Course;

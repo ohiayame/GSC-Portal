@@ -1,5 +1,5 @@
 import express from "express";
-import { createCourse, getCourses } from "../controllers/coursesController.js";
+import { createCourse, getCourses, deleteTimetable } from "../controllers/coursesController.js";
 
 const router = express.Router();
 
@@ -8,5 +8,7 @@ router.post("/", createCourse);
 
 // ✅ 과목 조회
 router.get("/", getCourses);
+
+router.delete("/:id", deleteTimetable);
 
 export default router;

@@ -73,16 +73,49 @@ export const createTimetable = async (req, res) => {
 
 
 
-// ✅ 시간표 삭제
-export const deleteTimetable = async (req, res) => {
+import Course from "../models/Courses.js";
+
+// ✅ 과목과 시간표 모두 업데이트
+export const updateTimetable = async (req, res) => {
   try {
     const { id } = req.params;
-    const affectedRows = await Timetable.delete(id);
-    if (!affectedRows) return res.status(404).json({ error: "해당 시간표가 존재하지 않습니다." });
+    const { course_id, course_name, professor, grade, class_section, type,
+            day, period, duration, location, start_date, end_date } = req.body;
 
-    res.json({ message: "시간표가 삭제되었습니다." });
+    console.log("req.body data", req.body)
+    // ✅ 과목 정보 수정 (course_id가 있는 경우)
+    if (course_id) {
+      const updatedCourseRows = await Course.update(course_id, {
+        name: course_name,
+        professor,
+        grade,
+        class_section,
+        type,
+      });
+
+      if (!updatedCourseRows) {
+        return res.status(404).json({ error: "해당 과목이 존재하지 않습니다." });
+      }
+    }
+
+    // ✅ 시간표 정보 수정
+    const updatedTimetableRows = await Timetable.update(id, {
+      day,
+      period,
+      duration,
+      location,
+      start_date,
+      end_date,
+    });
+
+    if (!updatedTimetableRows) {
+      return res.status(404).json({ error: "해당 시간표가 존재하지 않습니다." });
+    }
+
+    res.json({ message: "✅ 과목 및 시간표 수정 완료!" });
   } catch (err) {
-    console.error("🚨 시간표 삭제 오류:", err);
-    res.status(500).json({ error: "시간표 삭제에 실패했습니다." });
+    console.error("🚨 시간표 및 과목 수정 오류:", err);
+    res.status(500).json({ error: "시간표 및 과목 수정 실패" });
   }
 };
+

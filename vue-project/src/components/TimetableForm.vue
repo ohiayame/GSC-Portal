@@ -1,89 +1,102 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useTimetableStore } from "../stores/timetable";
-import { useRouter } from "vue-router";
 
 const store = useTimetableStore();
+const route = useRoute();
 const router = useRouter();
 
-const course_name = ref("");
-const professor = ref("");
-const grade = ref(1);
-const class_section = ref(1);
-const type = ref("regular");
+const isEditMode = ref(false); // ✅ 수정 모드인지 여부 확인
 
-const day = ref("");
-const period = ref("");
-const duration = ref("");
-const location = ref("");
-const start_date = ref("");
-const end_date = ref("");
+const form = ref({
+  id: null,
+  course_id: "",
+  course_name: "",
+  professor: "",
+  grade: 1,
+  class_section: 1,
+  type: "regular",
+  day: "",
+  period: "",
+  duration: "",
+  location: "",
+  start_date: null,
+  end_date: null,
+});
+
+// ✅ 페이지 로드시 기존 데이터가 있으면 자동 입력 (수정 모드)
+onMounted(() => {
+  if (route.query.id) {
+    isEditMode.value = true;
+    form.value = { ...route.query };
+  }
+});
 
 const saveTimetable = async () => {
-  if (!course_name.value || !day.value || !period.value || !duration.value) {
-    alert("모든 필수 항목을 입력하세요!");
+  if (!form.value.course_name || !form.value.day || !form.value.period || !form.value.duration) {
+    alert("📌 모든 필수 항목을 입력하세요!");
     return;
   }
+    if (isEditMode.value) {
+      // ✅ 수정 요청 시 과목 정보도 함께 보냄
+      await store.updateTimetable(form.value);
+      alert("✅ 시간표 및 과목 수정 완료!");
+    } else {
+      // ✅ 새 과목 추가
+      const courseData = {
+        name: form.value.course_name,
+        professor: form.value.professor || "정영철",
+        grade: form.value.grade,
+        class_section: form.value.class_section,
+        type: form.value.type,
+      };
 
-  // 1️⃣ 과목 정보 저장 후 `course_id` 받기
-  const courseData = {
-    name: course_name.value,
-    professor: professor.value || "정영철",
-    grade: grade.value,
-    class_section: class_section.value,
-    type: type.value,
-  };
+      const courseResponse = await store.addCourse(courseData);
+      if (!courseResponse || !courseResponse.id) {
+        alert("❌ 과목 추가 실패!");
+        return;
+      }
 
-  const courseResponse = await store.addCourse(courseData);
-  if (!courseResponse || !courseResponse.id) {
-    alert("과목 추가에 실패했습니다.");
-    return;
-  }
-  console.log("📌 courseResponse:", courseResponse);
+      const timetableData = {
+        course_id: courseResponse.id,
+        day: form.value.day,
+        period: form.value.period,
+        duration: form.value.duration,
+        location: form.value.location,
+        start_date: form.value.start_date,
+        end_date: form.value.end_date,
+      };
 
-  const course_id = courseResponse.id;
-  console.log("📌 저장된 course_id:", course_id);
-  if (!course_id) {
-    console.error("🚨 course_id를 가져오는 데 실패했습니다.");
-    alert("과목 정보를 추가하는 데 실패했습니다.");
-    return;
-  }
-  // 2️⃣ 시간표 저장
-  const timetableData = {
-    course_id,
-    day: day.value,
-    period: period.value,
-    duration: duration.value,
-    location: location.value,
-    start_date: start_date.value,
-    end_date: end_date.value,
-  };
+      await store.addTimetable(timetableData);
+      alert("✅ 새 시간표 등록 완료!");
+    }
 
-  await store.addTimetable(timetableData);
-  router.push("/timetable");
+    router.push("/timetable/manage");
 };
-</script>
 
+
+</script>
 
 <template>
   <div class="timetable-form">
-    <h2>시간표 등록</h2>
+    <h2>{{ isEditMode ? "시간표 수정" : "시간표 등록" }}</h2>
 
     <!-- 새로운 과목 입력 -->
     <div class="form-group">
       <label for="course_name">과목명</label>
-      <input id="course_name" type="text" v-model="course_name" placeholder="과목 입력" />
+      <input id="course_name" type="text" v-model="form.course_name" placeholder="과목 입력" />
     </div>
 
     <div class="form-group">
       <label for="professor">교수</label>
-      <input id="professor" type="text" v-model="professor" placeholder="정영철" />
+      <input id="professor" type="text" v-model="form.professor" placeholder="정영철" />
     </div>
 
     <div class="inline-group">
       <div class="form-group">
         <label for="grade">학년</label>
-        <select id="grade" v-model="grade">
+        <select id="grade" v-model="form.grade">
           <option :value="1">1학년</option>
           <option :value="2">2학년</option>
           <option :value="3">3학년</option>
@@ -92,13 +105,13 @@ const saveTimetable = async () => {
 
       <div class="form-group">
         <label for="class_section">분반</label>
-        <input id="class_section" type="number" v-model="class_section" min="1" />
+        <input id="class_section" type="number" v-model="form.class_section" min="1" />
       </div>
     </div>
 
     <div class="form-group">
       <label for="day">요일</label>
-      <select id="day" v-model="day">
+      <select id="day" v-model="form.day">
         <option>월</option>
         <option>화</option>
         <option>수</option>
@@ -110,39 +123,38 @@ const saveTimetable = async () => {
     <div class="inline-group">
       <div class="form-group">
         <label for="period">시작 교시</label>
-        <input id="period" type="number" v-model="period" min="1" />
+        <input id="period" type="number" v-model="form.period" min="1" />
       </div>
 
       <div class="form-group">
         <label for="duration">수업 시간</label>
-        <input id="duration" type="number" v-model="duration" min="1" />
+        <input id="duration" type="number" v-model="form.duration" min="1" />
       </div>
     </div>
 
     <div class="form-group">
       <label for="location">강의실</label>
-      <input id="location" type="text" v-model="location" placeholder="강의실 입력" />
+      <input id="location" type="text" v-model="form.location" placeholder="강의실 입력" />
     </div>
 
     <div class="inline-group">
       <div class="form-group">
         <label for="start_date">개강일</label>
-        <input id="start_date" type="date" v-model="start_date" />
+        <input id="start_date" type="date" v-model="form.start_date" />
       </div>
 
       <div class="form-group">
         <label for="end_date">종강일</label>
-        <input id="end_date" type="date" v-model="end_date" />
+        <input id="end_date" type="date" v-model="form.end_date" />
       </div>
     </div>
 
     <div class="button-container">
-      <button @click="router.push('/timetable')" class="back">돌아가기</button>
-      <button @click="saveTimetable" class="register">등록</button>
+      <button @click="router.push('/timetable/manage')" class="back">돌아가기</button>
+      <button @click="saveTimetable" class="register">{{ isEditMode ? "수정" : "등록" }}</button>
     </div>
   </div>
 </template>
-
 
 <style scoped>
 .timetable-form {
@@ -222,6 +234,4 @@ button.register {
 button.register:hover {
   background-color: #5fb7ff;
 }
-
 </style>
-

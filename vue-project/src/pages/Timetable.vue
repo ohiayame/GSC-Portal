@@ -99,6 +99,7 @@ const goToSpecialSession = (course) => {
 
     <!-- ✅ 버튼 추가 -->
     <div class="button-container">
+      <button @click="$router.push('/timetable/manage')">시간표 편집</button>
       <button @click="$router.push('/timetable/new')">새 시간표 등록</button>
       <button @click="$router.push({ path: '/timetable/special', query: { type: '보강' } })">
         보강 등록

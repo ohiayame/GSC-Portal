@@ -36,6 +36,17 @@ const Timetable = {
     return result.insertId;
   },
 
+  // ✅ 시간표 수정
+  async update({course_id, day, period, duration, location, start_date, end_date }) {
+    const [result] = await db.query(
+      `UPDATE timetable
+        SET day = ?, period = ?, duration = ?, location = ?, start_date = ?, end_date = ?
+        WHERE course_id = ?`,
+      [day, period, duration, location, start_date, end_date, course_id]
+    );
+    return result.affectedRows; // 수정된 행 수 반환
+  },
+
   // ✅ 특정 시간표 삭제
   async delete(id) {
     const [result] = await db.query("DELETE FROM timetable WHERE id = ?", [id]);
