@@ -79,14 +79,14 @@ import Course from "../models/Courses.js";
 export const updateTimetable = async (req, res) => {
   try {
     const { id } = req.params;
-    const { course_id, course_name, professor, grade, class_section, type,
+    const { course_id, name, professor, grade, class_section, type,
             day, period, duration, location, start_date, end_date } = req.body;
 
     console.log("req.body data", req.body)
     // ✅ 과목 정보 수정 (course_id가 있는 경우)
     if (course_id) {
       const updatedCourseRows = await Course.update(course_id, {
-        name: course_name,
+        name: name,
         professor,
         grade,
         class_section,
