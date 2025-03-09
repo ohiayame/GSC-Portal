@@ -8,7 +8,8 @@ const Timetable = {
             c.name AS course_name,
             c.professor,
             c.grade,
-            c.class_section
+            c.class_section,
+            c.type
       FROM timetable t
       JOIN courses c ON t.course_id = c.id
     `);
