@@ -5,13 +5,13 @@ const Timetable = {
   async getAll() {
     const [rows] = await db.query(`
       SELECT t.*,
-            c.name AS course_name,
+            c.course_name,
             c.professor,
             c.grade,
             c.class_section,
             c.type
       FROM timetable t
-      JOIN courses c ON t.course_id = c.id
+      JOIN courses c ON t.course_id = c.course_id
     `);
     return rows;
   },
@@ -19,13 +19,33 @@ const Timetable = {
     // ✅ 특정 학년의 시간표 조회
   async getByGrade(grade) {
     const [rows] = await db.query(
-      `SELECT t.*, c.name AS course_name, c.professor, c.grade, c.class_section
+      `SELECT t.*, c.course_name AS course_name, c.professor, c.grade, c.class_section
         FROM timetable t
-        JOIN courses c ON t.course_id = c.id
+        JOIN courses c ON t.course_id = c.course_id
         WHERE c.grade = ?`,
       [grade]
     );
     return rows;
+  },
+  // ✅ 중복 검사 함수
+  async checkDuplicateTimetable(grade, day, period, duration, class_section) {
+    const [rows] = await db.query(
+      `SELECT t.*, c.class_section
+      FROM timetable t
+      JOIN courses c ON t.course_id = c.course_id
+      WHERE c.grade = ?
+      AND t.day = ?
+      AND t.period < ? + ?
+      AND t.period + t.duration > ?`,
+      [grade, day, period, duration, period]
+    );
+
+    // 🔹 중복된 항목이 없으면 true 반환
+    if (rows.length === 0) return true;
+
+    // 🔹 중복된 수업이 있지만, 모든 수업이 분반이 설정되어 있으면 등록 가능
+    const hasNoSection = rows.some((cls) => cls.class_section === 1) || class_section === 1;
+    return hasNoSection ? false : true;
   },
 
   // ✅ 시간표 추가
@@ -49,8 +69,8 @@ const Timetable = {
   },
 
   // ✅ 특정 시간표 삭제
-  async delete(id) {
-    const [result] = await db.query("DELETE FROM timetable WHERE id = ?", [id]);
+  async delete(course_id) {
+    const [result] = await db.query("DELETE FROM timetable WHERE course_id = ?", [course_id]);
     return result.affectedRows;
   },
 };

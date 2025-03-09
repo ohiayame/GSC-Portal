@@ -71,7 +71,7 @@ const goToSpecialSession = (course) => {
       course_id: course.course_id,
       date: dateForSelectedDay ,
       start_period: course.period,
-      name: course.course_name,
+      course_name: course.course_name,
       type: "휴강",
     },
   });

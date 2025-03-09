@@ -9,6 +9,6 @@ router.post("/", createCourse);
 // ✅ 과목 조회
 router.get("/", getCourses);
 
-router.delete("/:id", deleteTimetable);
+router.delete("/:course_id", deleteTimetable);
 
 export default router;

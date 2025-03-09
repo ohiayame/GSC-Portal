@@ -29,7 +29,7 @@
       <!-- ✅ 휴강 등록: 과목명 자동 입력 -->
       <div class="form-group" v-else>
         <label>과목명:</label>
-        <input type="text" v-model="form.name" class="input-field" disabled />
+        <input type="text" v-model="form.course_name" class="input-field" disabled />
       </div>
 
       <!-- ✅ 날짜 선택 -->
@@ -83,7 +83,7 @@ export default {
 
     const form = ref({
       course_id: null,
-      name: "",
+      course_name: "",
       date: "",
       type: "보강",
       start_period: null,
@@ -96,10 +96,10 @@ export default {
 
     // ✅ 페이지 진입 시 query에서 데이터 가져와서 기본값 설정
     onMounted(() => {
-      const { course_id, name, date, start_period, type} = route.query;
+      const { course_id, course_name, date, start_period, type} = route.query;
       if (course_id) {
         form.value.course_id = course_id;
-        form.value.name = name;
+        form.value.course_name = course_name;
         form.value.start_period = start_period;
         form.value.type = type || "보강";
         form.value.date = date || "";
@@ -121,9 +121,9 @@ export default {
     // ✅ 선택한 수업의 이름을 자동으로 업데이트
     const updateCourseName = () => {
       const selectedCourse = filteredCourses.value.find(
-        (course) => course.id == form.value.course_id
+        (course) => course.course_id == form.value.course_id
       );
-      form.value.name = selectedCourse ? selectedCourse.name : "";
+      form.value.course_name = selectedCourse ? selectedCourse.course_name : "";
     };
 
     // ✅ 등록 버튼 클릭 시 API 호출

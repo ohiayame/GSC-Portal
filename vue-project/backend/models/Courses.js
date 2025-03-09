@@ -2,10 +2,10 @@ import db from "../config/db.js";
 
 const Course = {
   // ✅ 과목 추가
-  async create({ name, professor, grade, class_section, type }) {
+  async create({ course_name, professor, grade, class_section, type }) {
     const [result] = await db.query(
-      "INSERT INTO courses (name, professor, grade, class_section, type) VALUES (?, ?, ?, ?, ?)",
-      [name, professor || "정영철", grade, class_section || 1, type || "regular"]
+      "INSERT INTO courses (course_name, professor, grade, class_section, type) VALUES (?, ?, ?, ?, ?)",
+      [course_name, professor || "정영철", grade, class_section, type || "regular"]
     );
     return result.insertId;
   },
@@ -21,8 +21,8 @@ const Course = {
   async update(course_id, { course_name, professor, grade, class_section, type }) {
     const [result] = await db.query(
       `UPDATE courses
-        SET name = ?, professor = ?, grade = ?, class_section = ?, type = ?
-        WHERE id = ?`,
+        SET course_name = ?, professor = ?, grade = ?, class_section = ?, type = ?
+        WHERE course_id = ?`,
       [course_name, professor, grade, class_section, type, course_id]
     );
     return result.affectedRows; // 수정된 행 수 반환
@@ -31,8 +31,8 @@ const Course = {
 
 
   // ✅ 과목 삭제 (ON DELETE CASCADE로 timetable도 자동 삭제됨)
-  async delete(id) {
-    const [result] = await db.query("DELETE FROM courses WHERE id = ?", [id]);
+  async delete(course_id) {
+    const [result] = await db.query("DELETE FROM courses WHERE course_id = ?", [course_id]);
     return result.affectedRows; // 삭제된 행 수 반환
   },
 };

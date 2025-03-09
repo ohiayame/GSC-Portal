@@ -12,14 +12,14 @@ const isEditMode = ref(false); // ✅ 수정 모드인지 여부 확인
 const form = ref({
   course_id: "",
   course_name: "",
-  professor: null,
+  professor: "정영철",
   grade: 1,
-  class_section: 1,
+  class_section: null,
   type: "regular",
   day: "",
-  period: "",
+  period: "2",
   duration: "",
-  location: "",
+  location: "창조관-",
   start_date: null,
   end_date: null,
 });
@@ -33,11 +33,51 @@ onMounted(() => {
   }
 });
 
+// const checkDuplicateTimetable = () => {
+//   // 🔹 현재 선택한 값 가져오기
+//   const selectedGrade = form.value.grade;
+//   const selectedDay = form.value.day;
+//   const selectedPeriod = form.value.period;
+//   const selectedDuration = form.value.duration;
+//   const selectedSection = form.value.class_section;
+
+//   // 🔹 같은 학년, 같은 요일, 같은 시간에 중복된 수업이 있는지 확인
+//   const hasDuplicate = store.timetables.some((tt) => {
+//     return (
+//       tt.grade === selectedGrade &&
+//       tt.day === selectedDay &&
+//       tt.period <= selectedPeriod &&
+//       selectedPeriod < tt.period + tt.duration
+//     );
+//   });
+
+//   // 🔹 중복된 경우, 기존 수업 또는 새 수업 중 하나라도 분반이 없는지 확인
+//   if (hasDuplicate) {
+//     const overlappingClass = store.timetables.find((tt) =>
+//       tt.grade === selectedGrade && tt.day === selectedDay &&
+//       tt.period <= selectedPeriod && selectedPeriod < tt.period + tt.duration
+//     );
+
+//     if (overlappingClass.class_section === 1 || selectedSection === 1) {
+//       alert(`⚠️ 중복된 시간표가 존재하며, 분반이 없는 경우 등록할 수 없습니다.
+//       기존 수업: ${overlappingClass.course_name} (${overlappingClass.class_section}분반)`);
+//       return false;
+//     }
+//   }
+
+//   return true;
+// };
+
+
 const saveTimetable = async () => {
   if (!form.value.course_name || !form.value.day || !form.value.period || !form.value.duration) {
     alert("📌 모든 필수 항목을 입력하세요!");
     return;
   }
+  // if (!checkDuplicateTimetable()) {
+  //   return;
+  // }
+  try{
     if (isEditMode.value) {
       // ✅ 수정 요청 시 과목 정보도 함께 보냄
       console.log("🚀 등록 요청 데이터:", form.value);
@@ -47,21 +87,21 @@ const saveTimetable = async () => {
     } else {
       // ✅ 새 과목 추가
       const courseData = {
-        name: form.value.course_name,
-        professor: form.value.professor || "정영철",
+        course_name: form.value.course_name,
+        professor: form.value.professor,
         grade: form.value.grade,
-        class_section: form.value.class_section,
+        class_section: form.value.class_section || null,
         type: form.value.type,
       };
 
       const courseResponse = await store.addCourse(courseData);
-      if (!courseResponse || !courseResponse.id) {
+      if (!courseResponse || !courseResponse.course_id) {
         alert("❌ 과목 추가 실패!");
         return;
       }
 
       const timetableData = {
-        course_id: courseResponse.id,
+        course_id: courseResponse.course_id,
         day: form.value.day,
         period: form.value.period,
         duration: form.value.duration,
@@ -73,8 +113,12 @@ const saveTimetable = async () => {
       await store.addTimetable(timetableData);
       alert("✅ 새 시간표 등록 완료!");
     }
-
     router.push("/timetable");
+
+  } catch (err) {
+    console.error("🚨 등록 오류:", err);
+    alert("❌ 시간표 추가 중 오류가 발생했습니다.");
+  }
 };
 
 

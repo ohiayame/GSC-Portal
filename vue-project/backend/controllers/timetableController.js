@@ -83,6 +83,7 @@ export const updateTimetable = async (req, res) => {
             day, period, duration, location, start_date, end_date } = req.body;
 
     console.log("req.params  data", req.params )
+
     // ✅ 과목 정보 수정 (course_id가 있는 경우)
     if (course_id) {
       const updatedCourseRows = await Course.update(course_id, {

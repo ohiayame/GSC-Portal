@@ -47,42 +47,43 @@ const editTimetable = (timetable) => {
 <template>
   <div class="manage-container">
     <h2>시간표 관리</h2>
+    <button  @click="$router.push('/timetable/new')" class="new-btn">새 시간표 등록</button>
 
     <div v-if="isLoading">⏳ 데이터 불러오는 중...</div>
     <div v-else-if="store.timetables.length === 0">📭 등록된 시간표가 없습니다.</div>
-    <div v-else class="top-button-container">
-      <button  @click="$router.push('/timetable/new')" class="new-btn">새 시간표 등록</button>
-    </div>
-    <table  class="timetable">
-      <thead>
-        <tr>
-          <th>학년</th>
-          <th>과목명</th>
-          <th>교수명</th>
-          <th>요일</th>
-          <th>교시</th>
-          <th>강의실</th>
-          <th>기간</th>
-          <th>수정</th>
-          <th>삭제</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="timetable in store.timetables" :key="timetable.id">
-          <td>{{ timetable.grade }}</td>
-          <td>{{ timetable.course_name }}</td>
-          <td>{{ timetable.professor }}</td>
-          <td>{{ timetable.day }}</td>
-          <td>{{ timetable.period }}교시
-            <span>({{ timetable.duration }}시간)</span></td>
-          <td>{{ timetable.location }}</td>
-          <td>{{ timetable.start_date.split("T")[0] }} ~ <br>{{ timetable.end_date.split("T")[0] }}</td>
-          <td><button class="edit-btn" @click="editTimetable(timetable)">✏️ 수정</button></td>
-          <td><button class="delete-btn" @click="deleteTt(timetable.course_id)">🗑 삭제</button></td>
-        </tr>
-      </tbody>
-    </table>
+
+    <div v-else>
+      <table  class="timetable">
+        <thead>
+          <tr>
+            <th>학년</th>
+            <th>과목명</th>
+            <th>교수명</th>
+            <th>요일</th>
+            <th>교시</th>
+            <th>강의실</th>
+            <th>기간</th>
+            <th>수정</th>
+            <th>삭제</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="timetable in store.timetables" :key="timetable.course_id">
+            <td>{{ timetable.grade }}</td>
+            <td>{{ timetable.course_name }}</td>
+            <td>{{ timetable.professor }}</td>
+            <td>{{ timetable.day }}</td>
+            <td>{{ timetable.period }}교시
+              <span>({{ timetable.duration }}시간)</span></td>
+            <td>{{ timetable.location }}</td>
+            <td>{{ timetable.start_date.split("T")[0] }} ~ <br>{{ timetable.end_date.split("T")[0] }}</td>
+            <td><button class="edit-btn" @click="editTimetable(timetable)">✏️ 수정</button></td>
+            <td><button class="delete-btn" @click="deleteTt(timetable.course_id)">🗑 삭제</button></td>
+          </tr>
+        </tbody>
+      </table>
   </div>
+</div>
   <div class="bottom-button-container">
     <button @click="router.push('/timetable')" class="back">돌아가기</button>
   </div>
@@ -114,11 +115,7 @@ th {
   background: #a7c7e7;
   font-weight: bold;
 }
-.top-button-container {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 15px;
-}
+
 .bottom-button-container {
   display: flex;
   justify-content: flex-start;
@@ -128,6 +125,9 @@ th {
 
 /* ✅ 새 시간표 등록 버튼 스타일 적용 */
 .new-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
   padding: 8px 12px;
   font-size: 14px;
   background-color: #485ff7;

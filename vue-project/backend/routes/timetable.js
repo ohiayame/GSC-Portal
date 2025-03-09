@@ -17,6 +17,6 @@ router.get("/:grade", getTimetableByGrade);
 // ✅ 시간표 추가
 router.post("/", createTimetable);
 
-router.put('/:id', updateTimetable);
+router.put('/:course_id', updateTimetable);
 
 export default router;
