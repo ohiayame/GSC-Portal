@@ -7,7 +7,7 @@ class Notice {
     return rows;
   }
   // ✅ 공지사항 목록 조회 (검색 기능 추가)
-  static async findAll({ target = 0, keyword = "" }) {
+  static async findAll({ target = 0, course_id = null, keyword = "" }) {
     let query = `SELECT * FROM notices WHERE 1=1`;
     let queryParams = [];
 
@@ -15,6 +15,11 @@ class Notice {
     if (target && target != 0) {
       query += " AND target = ?";
       queryParams.push(target);
+    }
+
+    if (course_id) {
+      query += " AND course_id = ?";
+      queryParams.push(course_id);
     }
 
     // ✅ 키워드 검색 (제목 또는 내용에 포함된 경우)
@@ -37,21 +42,21 @@ class Notice {
   }
 
   // ✅ 공지사항 추가
-  static async create({ title, content, author_id, target, priority}) {
+  static async create({ title, content, author_id, target, priority, course_id }) {
     const [result] = await pool.query(
-      `INSERT INTO notices (title, content, author_id, target, priority) VALUES (?, ?, ?, ?, ?)`,
-      [title, content, author_id, target, priority]
+      `INSERT INTO notices (title, content, author_id, target, priority, course_id) VALUES (?, ?, ?, ?, ?, ?)`,
+      [title, content, author_id, target, priority, course_id ]
     );
     return result.insertId;
   }
 
   // ✅ 공지사항 수정 (모든 필드 반영)
-  static async update(id, { title, content, author_id, target, priority }) {
+  static async update(id, { title, content, author_id, target, priority, course_id}) {
     const [result] = await pool.query(
       `UPDATE notices
-      SET title = ?, content = ?, author_id = ?, target = ?, priority = ?, updated_at = CURRENT_TIMESTAMP
+      SET title = ?, content = ?, author_id = ?, target = ?, priority = ?, course_id = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?`,
-      [title, content, author_id, target, priority, id]
+      [title, content, author_id, target, priority, course_id, id]
     );
     return result.affectedRows;
   }

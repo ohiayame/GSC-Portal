@@ -1,25 +1,35 @@
 <script setup>
-import { onMounted, computed  } from "vue";
+import { onMounted, computed } from "vue";
 import { useNoticesStore } from "../stores/notices";
+import { useTimetableStore } from "../stores/timetable";
 
 const store = useNoticesStore();
+const timetableStore = useTimetableStore();
 
-// ✅ 검색된 공지 목록 (반응형)
+// ✅ 선택한 학년에 맞는 과목 필터링 (과목 선택 리스트용)
+const filteredCourses = computed(() => {
+  return timetableStore.timetables.filter(course => store.searchTarget === 0 || course.grade == store.searchTarget);
+});
+
+// ✅ 검색된 공지 목록 (학년 + 과목 + 키워드 필터 적용)
 const filteredNotices = computed(() => {
   return store.notices.filter(notice => {
     const matchesTarget = store.searchTarget === 0 || notice.target == store.searchTarget;
+    const matchesCourse = store.searchCourse === "" || notice.course_id == store.searchCourse;
     const matchesKeyword =
       store.searchKeyword.trim() === "" ||
       notice.title.toLowerCase().includes(store.searchKeyword.toLowerCase()) ||
       notice.content.toLowerCase().includes(store.searchKeyword.toLowerCase());
-    return matchesTarget && matchesKeyword;
+
+    return matchesTarget && matchesCourse && matchesKeyword;
   });
 });
 
+// ✅ 페이지 로드 시 공지사항 가져오기
 onMounted(() => {
   store.fetchNotices();
+  timetableStore.fetchTimetables();
 });
-
 </script>
 
 <template>
@@ -37,13 +47,20 @@ onMounted(() => {
         <option :value="3">3학년</option>
       </select>
 
+      <!-- ✅ 학년 선택 시 해당 학년의 과목만 표시 -->
+      <select v-model="store.searchCourse">
+        <option value="">전체 공지</option>
+        <option v-for="course in filteredCourses" :key="course.course_id" :value="course.course_id">
+          {{ course.course_name }}
+        </option>
+      </select>
+
       <input
         type="text"
         placeholder="제목 검색..."
         v-model="store.searchKeyword"
       />
     </div>
-
 
     <table border="1">
       <thead>
@@ -52,7 +69,6 @@ onMounted(() => {
           <th>제목</th>
           <th>대상</th>
           <th>작성일</th>
-          <!-- <th>관리</th> -->
         </tr>
       </thead>
       <tbody>
@@ -65,15 +81,11 @@ onMounted(() => {
           </td>
           <td>{{ store.getTargetLabel(notice.target) }}</td>
           <td>{{ new Date(notice.created_at).toLocaleString() }}</td>
-          <!-- <td>
-            <button @click="store.deleteNotice(notice.id)">삭제</button>
-          </td> -->
         </tr>
       </tbody>
     </table>
   </div>
 </template>
-
 
 <style scoped>
 table {
@@ -83,7 +95,7 @@ table {
 .search-bar {
   display: flex;
   align-items: center;
-  gap: 10px; /* 요소 간 간격 조정 */
+  gap: 10px;
   margin-bottom: 15px;
   margin-top: 15px;
 }
@@ -103,7 +115,6 @@ table {
 .search-bar select {
   min-width: 100px;
 }
-
 
 th, td {
   padding: 8px;

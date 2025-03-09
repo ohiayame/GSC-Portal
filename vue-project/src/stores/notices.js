@@ -6,6 +6,7 @@ export const useNoticesStore = defineStore("notices", {
     notices: [], // 공지사항 목록 저장
     searchKeyword: "",
     searchTarget: 0,
+    searchCourse: ""
   }),
   actions: {
     // ✅ 공지사항 목록 불러오기
@@ -28,6 +29,10 @@ export const useNoticesStore = defineStore("notices", {
 
     setSearchTarget(target) {
       this.searchTarget = target;
+    },
+
+    setSearchCourses(courses) {
+      this.searchCourse = courses;
     },
 
     // ✅ 특정 공지사항 가져오기 (store에서 찾기)
