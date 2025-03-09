@@ -78,15 +78,15 @@ import Course from "../models/Courses.js";
 // ✅ 과목과 시간표 모두 업데이트
 export const updateTimetable = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { course_id, name, professor, grade, class_section, type,
+    // const { course_id } = req.params;
+    const { course_id, course_name, professor, grade, class_section, type,
             day, period, duration, location, start_date, end_date } = req.body;
 
-    console.log("req.body data", req.body)
+    console.log("req.params  data", req.params )
     // ✅ 과목 정보 수정 (course_id가 있는 경우)
     if (course_id) {
       const updatedCourseRows = await Course.update(course_id, {
-        name: name,
+        course_name,
         professor,
         grade,
         class_section,
@@ -99,7 +99,8 @@ export const updateTimetable = async (req, res) => {
     }
 
     // ✅ 시간표 정보 수정
-    const updatedTimetableRows = await Timetable.update(id, {
+    const updatedTimetableRows = await Timetable.update({
+      course_id,
       day,
       period,
       duration,

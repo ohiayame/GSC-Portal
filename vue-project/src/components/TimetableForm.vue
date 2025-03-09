@@ -10,10 +10,9 @@ const router = useRouter();
 const isEditMode = ref(false); // ✅ 수정 모드인지 여부 확인
 
 const form = ref({
-  id: null,
   course_id: "",
   course_name: "",
-  professor: "",
+  professor: null,
   grade: 1,
   class_section: 1,
   type: "regular",
@@ -27,9 +26,10 @@ const form = ref({
 
 // ✅ 페이지 로드시 기존 데이터가 있으면 자동 입력 (수정 모드)
 onMounted(() => {
-  if (route.query.id) {
+  if (route.query.course_id) {
     isEditMode.value = true;
     form.value = { ...route.query };
+    console.log("🚀 등록 데이터:", form.value);
   }
 });
 
@@ -40,8 +40,10 @@ const saveTimetable = async () => {
   }
     if (isEditMode.value) {
       // ✅ 수정 요청 시 과목 정보도 함께 보냄
+      console.log("🚀 등록 요청 데이터:", form.value);
       await store.updateTimetable(form.value);
       alert("✅ 시간표 및 과목 수정 완료!");
+
     } else {
       // ✅ 새 과목 추가
       const courseData = {
@@ -72,7 +74,7 @@ const saveTimetable = async () => {
       alert("✅ 새 시간표 등록 완료!");
     }
 
-    router.push("/timetable/manage");
+    router.push("/timetable");
 };
 
 
@@ -150,7 +152,9 @@ const saveTimetable = async () => {
     </div>
 
     <div class="button-container">
-      <button @click="router.push('/timetable/manage')" class="back">돌아가기</button>
+      <button @click="router.push(isEditMode ? '/timetable/manage' : '/timetable')" class="back">
+        돌아가기
+      </button>
       <button @click="saveTimetable" class="register">{{ isEditMode ? "수정" : "등록" }}</button>
     </div>
   </div>

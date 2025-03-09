@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted, watch } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useTimetableStore } from "../stores/timetable";
 import { useRouter } from "vue-router";
 

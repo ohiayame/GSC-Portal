@@ -18,12 +18,12 @@ const Course = {
 
 
   // ✅ 과목 정보 수정 추가
-  async update(id, { name, professor, grade, class_section, type }) {
+  async update(course_id, { course_name, professor, grade, class_section, type }) {
     const [result] = await db.query(
       `UPDATE courses
         SET name = ?, professor = ?, grade = ?, class_section = ?, type = ?
         WHERE id = ?`,
-      [name, professor, grade, class_section, type, id]
+      [course_name, professor, grade, class_section, type, course_id]
     );
     return result.affectedRows; // 수정된 행 수 반환
   },

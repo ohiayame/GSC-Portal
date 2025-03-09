@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import axios from "axios";
 
 export const useTimetableStore = defineStore("timetable", {
   state: () => ({
@@ -64,7 +63,12 @@ export const useTimetableStore = defineStore("timetable", {
     // ✅ 시간표 수정 (새로운 함수 추가)
     async updateTimetable(timetableData) {
       try {
-        const response = await axios.put(`/api/timetables/${timetableData.course_id}`, timetableData);
+        const response = await fetch(`http://localhost:3001/api/timetable/${timetableData.course_id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(timetableData)
+        });
+
         return response.data;
       } catch (error) {
         console.error("❌ 시간표 수정 실패:", error);
@@ -74,13 +78,13 @@ export const useTimetableStore = defineStore("timetable", {
 
 
     // ✅ 시간표 삭제
-    async deleteTimetable(id) {
+    async deleteTimetable(course_id) {
       try {
-        const response = await fetch(`http://localhost:3001/api/courses/${id}`, {
+        const response = await fetch(`http://localhost:3001/api/courses/${course_id}`, {
           method: "DELETE",
         });
         if (!response.ok) throw new Error("시간표 삭제 실패");
-        this.timetables = this.timetables.filter(item => item.id !== id);
+        this.timetables = this.timetables.filter(item => item.course_id !== course_id);
       } catch (error) {
         console.error("🚨 시간표 삭제 오류:", error);
       }

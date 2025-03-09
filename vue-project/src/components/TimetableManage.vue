@@ -14,22 +14,22 @@ onMounted(async () => {
 });
 
 // ✅ 시간표 삭제 함수
-const deleteTt = async (id) => {
+const deleteTt = async (course_id) => {
   if (!confirm("정말 삭제하시겠습니까?")) return;
-  await store.deleteTimetable(id);
-  console.log("📌 id값 :", id);
+  await store.deleteTimetable(course_id);
+  console.log("📌 id값 :", course_id);
   alert("삭제 완료!");
 };
 
 // ✅ 시간표 수정 페이지로 이동
 const editTimetable = (timetable) => {
+  console.log("📌 id값 :", timetable.course_id);
   router.push({
     path: `/timetable/edit/${timetable.course_id}`,
     query: {
-      id: timetable.id,
       course_id: timetable.course_id,
       course_name: timetable.course_name,
-      professor: "",
+      professor: timetable.professor,
       grade: timetable.grade,
       class_section: timetable.class_section,
       type: timetable.type,
@@ -50,8 +50,10 @@ const editTimetable = (timetable) => {
 
     <div v-if="isLoading">⏳ 데이터 불러오는 중...</div>
     <div v-else-if="store.timetables.length === 0">📭 등록된 시간표가 없습니다.</div>
-
-    <table v-else class="timetable">
+    <div v-else class="top-button-container">
+      <button  @click="$router.push('/timetable/new')" class="new-btn">새 시간표 등록</button>
+    </div>
+    <table  class="timetable">
       <thead>
         <tr>
           <th>학년</th>
@@ -74,25 +76,28 @@ const editTimetable = (timetable) => {
           <td>{{ timetable.period }}교시
             <span>({{ timetable.duration }}시간)</span></td>
           <td>{{ timetable.location }}</td>
-          <td>{{ timetable.start_date.split("T")[0] }} ~ {{ timetable.end_date.split("T")[0] }}</td>
+          <td>{{ timetable.start_date.split("T")[0] }} ~ <br>{{ timetable.end_date.split("T")[0] }}</td>
           <td><button class="edit-btn" @click="editTimetable(timetable)">✏️ 수정</button></td>
           <td><button class="delete-btn" @click="deleteTt(timetable.course_id)">🗑 삭제</button></td>
         </tr>
       </tbody>
     </table>
   </div>
+  <div class="bottom-button-container">
+    <button @click="router.push('/timetable')" class="back">돌아가기</button>
+  </div>
 </template>
 
 <style scoped>
 .manage-container {
-  width: 90%;
-  max-width: 800px;
+  width: auto;
+  max-width: 850px;
   margin: 20px auto;
   text-align: center;
 }
 
 .timetable {
-  width: 100%;
+  width: auto;
   border-collapse: collapse;
   background: white;
   border-radius: 10px;
@@ -109,7 +114,36 @@ th {
   background: #a7c7e7;
   font-weight: bold;
 }
+.top-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+.bottom-button-container {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 15px;
+  margin-left: 65px;
+}
 
+/* ✅ 새 시간표 등록 버튼 스타일 적용 */
+.new-btn {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #485ff7;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+}
+
+.new-btn:hover {
+  background-color: #5fb7ff;
+}
+
+/* ✅ 수정 & 삭제 버튼 스타일 */
 .edit-btn, .delete-btn {
   padding: 5px 10px;
   border: none;
@@ -134,5 +168,20 @@ th {
 
 .delete-btn:hover {
   background-color: #d32f2f;
+}
+
+/* ✅ 돌아가기 버튼 스타일 */
+.back {
+  background-color: #ccc;
+  color: black;
+  padding: 6px 20px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.back:hover {
+  background-color: #b3b3b3;
 }
 </style>
