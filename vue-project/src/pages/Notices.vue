@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, computed } from "vue";
+import { onMounted, computed, watch } from "vue";
 import { useNoticesStore } from "../stores/notices";
 import { useTimetableStore } from "../stores/timetable";
 
@@ -23,6 +23,12 @@ const filteredNotices = computed(() => {
 
     return matchesTarget && matchesCourse && matchesKeyword;
   });
+});
+
+watch(() => store.searchTarget, (newTarget) => {
+  if (newTarget === 0) {
+    store.searchCourse = "";
+  }
 });
 
 // ✅ 페이지 로드 시 공지사항 가져오기

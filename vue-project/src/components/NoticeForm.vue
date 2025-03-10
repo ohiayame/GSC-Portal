@@ -85,28 +85,34 @@ const saveNotice = async () => {
           <option :value="2">2학년</option>
           <option :value="3">3학년</option>
         </select>
-        <!-- 학년별 과목 -->
-        <select v-model="selectedCourse">
-          <option>과목 선택 없음</option>
-          <option v-for="course in filteredCourses" :key="course.course_id" :value="course.course_id">
-            {{ course.course_name }}
-          </option>
-        </select>
-      </div>
-
-
-
-      <div class="field">
         <label for="priority">중요 공지 여부</label>
         <select id="priority" v-model="priority">
           <option value="normal">일반</option>
           <option value="pinned">중요 공지</option>
         </select>
+
+      </div>
+
+
+
+      <div class="field">
+        <!-- 학년별 과목 -->
+        <label for="course">과목 선택</label>
+        <select id="course" v-model="selectedCourse">
+          <option>과목 선택 없음</option>
+          <option v-for="course in filteredCourses" :key="course.course_id" :value="course.course_id">
+            {{ course.course_name }}
+          </option>
+        </select>
+        <label for="file">파일 업로드</label>
+        <input id="file" type="file" @change="handleFileUpload" accept="image/*, .pdf" />
       </div>
     </div>
 
     <label for="content">내용</label>
     <textarea id="content" v-model="content" placeholder="내용 입력"></textarea>
+
+    <img v-if="previewImage" :src="previewImage" alt="이미지 미리보기" class="preview-img" />
 
     <div class="button-container">
       <button @click="router.push('/notices')" class="back">돌아가기</button>
