@@ -1,9 +1,12 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useNoticesStore } from "../stores/notices";
 import { useRoute, useRouter } from "vue-router";
+import { useTimetableStore } from "../stores/timetable";
 
 const store = useNoticesStore();
+const timetableStore = useTimetableStore();
+
 const route = useRoute();
 const router = useRouter();
 
@@ -12,9 +15,11 @@ const content = ref("");
 const author_id = ref(1);
 const target = ref(0);
 const priority = ref("normal");
+const selectedCourse = ref("과목 선택 없음");
 
 // ✅ 수정 모드일 경우 기존 데이터 불러오기
 onMounted(() => {
+  timetableStore.fetchTimetables();
   if (route.params.id) {
     const notice = store.getNoticeById(route.params.id);
     if (notice) {
@@ -22,10 +27,20 @@ onMounted(() => {
       content.value = notice.content;
       author_id.value = notice.author_id;
       target.value = notice.target;
+      selectedCourse.value = notice.course_id;
       priority.value = notice.priority;
     }
   }
 });
+
+const filteredCourses = computed(() => {
+  if(target.value === 0){
+    return;
+  }
+  // 전체(0) 선택 시 모든 과목 표시, 특정 학년 선택 시 해당 학년의 과목만 표시
+  return timetableStore.timetables.filter(course => target.value === 0 || course.grade === target.value);
+});
+
 
 const saveNotice = async () => {
   if (!title.value.trim() || !content.value.trim()) {
@@ -38,6 +53,7 @@ const saveNotice = async () => {
     content: content.value,
     author_id: author_id.value,
     target: target.value,
+    course_id: selectedCourse.value,
     priority: priority.value,
   };
 
@@ -69,7 +85,16 @@ const saveNotice = async () => {
           <option :value="2">2학년</option>
           <option :value="3">3학년</option>
         </select>
+        <!-- 학년별 과목 -->
+        <select v-model="selectedCourse">
+          <option>과목 선택 없음</option>
+          <option v-for="course in filteredCourses" :key="course.course_id" :value="course.course_id">
+            {{ course.course_name }}
+          </option>
+        </select>
       </div>
+
+
 
       <div class="field">
         <label for="priority">중요 공지 여부</label>
