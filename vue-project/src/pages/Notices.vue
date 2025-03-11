@@ -25,6 +25,17 @@ const filteredNotices = computed(() => {
   });
 });
 
+const filteredNoticesWithCourses = computed(() => {
+  return filteredNotices.value.map(notice => {
+    const course = timetableStore.timetables.find(course => course.course_id === notice.course_id);
+    return {
+      ...notice,
+      course_name: course ? course.course_name : "" // ✅ course_id에 맞는 과목명 찾기
+    };
+  });
+});
+
+
 watch(() => store.searchTarget, (newTarget) => {
   if (newTarget === 0) {
     store.searchCourse = "";
@@ -74,11 +85,12 @@ onMounted(() => {
           <th>번호</th>
           <th>제목</th>
           <th>대상</th>
+          <th>과목</th>
           <th>작성일</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(notice, index) in filteredNotices" :key="notice.id">
+        <tr v-for="(notice, index) in filteredNoticesWithCourses" :key="notice.id">
           <td>{{ index + 1 }}</td>
           <td>
             <router-link :to="'/notices/' + notice.id">
@@ -86,6 +98,7 @@ onMounted(() => {
             </router-link>
           </td>
           <td>{{ store.getTargetLabel(notice.target) }}</td>
+          <td>{{  notice.course_name }}</td>
           <td>{{ new Date(notice.created_at).toLocaleString() }}</td>
         </tr>
       </tbody>

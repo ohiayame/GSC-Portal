@@ -6,6 +6,7 @@
       <thead> <!-- ✅ <tr>를 <thead> 안으로 이동 -->
         <tr>
           <th>대상</th>
+          <th>과목</th>
           <th>작성자</th>
           <th>작성일</th>
         </tr>
@@ -13,6 +14,7 @@
       <tbody>
         <tr>
           <td>{{ store.getTargetLabel(notice.target) }}</td>
+          <td>{{ course.course_name }}</td>
           <td>/</td>
           <td>{{ formatDate(notice.created_at) }}</td>
         </tr>
@@ -36,12 +38,19 @@
 <script setup>
 import { useRoute, useRouter } from "vue-router";
 import { useNoticesStore } from "../stores/notices";
+import { useTimetableStore } from "../stores/timetable";
 
 const route = useRoute();
 const router = useRouter();
 const store = useNoticesStore();
 
 const notice = store.getNoticeById(route.params.id);
+const timetableStore = useTimetableStore();
+
+
+const course = timetableStore.timetables.find(course =>
+  course.course_id === notice.course_id);
+
 
 // ✅ 날짜 변환 함수
 const formatDate = (timestamp) => {
