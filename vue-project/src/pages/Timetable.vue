@@ -8,7 +8,7 @@ const router = useRouter();
 const selectedDate = ref(new Date().toISOString().split("T")[0]); // ✅ 기본값: 오늘 날짜
 
 // ✅ 요일과 시간 범위 설정
-const days = ["월", "화", "수", "목", "금"];
+const days = ["월", "화", "수", "목", "금", "토"];
 const periods = Array.from({ length: 10 }, (_, i) => i + 1); // 1교시 ~ 10교시
 
 // ✅ 페이지 로드시 시간표 데이터 불러오기

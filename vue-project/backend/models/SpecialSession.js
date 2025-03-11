@@ -7,7 +7,7 @@ export const SpecialSession = {
 
     try {
       // 1️⃣ 먼저 `courses` 테이블에 `course_id`가 있는지 확인
-      const [courseExists] = await pool.execute("SELECT id FROM courses WHERE id = ?", [course_id]);
+      const [courseExists] = await pool.execute("SELECT course_id FROM courses WHERE course_id = ?", [course_id]);
 
       if (courseExists.length === 0) {
         throw new Error(`❌ course_id ${course_id}가 존재하지 않습니다!`);

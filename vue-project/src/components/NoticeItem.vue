@@ -1,3 +1,38 @@
+<script setup>
+import { useRoute, useRouter } from "vue-router";
+import { useNoticesStore } from "../stores/notices";
+import { useTimetableStore } from "../stores/timetable";
+
+const route = useRoute();
+const router = useRouter();
+const store = useNoticesStore();
+
+const notice = store.getNoticeById(route.params.id);
+const timetableStore = useTimetableStore();
+
+
+const course = timetableStore.timetables.find(course =>
+  course.course_id === notice.course_id)?? {};
+
+
+// ✅ 날짜 변환 함수
+const formatDate = (timestamp) => {
+  return new Date(timestamp).toLocaleString();
+};
+
+// ✅ 수정 버튼 클릭 시 편집 페이지로 이동
+const editNotice = () => {
+  router.push(`/notices/edit/${route.params.id}`);
+};
+
+// ✅ 삭제 기능 추가
+const deleteNotice = async () => {
+  if (!confirm("정말 삭제하시겠습니까?")) return;
+  await store.deleteNotice(route.params.id);
+  router.push("/notices");
+};
+</script>
+
 <template>
   <div class="notice-container" v-if="notice">
     <h2>{{ notice.title }}</h2>
@@ -34,41 +69,6 @@
   </div>
   <p v-else>공지사항을 불러오는 중...</p>
 </template>
-
-<script setup>
-import { useRoute, useRouter } from "vue-router";
-import { useNoticesStore } from "../stores/notices";
-import { useTimetableStore } from "../stores/timetable";
-
-const route = useRoute();
-const router = useRouter();
-const store = useNoticesStore();
-
-const notice = store.getNoticeById(route.params.id);
-const timetableStore = useTimetableStore();
-
-
-const course = timetableStore.timetables.find(course =>
-  course.course_id === notice.course_id);
-
-
-// ✅ 날짜 변환 함수
-const formatDate = (timestamp) => {
-  return new Date(timestamp).toLocaleString();
-};
-
-// ✅ 수정 버튼 클릭 시 편집 페이지로 이동
-const editNotice = () => {
-  router.push(`/notices/edit/${route.params.id}`);
-};
-
-// ✅ 삭제 기능 추가
-const deleteNotice = async () => {
-  if (!confirm("정말 삭제하시겠습니까?")) return;
-  await store.deleteNotice(route.params.id);
-  router.push("/notices");
-};
-</script>
 
 <style scoped>
 .notice-container {
