@@ -42,21 +42,22 @@ class Notice {
   }
 
   // ✅ 공지사항 추가
-  static async create({ title, content, author_id, target, priority, course_id }) {
+  static async create({ title, content, author_id, target, priority, course_id, file_url }) {
+    console.log("file : ",file_url )
     const [result] = await pool.query(
-      `INSERT INTO notices (title, content, author_id, target, priority, course_id) VALUES (?, ?, ?, ?, ?, ?)`,
-      [title, content, author_id, target, priority, course_id ]
+      `INSERT INTO notices (title, content, author_id, target, priority, course_id, file_url) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [title, content, author_id, target, priority, course_id, file_url ]
     );
     return result.insertId;
   }
 
   // ✅ 공지사항 수정 (모든 필드 반영)
-  static async update(id, { title, content, author_id, target, priority, course_id}) {
+  static async update(id, { title, content, author_id, target, priority, course_id, file_url}) {
     const [result] = await pool.query(
       `UPDATE notices
-      SET title = ?, content = ?, author_id = ?, target = ?, priority = ?, course_id = ?, updated_at = CURRENT_TIMESTAMP
+      SET title = ?, content = ?, author_id = ?, target = ?, priority = ?, course_id = ?, file_url = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?`,
-      [title, content, author_id, target, priority, course_id, id]
+      [title, content, author_id, target, priority, course_id, file_url, id]
     );
     return result.affectedRows;
   }

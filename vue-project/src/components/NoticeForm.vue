@@ -15,7 +15,7 @@ const content = ref("");
 const author_id = ref(1);
 const target = ref(0);
 const priority = ref("normal");
-const selectedCourse = ref("과목 선택 없음");
+const selectedCourse = ref(null);
 
 // ✅ 수정 모드일 경우 기존 데이터 불러오기
 onMounted(() => {
@@ -42,31 +42,53 @@ const filteredCourses = computed(() => {
 });
 
 
+const selectedFile = ref(null);
+const previewImage = ref(null);
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  selectedFile.value = file;
+
+  // ✅ 이미지 파일이면 미리보기 생성
+  if (file.type.startsWith("image/")) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      previewImage.value = reader.result;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    previewImage.value = null; // PDF 등은 미리보기 없음
+  }
+};
+
+
+
 const saveNotice = async () => {
   if (!title.value.trim() || !content.value.trim()) {
     alert("제목과 내용을 입력하세요.");
     return;
   }
-
+  console.log("📌 파일값 :", selectedFile.value);
   const noticeData = {
     title: title.value,
     content: content.value,
     author_id: author_id.value,
     target: target.value,
-    course_id: selectedCourse.value,
     priority: priority.value,
+    course_id: selectedCourse.value,
   };
 
   if (route.params.id) {
-    // ✅ 수정 모드
-    await store.updateNotice(route.params.id, noticeData);
+    await store.updateNotice(route.params.id, noticeData, selectedFile.value);
   } else {
-    // ✅ 새 공지 작성 모드
-    await store.addNotice(noticeData);
+    await store.addNotice(noticeData, selectedFile.value);
   }
 
-  router.push("/notices"); // ✅ 저장 후 목록으로 이동
+  router.push("/notices");
 };
+
 </script>
 
 <template>
@@ -99,7 +121,7 @@ const saveNotice = async () => {
         <!-- 학년별 과목 -->
         <label for="course">과목 선택</label>
         <select id="course" v-model="selectedCourse">
-          <option>과목 선택 없음</option>
+          <option value="">과목 선택 없음</option>
           <option v-for="course in filteredCourses" :key="course.course_id" :value="course.course_id">
             {{ course.course_name }}
           </option>
