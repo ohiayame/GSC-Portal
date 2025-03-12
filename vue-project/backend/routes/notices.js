@@ -14,6 +14,7 @@ const router = express.Router();
 router.get("/", getNotices);
 router.get('/:id', getNoticeById);
 router.post("/upload", uploadFile);
+router.use("/uploads", express.static("uploads"));
 router.post('/', createNotice);
 router.put('/:id', updateNotice);
 router.delete('/:id', deleteNotice);

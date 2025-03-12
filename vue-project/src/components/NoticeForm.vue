@@ -193,6 +193,14 @@ textarea {
   width: 48%; /* 필드 크기를 균등하게 나눔 */
 }
 
+.preview-img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-top: 5px;
+}
+
 .button-container {
   display: flex;
   justify-content: space-between;
