@@ -48,6 +48,11 @@ export const useNoticesStore = defineStore("notices", {
             : "알 수 없음";
     },
 
+    getFileUrl(filePath) {
+      if (!filePath) return ""; // 파일이 없으면 빈 문자열 반환
+      return `http://localhost:3001/api/notices/${filePath}`;
+    },
+
     async uploadFile(file) {
       if (!file) {
         console.log("🚨 파일이 없습니다.");
@@ -78,27 +83,14 @@ export const useNoticesStore = defineStore("notices", {
     },
 
     // ✅ 공지사항 추가
-    async addNotice(newNotice, file) {
+    async addNotice(newNotice) {
       try {
-        let file_url = "";
-        console.log("📌 업로드 시작 (파일 있음)", file);
-        // ✅ 파일 업로드 후 URL 받기
-        if (file) {
-
-          file_url = await this.uploadFile(file) || "";
-          console.log("📌 file URL:", file_url);
-        } else {
-          console.log("🚨 업로드할 파일이 없습니다.");
-        }
-
-        const noticeData = { ...newNotice, file_url }; // ✅ 공지사항 데이터에 파일 URL 추가
-
-        console.log("📌 보낼 데이터:", noticeData);
+        console.log("📌 보낼 데이터:", newNotice);
 
         const response = await fetch("http://localhost:3001/api/notices", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(noticeData),
+          body: JSON.stringify(newNotice),
         });
 
         if (!response.ok) throw new Error("공지사항 추가 실패");
@@ -110,21 +102,13 @@ export const useNoticesStore = defineStore("notices", {
     },
 
     // ✅ 공지사항 수정 (추가된 기능)
-    async updateNotice(id, updatedNotice, file) {
+    async updateNotice(id, updatedNotice) {
       try {
-        let fileUrl = updatedNotice.fileUrl || "";
-
-        // ✅ 새 파일이 선택되었으면 업로드 후 URL 받기
-        if (file) {
-          fileUrl = await this.uploadFile(file);
-        }
-
-        const noticeData = { ...updatedNotice, fileUrl };
 
         const response = await fetch(`http://localhost:3001/api/notices/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(noticeData),
+          body: JSON.stringify(updatedNotice),
         });
 
         if (!response.ok) throw new Error("공지사항 수정 실패");
@@ -132,7 +116,7 @@ export const useNoticesStore = defineStore("notices", {
         // ✅ store 내 데이터 업데이트
         const index = this.notices.findIndex(notice => notice.id == id);
         if (index !== -1) {
-          this.notices[index] = { ...this.notices[index], ...noticeData };
+          this.notices[index] = { ...this.notices[index], ...updatedNotice };
         }
       } catch (error) {
         console.error("🚨 공지사항 수정 오류:", error);

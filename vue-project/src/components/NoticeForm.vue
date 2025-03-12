@@ -17,6 +17,14 @@ const target = ref(0);
 const priority = ref("normal");
 const selectedCourse = ref(null);
 
+const selectedFile = ref(null);
+const previewImage = ref(null);
+const selectedFileUrl = ref("");
+
+const computedFileUrl = computed(() => {
+  return selectedFileUrl.value ? store.getFileUrl(selectedFileUrl.value) : "";
+});
+
 // ✅ 수정 모드일 경우 기존 데이터 불러오기
 onMounted(() => {
   timetableStore.fetchTimetables();
@@ -29,6 +37,11 @@ onMounted(() => {
       target.value = notice.target;
       selectedCourse.value = notice.course_id;
       priority.value = notice.priority;
+      selectedFileUrl.value = notice.file_url || "";
+
+      if (selectedFileUrl.value && isImage(selectedFileUrl.value)) {
+        previewImage.value = computedFileUrl.value;
+      }
     }
   }
 });
@@ -41,15 +54,16 @@ const filteredCourses = computed(() => {
   return timetableStore.timetables.filter(course => target.value === 0 || course.grade === target.value);
 });
 
-
-const selectedFile = ref(null);
-const previewImage = ref(null);
+const isImage = (fileUrl) => {
+  return /\.(jpg|jpeg|png|gif|webp)$/i.test(fileUrl);
+};
 
 const handleFileUpload = (event) => {
   const file = event.target.files[0];
   if (!file) return;
 
   selectedFile.value = file;
+  selectedFileUrl.value = "";
 
   // ✅ 이미지 파일이면 미리보기 생성
   if (file.type.startsWith("image/")) {
@@ -63,6 +77,13 @@ const handleFileUpload = (event) => {
   }
 };
 
+const removeFile = () => {
+  selectedFile.value = null;
+  selectedFileUrl.value = "";
+  previewImage.value = null;  // ✅ 미리보기 이미지 초기화
+};
+
+
 
 
 const saveNotice = async () => {
@@ -71,6 +92,12 @@ const saveNotice = async () => {
     return;
   }
   console.log("📌 파일값 :", selectedFile.value);
+
+  let file_url = selectedFileUrl.value;
+  if (selectedFile.value) {
+    file_url = await store.uploadFile(selectedFile.value); // ✅ 새 파일 업로드
+  }
+
   const noticeData = {
     title: title.value,
     content: content.value,
@@ -78,12 +105,13 @@ const saveNotice = async () => {
     target: target.value,
     priority: priority.value,
     course_id: selectedCourse.value,
+    file_url: file_url,
   };
 
   if (route.params.id) {
-    await store.updateNotice(route.params.id, noticeData, selectedFile.value);
+    await store.updateNotice(route.params.id, noticeData);
   } else {
-    await store.addNotice(noticeData, selectedFile.value);
+    await store.addNotice(noticeData);
   }
 
   router.push("/notices");
@@ -126,6 +154,7 @@ const saveNotice = async () => {
             {{ course.course_name }}
           </option>
         </select>
+
         <label for="file">파일 업로드</label>
         <input id="file" type="file" @change="handleFileUpload" accept="image/*, .pdf" />
       </div>
@@ -133,9 +162,10 @@ const saveNotice = async () => {
 
     <label for="content">내용</label>
     <textarea id="content" v-model="content" placeholder="내용 입력"></textarea>
-
-    <img v-if="previewImage" :src="previewImage" alt="이미지 미리보기" class="preview-img" />
-
+    <div v-if="previewImage">
+      <img :src="previewImage" alt="이미지 미리보기" class="preview-img" />
+      <button @click=removeFile class="del">❌삭제</button>
+    </div>
     <div class="button-container">
       <button @click="router.push('/notices')" class="back">돌아가기</button>
       <button @click="saveNotice">{{ route.params.id ? "수정" : "등록" }}</button>
@@ -194,7 +224,7 @@ textarea {
 }
 
 .preview-img {
-  max-width: 100%;
+  max-width: 50%;
   height: auto;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -230,5 +260,20 @@ button:hover {
 
 button.back:hover {
   background-color: #b3b3b3;
+}
+.del{
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  background-color: #a0b9f5;
+  color: rgb(0, 0, 0);
+  margin-top: 3px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.del:hover {
+  background-color: #d1e7fa;
 }
 </style>
