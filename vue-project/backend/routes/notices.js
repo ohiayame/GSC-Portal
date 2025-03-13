@@ -6,6 +6,7 @@ import {
   createNotice,
   updateNotice,
   deleteNotice,
+  deleteNoticeFile
 } from '../controllers/noticesController.js';
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.post('/', createNotice);
 router.put('/:id', updateNotice);
 router.delete('/:id', deleteNotice);
 
+router.delete("/delete-file/:filename", deleteNoticeFile);
 
 export default router;

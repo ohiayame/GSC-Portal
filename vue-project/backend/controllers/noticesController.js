@@ -1,6 +1,8 @@
 import Notice from '../models/Notices.js';
 import multer from "multer";
 import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 
 // ✅ 공지사항 목록 조회 (검색 기능 포함)
 export const getNotices = async (req, res) => {
@@ -116,4 +118,24 @@ export const deleteNotice = async (req, res) => {
     console.error("🚨 공지사항 삭제 오류:", err);
     res.status(500).json({ error: "공지사항 삭제에 실패했습니다." });
   }
+};
+
+// ✅ ES 모듈 환경에서 __dirname을 설정
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ✅ 공지사항 파일 삭제 로직
+export const deleteNoticeFile = (req, res) => {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, "../uploads", filename); // ✅ 업로드 폴더 경로
+
+    // 파일 존재 여부 확인 후 삭제
+    fs.unlink(filePath, (err) => {
+        if (err) {
+            console.error("🚨 파일 삭제 실패:", err);
+            return res.status(500).json({ error: "파일 삭제 실패" });
+        }
+        console.log("✅ 파일 삭제 완료:", filename);
+        res.json({ message: "파일 삭제 성공" });
+    });
 };

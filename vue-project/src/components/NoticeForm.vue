@@ -81,6 +81,11 @@ const removeFile = () => {
   selectedFile.value = null;
   selectedFileUrl.value = "";
   previewImage.value = null;  // ✅ 미리보기 이미지 초기화
+
+  const fileInput = document.getElementById("file");
+  if (fileInput) {
+    fileInput.value = "";
+  }
 };
 
 
