@@ -38,20 +38,23 @@
         <input type="date" v-model="form.date" class="input-field" />
       </div>
 
-      <!-- ✅ 보강 선택 시 추가 입력 필드 -->
-      <div v-if="form.type === '보강'">
-        <div class="inline-group">
-          <div class="form-group">
-            <label>시작 교시:</label>
-            <input type="number" v-model="form.start_period" class="input-field" />
-          </div>
-
-          <div class="form-group">
-            <label>지속 시간:</label>
-            <input type="number" v-model="form.duration" class="input-field" />
-          </div>
+      <div class="inline-group">
+        <div class="form-group">
+          <label>시작 교시:</label>
+          <input type="number" v-model="form.start_period" class="input-field" />
         </div>
 
+        <div class="form-group">
+          <label>지속 시간:</label>
+          <input type="number" v-model="form.duration" class="input-field" />
+        </div>
+      </div>
+
+
+
+
+      <!-- ✅ 보강 선택 시 추가 입력 필드 -->
+      <div v-if="form.type === '보강'">
         <div class="form-group">
           <label>강의실:</label>
           <input type="text" v-model="form.location" class="input-field" />
@@ -96,11 +99,12 @@ export default {
 
     // ✅ 페이지 진입 시 query에서 데이터 가져와서 기본값 설정
     onMounted(() => {
-      const { course_id, course_name, date, start_period, type} = route.query;
+      const { course_id, course_name, date, start_period, duration, type} = route.query;
       if (course_id) {
         form.value.course_id = course_id;
         form.value.course_name = course_name;
         form.value.start_period = start_period;
+        form.value.duration = duration;
         form.value.type = type || "보강";
         form.value.date = date || "";
       }

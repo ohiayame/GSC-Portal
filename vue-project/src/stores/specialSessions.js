@@ -14,7 +14,11 @@ export const useSpecialSessionStore = defineStore("specialSessions", {
         if (!response.ok) throw new Error("보강/휴강 목록 불러오기 실패!");
 
         const data = await response.json();
-        this.sessions = data;
+        this.sessions = data.map(session => ({
+          ...session,
+          date: new Date(session.date).toISOString().split("T")[0]  // 날짜만 남김
+        }));
+        console.log("📌 변환된 보강/휴강 데이터:", this.sessions);
       } catch (error) {
         console.error(error);
       }

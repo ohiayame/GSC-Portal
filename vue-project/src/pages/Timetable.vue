@@ -1,20 +1,24 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
 import { useTimetableStore } from "../stores/timetable";
+import { useSpecialSessionStore } from "../stores/specialSessions";
 import { useRouter } from "vue-router";
 
 const store = useTimetableStore();
+const specialStore = useSpecialSessionStore();
 const router = useRouter();
 const selectedDate = ref(new Date().toISOString().split("T")[0]); // ✅ 기본값: 오늘 날짜
 
 // ✅ 요일과 시간 범위 설정
-const days = ["월", "화", "수", "목", "금", "토"];
+const days = ["월", "화", "수", "목", "금"];  // ,"토"
 const periods = Array.from({ length: 10 }, (_, i) => i + 1); // 1교시 ~ 10교시
 
 // ✅ 페이지 로드시 시간표 데이터 불러오기
 onMounted(async () => {
   await store.fetchTimetables();
+  await specialStore.fetchSessions();
   console.log("📌 초기 시간표 데이터:", store.timetables);
+  console.log("📌 휴보강 시간표 데이터:", specialStore.sessions);
 });
 
 // ✅ 특정 학년 & 날짜 기준으로 시간표 필터링
@@ -31,19 +35,42 @@ const filteredTimetables = computed(() => {
   });
 });
 
+const filteredSessions = computed(() => {
+  const weekDates = getWeekDates(selectedDate.value); // ✅ 이번 주의 모든 날짜 가져오기
+  const selectedGrade = Number(store.searchTarget); // ✅ 선택된 학년
+
+  return specialStore.sessions.filter(session => {
+    // ✅ session.grade와 선택된 학년 비교 (grade 필드가 있는 경우)
+    if (session.grade !== undefined) {
+      return session.grade === selectedGrade && weekDates.includes(session.date);
+    }
+
+    // ✅ grade 필드가 없는 경우, timetable에서 course_id를 기반으로 학년 확인
+    const relatedClass = store.timetables.find(cls => cls.course_id === session.course_id);
+    return relatedClass && relatedClass.grade === selectedGrade && weekDates.includes(session.date);
+  });
+});
+
+
+
 const getWeekDates = (selectedDate) => {
   const date = new Date(selectedDate);
   const dayOfWeek = date.getDay(); // 0: 일요일 ~ 6: 토요일
   const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // 월요일로 이동
-  const monday = new Date(date);
-  monday.setDate(date.getDate() + mondayOffset);
+  const monday  = new Date(date);
+  monday .setDate(date.getDate() + mondayOffset);
 
-  return days.map((_, index) => {
+  // return days.map((_, index) => {
+    return Array.from({ length: 5 }, (_, index) => {
     const newDate = new Date(monday);
     newDate.setDate(monday.getDate() + index); // 월요일 + index 일 후
     return newDate.toISOString().split("T")[0]; // YYYY-MM-DD 형식 반환
   });
 };
+const daysWithDates = computed(() => {
+  const weekDates = getWeekDates(selectedDate.value);
+  return days.map((day, index) => `${day} (${weekDates[index].slice(5)})`);
+});
 
 // ✅ 특정 시간과 요일에 해당하는 수업 찾기 (연강 포함)
 const getClassAt = (day, period) => {
@@ -51,6 +78,17 @@ const getClassAt = (day, period) => {
     (cls) => cls.day === day && cls.period <= period && period < cls.period + cls.duration
   );
 };
+
+const getSpecialSessionAt = (day, period) => {
+  return filteredSessions.value.find(session => {
+    const sessionWeekDates = getWeekDates(selectedDate.value);
+    const sessionDay = days[sessionWeekDates.findIndex(d => d === session.date)];
+
+    return sessionDay === day && session.start_period <= period && period < session.start_period + session.duration;
+  });
+};
+
+
 
 // ✅ 시간표 셀 클릭 시 보강/휴강 등록 페이지 이동
 const goToSpecialSession = (course) => {
@@ -71,6 +109,7 @@ const goToSpecialSession = (course) => {
       course_id: course.course_id,
       date: dateForSelectedDay ,
       start_period: course.period,
+      duration: course.duration,
       course_name: course.course_name,
       type: "휴강",
     },
@@ -110,7 +149,7 @@ const goToSpecialSession = (course) => {
       <thead>
         <tr>
           <th></th>
-          <th v-for="day in days" :key="day">{{ day }}</th>
+          <th v-for="(day, index) in daysWithDates" :key="index">{{ day }}</th>
         </tr>
       </thead>
       <tbody>
@@ -120,17 +159,31 @@ const goToSpecialSession = (course) => {
             <br /><span>{{ period + 8 }}시~</span>
           </td>
           <td
-            v-for="day in days"
-            :key="day"
-            @click="getClassAt(day, period) ? goToSpecialSession(getClassAt(day, period)) : null"
-            class="clickable-cell"
-          >
-            <div v-if="getClassAt(day, period)" class="class-info">
-              <strong>{{ getClassAt(day, period).course_name }}</strong><br />
-              <span>{{ getClassAt(day, period).location }}</span><br />
-              <span>{{ getClassAt(day, period).professor }}</span><br />
-            </div>
-          </td>
+  v-for="day in days"
+  :key="day"
+  @click="getClassAt(day, period) || getSpecialSessionAt(day, period) ? goToSpecialSession(getClassAt(day, period) || getSpecialSessionAt(day, period)) : null"
+  class="clickable-cell"
+>
+  <!-- ✅ 휴강이면 기존 수업 숨기고 '❌ 휴강' 표시 -->
+  <div v-if="getSpecialSessionAt(day, period) && getSpecialSessionAt(day, period).type === '휴강'" class="special-session">
+    ❌ 휴강
+  </div>
+
+  <!-- ✅ 기존 수업 정보 (휴강이 아닐 때만 표시) -->
+  <div v-else-if="getClassAt(day, period)" class="class-info">
+    <strong>{{ getClassAt(day, period).course_name }}</strong><br />
+    <span>{{ getClassAt(day, period).location }}</span><br />
+    <span>{{ getClassAt(day, period).professor }}</span><br />
+  </div>
+
+  <!-- ✅ 보강이 있는 경우 기존 수업이 없어도 표시 -->
+  <div v-if="getSpecialSessionAt(day, period) && getSpecialSessionAt(day, period).type === '보강'" class="special-session">
+    🔄 보강 - <strong>{{ getSpecialSessionAt(day, period).course_name || "수업 정보 없음" }}</strong><br />
+    <span v-if="getSpecialSessionAt(day, period).location">{{ getSpecialSessionAt(day, period).location }}</span><br />
+    <span v-if="getSpecialSessionAt(day, period).professor">{{ getSpecialSessionAt(day, period).professor }}</span><br />
+  </div>
+</td>
+
         </tr>
       </tbody>
     </table>

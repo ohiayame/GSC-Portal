@@ -33,8 +33,13 @@ export const SpecialSession = {
   // ✅ 모든 보강/휴강 데이터 조회
   async findAll() {
     try {
-      const query = "SELECT * FROM special_sessions";
-      const [results] = await pool.execute(query); // ✅ pool 사용
+      const query = `
+        SELECT id, course_id, DATE_FORMAT(date, '%Y-%m-%d') as date, type, start_period, duration, location
+        FROM special_sessions
+      `;
+      const [results] = await pool.execute(query);
+
+      // console.log(results) // ✅ pool 사용
       return results;
     } catch (error) {
       console.error("❌ 보강/휴강 조회 오류:", error);

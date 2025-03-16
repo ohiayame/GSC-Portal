@@ -5,6 +5,8 @@ const Timetable = {
   async getAll() {
     const [rows] = await db.query(`
       SELECT t.*,
+            DATE_FORMAT(t.start_date, '%Y-%m-%d') AS start_date,
+            DATE_FORMAT(t.end_date, '%Y-%m-%d') AS end_date,
             c.course_name,
             c.professor,
             c.grade,
@@ -13,6 +15,7 @@ const Timetable = {
       FROM timetable t
       JOIN courses c ON t.course_id = c.course_id
     `);
+    console.log(rows)
     return rows;
   },
 
