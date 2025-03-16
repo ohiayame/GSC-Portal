@@ -26,12 +26,19 @@ const filteredNotices = computed(() => {
 });
 
 const filteredNoticesWithCourses = computed(() => {
-  return filteredNotices.value.map(notice => {
+  return filteredNotices.value
+  .map(notice => {
     const course = timetableStore.timetables.find(course => course.course_id === notice.course_id);
     return {
       ...notice,
       course_name: course ? course.course_name : "" // ✅ course_id에 맞는 과목명 찾기
     };
+  })
+  .sort((a, b) => {
+    // ✅ priority가 'pinned'인 공지를 먼저 배치
+    if (a.priority === 'pinned' && b.priority !== 'pinned') return -1;
+    if (a.priority !== 'pinned' && b.priority === 'pinned') return 1;
+    return new Date(b.created_at) - new Date(a.created_at); // 기본 정렬 (최신순)
   });
 });
 
@@ -90,8 +97,12 @@ onMounted(() => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(notice, index) in filteredNoticesWithCourses" :key="notice.id">
-          <td>{{ index + 1 }}</td>
+        <tr v-for="(notice, index) in filteredNoticesWithCourses"
+          :key="notice.id"
+          :class="{'pinned-row': notice.priority === 'pinned'}">
+          <td>
+            {{ index + 1 }}
+          </td>
           <td>
             <router-link :to="'/notices/' + notice.id">
               {{ notice.title }}
@@ -134,6 +145,12 @@ table {
 .search-bar select {
   min-width: 100px;
 }
+
+.pinned-row {
+  background-color: #fff0f0; /* 부드러운 노란색 (Bootstrap의 alert-warning 색상) */
+}
+
+
 
 th, td {
   padding: 8px;
