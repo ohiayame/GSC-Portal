@@ -13,12 +13,14 @@ export const useSpecialSessionStore = defineStore("specialSessions", {
         const response = await fetch(API_BASE_URL);
         if (!response.ok) throw new Error("보강/휴강 목록 불러오기 실패!");
 
-        const data = await response.json();
-        this.sessions = data.map(session => ({
-          ...session,
-          date: new Date(session.date).toISOString().split("T")[0]  // 날짜만 남김
-        }));
-        console.log("📌 변환된 보강/휴강 데이터:", this.sessions);
+        let data = await response.json();
+
+        // ✅ 휴강을 먼저 정렬하고, 날짜순 정렬
+        this.sessions = data.sort((a, b) => {
+          if (a.type !== b.type) return a.type === "휴강" ? -1 : 1; // ✅ 휴강이 먼저
+          return new Date(a.date) - new Date(b.date); // ✅ 날짜 오름차순 정렬
+        });
+
       } catch (error) {
         console.error(error);
       }

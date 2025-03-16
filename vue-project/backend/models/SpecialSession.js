@@ -45,7 +45,10 @@ export const SpecialSession = {
             c.course_name,
             c.professor
         FROM special_sessions s
-        JOIN courses c ON s.course_id = c.course_id;
+        JOIN courses c ON s.course_id = c.course_id
+        ORDER BY
+          FIELD(s.type, '휴강', '보강'),
+          s.date ASC;
       `;
       const [results] = await pool.execute(query);
 
@@ -56,4 +59,24 @@ export const SpecialSession = {
       throw error;
     }
   },
+
+  async delete(id) {
+    try {
+      // 1️⃣ 해당 ID가 존재하는지 확인
+      const [sessionExists] = await pool.execute("SELECT id FROM special_sessions WHERE id = ?", [id]);
+
+      if (sessionExists.length === 0) {
+        return 0; // ✅ 해당 ID가 존재하지 않으면 0 반환
+      }
+
+      // 2️⃣ 데이터 삭제
+      const query = "DELETE FROM special_sessions WHERE id = ?";
+      const [result] = await pool.execute(query, [id]);
+
+      return result.affectedRows; // ✅ 삭제된 행 개수 반환
+    } catch (error) {
+      console.error("❌ 보강/휴강 삭제 오류:", error);
+      throw error;
+    }
+  }
 };
