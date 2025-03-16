@@ -159,30 +159,30 @@ const goToSpecialSession = (course) => {
             <br /><span>{{ period + 8 }}시~</span>
           </td>
           <td
-  v-for="day in days"
-  :key="day"
-  @click="getClassAt(day, period) || getSpecialSessionAt(day, period) ? goToSpecialSession(getClassAt(day, period) || getSpecialSessionAt(day, period)) : null"
-  class="clickable-cell"
->
-  <!-- ✅ 휴강이면 기존 수업 숨기고 '❌ 휴강' 표시 -->
-  <div v-if="getSpecialSessionAt(day, period) && getSpecialSessionAt(day, period).type === '휴강'" class="special-session">
-    ❌ 휴강
-  </div>
+            v-for="day in days"
+            :key="day"
+            @click="getClassAt(day, period) || getSpecialSessionAt(day, period) ? goToSpecialSession(getClassAt(day, period) || getSpecialSessionAt(day, period)) : null"
+            class="clickable-cell"
+          >
+            <!-- ✅ 휴강이면 기존 수업 숨기고 '❌ 휴강' 표시 -->
+            <div v-if="getSpecialSessionAt(day, period) && getSpecialSessionAt(day, period).type === '휴강'" class="specialH-session">
+              ❌ 휴강
+            </div>
 
-  <!-- ✅ 기존 수업 정보 (휴강이 아닐 때만 표시) -->
-  <div v-else-if="getClassAt(day, period)" class="class-info">
-    <strong>{{ getClassAt(day, period).course_name }}</strong><br />
-    <span>{{ getClassAt(day, period).location }}</span><br />
-    <span>{{ getClassAt(day, period).professor }}</span><br />
-  </div>
+            <!-- ✅ 기존 수업 정보 (휴강이 아닐 때만 표시) -->
+            <div v-else-if="getClassAt(day, period)" class="class-info">
+              <strong>{{ getClassAt(day, period).course_name }}</strong><br />
+              <span>{{ getClassAt(day, period).location }}</span><br />
+              <span>{{ getClassAt(day, period).professor }}</span><br />
+            </div>
 
-  <!-- ✅ 보강이 있는 경우 기존 수업이 없어도 표시 -->
-  <div v-if="getSpecialSessionAt(day, period) && getSpecialSessionAt(day, period).type === '보강'" class="special-session">
-    🔄 보강 - <strong>{{ getSpecialSessionAt(day, period).course_name || "수업 정보 없음" }}</strong><br />
-    <span v-if="getSpecialSessionAt(day, period).location">{{ getSpecialSessionAt(day, period).location }}</span><br />
-    <span v-if="getSpecialSessionAt(day, period).professor">{{ getSpecialSessionAt(day, period).professor }}</span><br />
-  </div>
-</td>
+            <!-- ✅ 보강이 있는 경우 기존 수업이 없어도 표시 -->
+            <div v-if="getSpecialSessionAt(day, period) && getSpecialSessionAt(day, period).type === '보강'" class="special-session">
+              🔄 보강 <br> <strong>{{ getSpecialSessionAt(day, period).course_name || "수업 정보 없음" }}</strong><br />
+              <span v-if="getSpecialSessionAt(day, period).location">{{ getSpecialSessionAt(day, period).location }}</span><br />
+              <span v-if="getSpecialSessionAt(day, period).professor">{{ getSpecialSessionAt(day, period).professor }}</span><br />
+            </div>
+          </td>
 
         </tr>
       </tbody>
@@ -261,6 +261,18 @@ td {
 
 .class-info {
   background: #e3f2fd;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.special-session {
+  background: #fdfce3;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+.specialH-session{
   padding: 5px;
   border-radius: 5px;
   font-size: 14px;

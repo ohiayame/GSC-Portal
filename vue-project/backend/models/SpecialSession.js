@@ -34,8 +34,18 @@ export const SpecialSession = {
   async findAll() {
     try {
       const query = `
-        SELECT id, course_id, DATE_FORMAT(date, '%Y-%m-%d') as date, type, start_period, duration, location
-        FROM special_sessions
+        SELECT
+            s.id,
+            s.course_id,
+            DATE_FORMAT(s.date, '%Y-%m-%d') as date,
+            s.type,
+            s.start_period,
+            s.duration,
+            s.location,
+            c.course_name,
+            c.professor
+        FROM special_sessions s
+        JOIN courses c ON s.course_id = c.course_id;
       `;
       const [results] = await pool.execute(query);
 
