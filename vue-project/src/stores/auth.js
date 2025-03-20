@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('auth', {
                     this.user = null;
                     this.isAuthenticated = false;
                     console.log("❌ 사용자 정보 없음 → 로그아웃 상태"); // user가 없을 때 로그 출력
-                }
+                  }
             } catch (error) {
                 this.user = null;
                 this.isAuthenticated = false;
@@ -54,6 +54,29 @@ export const useAuthStore = defineStore('auth', {
             } catch (error) {
                 console.error("⚠ 로그아웃 오류:", error);
             }
-        }
+        },
+        async registerUser(form) {
+          try {
+              console.log("📨 회원가입 요청 전송:", form);
+
+              const response = await fetch("http://localhost:3001/auth/register", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(form),
+              });
+
+              const data = await response.json();
+              console.log("🔍 회원가입 응답:", data);
+
+              if (response.ok) {
+                  alert("✅ 회원가입이 완료되었습니다! 로그인 후 이용해주세요.");
+                  window.location.href = "/";  // 로그인 페이지 또는 메인 페이지로 이동
+              } else {
+                  alert("❌ 회원가입 실패: " + data.error);
+              }
+          } catch (error) {
+              console.error("⚠ 회원가입 요청 오류:", error);
+          }
+      }
     }
 });

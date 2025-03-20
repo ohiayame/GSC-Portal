@@ -8,8 +8,8 @@
       </div>
 
       <div class="form-group">
-        <label for="studentId">학번</label>
-        <input v-model="form.studentId" type="text" id="studentId" required />
+        <label for="student_id">학번</label>
+        <input v-model="form.student_id" type="text" id="student_id" required />
       </div>
 
       <div class="form-group">
@@ -22,16 +22,21 @@
       </div>
 
       <div class="form-group">
-        <label>유학생</label>
-        <div class="radio-group">
-          <label><input type="radio" v-model="form.foreignStudent" value="O" /> O</label>
-          <label><input type="radio" v-model="form.foreignStudent" value="X" /> X</label>
-        </div>
+        <label for="email">이메일</label>
+        <input v-model="form.email" type="email" id="email" required />
       </div>
 
       <div class="form-group">
         <label for="phone">전화번호</label>
         <input v-model="form.phone" type="tel" id="phone" required />
+      </div>
+
+      <div class="form-group">
+        <label>유학생</label>
+        <div class="radio-group">
+          <label><input type="radio" v-model="form.international" value="yes" /> O</label>
+          <label><input type="radio" v-model="form.international" value="no" /> X</label>
+        </div>
       </div>
 
       <button type="submit">가입하기</button>
@@ -40,26 +45,39 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref } from 'vue';
+import { useAuthStore } from '@/stores/auth';
 
+const authStore = useAuthStore();
+
+const params = new URLSearchParams(window.location.search);
+const email = params.get("email") || "";
+const name = params.get("name") || "";
+
+console.log("📌 [DEBUG] URLSearchParams에서 가져온 email:", email);
+console.log("📌 [DEBUG] URLSearchParams에서 가져온 name:", name);
+
+// ✅ 초기값 설정
 const form = ref({
-  name: "",
-  studentId: "",
+  name: name || "",
+  email: email || "",
+  student_id : "",
   grade: "1",
-  foreignStudent: "X",
+  international: "no",
   phone: "",
 });
 
+
 const handleRegister = () => {
   console.log("가입 정보:", form.value);
-  alert("회원 가입이 완료되었습니다!");
+  authStore.registerUser(form.value);
 };
 </script>
 
 <style scoped>
 .register-container {
   max-width: 380px;
-  margin: auto;
+  margin: 20px auto;
   padding: 20px;
   background: #f9f9f9;
   border-radius: 10px;

@@ -24,33 +24,46 @@ onMounted(async () => {
     await auth.fetchUser();  // 로그인 상태 확인
 
     window.onload = function () {
+        console.log("✅ Google 로그인 버튼 로딩 완료");
         google.accounts.id.initialize({
             client_id: "987553472207-e5di53499ihc4mi6hg8e0d2oinfqaovj.apps.googleusercontent.com",
             callback: handleCredentialResponse,
-            ux_mode: "redirect",
-            login_uri: "http://localhost:3001/auth/google/callback"
+            ux_mode: "popup",  // 🔥 여기서 "redirect" → "popup"으로 변경
         });
 
         // ✅ Google 버튼 렌더링 실행
+        console.log("🔹 Google 로그인 버튼 렌더링 실행");
         renderGoogleLoginButton();
     };
 });
+
 
 // ✅ 로그인 후 사용자 정보 업데이트
 async function handleCredentialResponse(response) {
     console.log("Google Login Response:", response);
 
     try {
+      console.log("🚀 fetch() 요청 시작!");
         const res = await fetch("http://localhost:3001/auth/google/callback", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ credential: response.credential })
         });
-
+        console.log("🔍 서버 응답 데이터:", res);
         const data = await res.json();
-        if (data.success) {
+        console.log("🔍 서버 응답 데이터:", data);  // 서버 응답 로그 출력
+        alert(JSON.stringify(data));
+
+        if (data.redirect) {
+            console.log(`🔄 페이지 이동: ${data.redirect}`);
+            const url = `${data.redirect}?email=${encodeURIComponent(data.email)}&name=${encodeURIComponent(data.name)}`;
+            alert("📌 이동할 URL:"+ url);
+            window.location.href = url; // ✅ 회원가입 페이지 또는 메인 페이지로 자동 이동
+        } else if (data.success) {
             auth.setUser(data.user);
             auth.isAuthenticated = true;  // ✅ 로그인 상태 업데이트
+        } else {
+            console.error("⚠ 이동할 경로 없음");
         }
     } catch (error) {
         console.error("로그인 요청 오류:", error);
