@@ -54,14 +54,18 @@ async function handleCredentialResponse(response) {
         console.log("🔍 서버 응답 데이터:", data);  // 서버 응답 로그 출력
         alert(JSON.stringify(data));
 
-        if (data.redirect) {
+        if (data.success) {
+            auth.login(data);
+
+            // window.location.href = "/";
+
+        } else if(data.redirect) {
             console.log(`🔄 페이지 이동: ${data.redirect}`);
+
             const url = `${data.redirect}?email=${encodeURIComponent(data.email)}&name=${encodeURIComponent(data.name)}`;
             alert("📌 이동할 URL:"+ url);
-            window.location.href = url; // ✅ 회원가입 페이지 또는 메인 페이지로 자동 이동
-        } else if (data.success) {
-            auth.setUser(data.user);
-            auth.isAuthenticated = true;  // ✅ 로그인 상태 업데이트
+            window.location.href = url;  // ✅ 로그인 상태 업데이트
+
         } else {
             console.error("⚠ 이동할 경로 없음");
         }

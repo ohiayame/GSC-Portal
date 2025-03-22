@@ -28,6 +28,7 @@ export const googleLogin = async (req, res) => {
       if (!user) {
           console.log("🆕 [SERVER] 회원 정보 없음 → 회원가입 필요");
           const response = {
+              success: false,
               needsRegistration: true,
               email,
               name,
@@ -43,20 +44,25 @@ export const googleLogin = async (req, res) => {
       }
 
       if (user.approved === 0) {
-          console.log("⏳ [SERVER] 승인 대기 중인 사용자");
-          return res.status(403).json({ error: "관리자 승인 대기 중입니다." });
-      }
+        console.log("⏳ [SERVER] 승인 대기 중인 사용자");
+        return res.status(403).json({ error: "관리자 승인 대기 중입니다." });
+    }
 
-      // ✅ JWT 발급 후 메인 페이지 이동
-      const jwtToken = jwt.sign(
-          { id: user.id, email: user.email, name: user.name, role: user.role },
-          process.env.JWT_SECRET,
-          { expiresIn: "1h" }
-      );
+    // ✅ JWT 발급 후 메인 페이지 이동
+    const jwtToken = jwt.sign(
+        { id: user.id, email: user.email, name: user.name, role: user.role, approved: user.approved },
+        process.env.JWT_SECRET,
+        { expiresIn: "1h" }
+    );
 
-      res.cookie("auth_token", jwtToken, { httpOnly: true });
-      console.log("✅ [SERVER] 로그인 성공 → 메인 화면 이동");
-      res.status(200).json({ redirect: "/home", token: jwtToken });
+    res.cookie("auth_token", jwtToken, { httpOnly: true });
+    console.log("✅ [SERVER] 로그인 성공 → 메인 화면 이동");
+
+    res.status(200).json({
+        success: true,
+        token: jwtToken,
+        user: { id: user.id, email: user.email, name: user.name, role: user.role, approved: user.approved }
+    });
 
   } catch (error) {
       console.error("❌ [SERVER] OAuth 인증 오류:", error);
@@ -84,7 +90,11 @@ export const registerUser = async (req, res) => {
 // ✅ 사용자 정보 조회
 export const getUser = (req, res) => {
     try {
-        const token = req.cookies.auth_token;
+        // 🔍 쿠키 또는 Authorization 헤더에서 토큰 추출
+        const authHeader = req.headers.authorization;
+        const tokenFromHeader = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
+        const token = req.cookies.auth_token || tokenFromHeader;
+
         if (!token) {
             return res.status(401).json({ error: "로그인 정보가 없습니다." });
         }

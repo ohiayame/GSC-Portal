@@ -4,12 +4,24 @@ export const useAuthStore = defineStore('auth', {
     state: () => ({
         user: null,
         isAuthenticated: false,
-        accessToken: null,
+        accessToken: localStorage.getItem("auth_token") || null,
     }),
     actions: {
         async fetchUser() {
             try {
-                const response = await fetch("http://localhost:3001/auth/user", { credentials: "include" });
+              const token = this.accessToken;  // ✅ 저장된 토큰 사용
+              console.log("token:", token)
+                if (!token) {
+                    console.warn("🚨 [AUTH] 저장된 토큰 없음 → 로그아웃 상태 유지");
+                    this.user = null;
+                    this.isAuthenticated = false;
+                    return;
+                }
+
+                const response = await fetch("http://localhost:3001/auth/user", {
+                  headers: { Authorization: `Bearer ${token}` },
+                  credentials: "include"
+                });
                 const data = await response.json();
 
                 console.log("🔍 서버 응답 데이터:", data); // 서버에서 받은 전체 응답 데이터 출력
@@ -18,11 +30,12 @@ export const useAuthStore = defineStore('auth', {
                     this.user = data.user;
                     this.isAuthenticated = true;
                     console.log("✅ 사용자 정보 설정됨:", this.user); // user가 설정될 때 로그 출력
+                    if (data.user.approved === 0) {
+                      console.warn("🚨 승인 대기 중인 사용자 → 페이지 접근 제한");
+                    }
                 } else {
-                    this.user = null;
-                    this.isAuthenticated = false;
-                    console.log("❌ 사용자 정보 없음 → 로그아웃 상태"); // user가 없을 때 로그 출력
-                  }
+                  this.logout();
+                }
             } catch (error) {
                 this.user = null;
                 this.isAuthenticated = false;
@@ -42,6 +55,8 @@ export const useAuthStore = defineStore('auth', {
 
                 this.user = null;
                 this.isAuthenticated = false;
+                this.accessToken = null;
+                localStorage.removeItem("auth_token");
 
                 console.log("✅ 로그아웃 완료: 사용자 정보 초기화됨");
 
@@ -77,6 +92,22 @@ export const useAuthStore = defineStore('auth', {
           } catch (error) {
               console.error("⚠ 회원가입 요청 오류:", error);
           }
-      }
+      },
+      setUser(user) {
+        this.user = user;
+        this.isAuthenticated = true;
+      },
+      async login(data) {
+        console.log("🔐 [LOGIN] 서버 응답 데이터:", data);
+
+        if (data.token) {
+          this.user = data.user;
+          this.isAuthenticated = true;
+          this.accessToken = data.token;
+          localStorage.setItem("auth_token", data.token);  // ✅ 토큰 저장
+
+          console.log("✅ [LOGIN] 로그인 성공 → 사용자 정보 저장 완료");
+        }
+    }
     }
 });
