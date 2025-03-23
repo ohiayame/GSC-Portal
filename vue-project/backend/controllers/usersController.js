@@ -50,7 +50,15 @@ export const googleLogin = async (req, res) => {
 
     // ✅ JWT 발급 후 메인 페이지 이동
     const jwtToken = jwt.sign(
-        { id: user.id, email: user.email, name: user.name, role: user.role, approved: user.approved },
+        { id: user.id,
+          name: user.name,
+          grade: user.grade,
+          email: user.email,
+          phone: user.phone,
+          international: user.email,
+          role: user.role,
+          approved: user.approved
+        },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
     );
@@ -61,7 +69,15 @@ export const googleLogin = async (req, res) => {
     res.status(200).json({
         success: true,
         token: jwtToken,
-        user: { id: user.id, email: user.email, name: user.name, role: user.role, approved: user.approved }
+        user:{ id: user.id,
+          name: user.name,
+          grade: user.grade,
+          email: user.email,
+          phone: user.phone,
+          international: user.email,
+          role: user.role,
+          approved: user.approved
+        }
     });
 
   } catch (error) {

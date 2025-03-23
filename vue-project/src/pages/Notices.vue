@@ -2,6 +2,9 @@
 import { onMounted, computed, watch } from "vue";
 import { useNoticesStore } from "../stores/notices";
 import { useTimetableStore } from "../stores/timetable";
+import { useAuthStore } from '@/stores/auth';
+const auth = useAuthStore();
+const user = computed(() => auth.user);
 
 const store = useNoticesStore();
 const timetableStore = useTimetableStore();
@@ -59,7 +62,7 @@ onMounted(() => {
 <template>
   <div>
     <h1>공지사항</h1>
-    <button @click="$router.push('/notices/new')">새 공지 작성</button>
+    <button v-if="user.role !== '학생'" @click="$router.push('/notices/new')">새 공지 작성</button>
 
     <!-- ✅ 검색 필터 UI -->
     <div class="search-bar">

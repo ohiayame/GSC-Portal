@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
+import { useAuthStore } from "@/stores/auth";
 
 export const useTimetableStore = defineStore("timetable", {
   state: () => ({
     timetables: [], // 전체 시간표 데이터
     specialSessions: [], // 보강/휴강 데이터
-    searchTarget: 1,
+    searchTarget: null,
   }),
 
   actions: {
@@ -20,6 +21,14 @@ export const useTimetableStore = defineStore("timetable", {
     },
     setSearchTarget(target) {
       this.searchTarget = target;
+    },
+    initSearchTarget() {
+      const auth = useAuthStore();
+      if (auth.user && auth.user.grade) {
+        this.searchTarget = auth.user.grade;
+      } else {
+        console.warn("❗️사용자 정보가 없어서 searchTarget 설정 실패");
+      }
     },
 
     // ✅ 보강/휴강 데이터 불러오기

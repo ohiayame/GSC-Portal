@@ -3,6 +3,9 @@ import { computed, ref, onMounted } from "vue";
 import { useTimetableStore } from "../stores/timetable";
 import { useSpecialSessionStore } from "../stores/specialSessions";
 import { useRouter } from "vue-router";
+import { useAuthStore } from '@/stores/auth';
+const auth = useAuthStore();
+const user = computed(() => auth.user);
 
 const store = useTimetableStore();
 const specialStore = useSpecialSessionStore();
@@ -15,6 +18,7 @@ const periods = Array.from({ length: 10 }, (_, i) => i + 1); // 1교시 ~ 10교�
 
 // ✅ 페이지 로드시 시간표 데이터 불러오기
 onMounted(async () => {
+  store.initSearchTarget();
   await store.fetchTimetables();
   await specialStore.fetchSessions();
   console.log("📌 초기 시간표 데이터:", store.timetables);
@@ -92,7 +96,8 @@ const getSpecialSessionAt = (day, period) => {
 
 // ✅ 시간표 셀 클릭 시 보강/휴강 등록 페이지 이동
 const goToSpecialSession = (course) => {
-  if (!course) return;
+  if (!course || user.value.role === '학생') return;
+
 
   console.log("🚀 클릭된 수업 정보:", course);
   console.log("📌 course_id 값 확인:", course.course_id);
@@ -137,7 +142,7 @@ const goToSpecialSession = (course) => {
     </div>
 
     <!-- ✅ 버튼 추가 -->
-    <div class="button-container">
+    <div v-if="user?.role !== '학생'" class="button-container">
       <button @click="$router.push('/timetable/manage')">시간표 편집</button>
       <button @click="$router.push('/timetable/new')">새 시간표 등록</button>
       <button @click="$router.push({ path: '/timetable/special', query: { type: '보강' } })">

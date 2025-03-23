@@ -52,7 +52,6 @@ async function handleCredentialResponse(response) {
         console.log("🔍 서버 응답 데이터:", res);
         const data = await res.json();
         console.log("🔍 서버 응답 데이터:", data);  // 서버 응답 로그 출력
-        alert(JSON.stringify(data));
 
         if (data.success) {
             auth.login(data);

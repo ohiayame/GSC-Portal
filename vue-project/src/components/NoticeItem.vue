@@ -1,8 +1,11 @@
 <script setup>
-import { defineProps } from "vue";
+import { defineProps, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNoticesStore } from "../stores/notices";
 import { useTimetableStore } from "../stores/timetable";
+import { useAuthStore } from '@/stores/auth';
+const auth = useAuthStore();
+const user = computed(() => auth.user);
 
 const route = useRoute();
 const router = useRouter();
@@ -30,10 +33,6 @@ const isImage = (fileUrl) => {
   return /\.(jpg|jpeg|png|gif|webp)$/i.test(fileUrl);
 };
 
-// ✅ 파일 URL을 변환하는 함수
-const getFileUrl = (filePath) => {
-  return `http://localhost:3001/api/notices/${filePath}`; // ✅ 서버의 정적 파일 경로
-};
 
 const getFileName = (fileUrl) => {
   const fileName = fileUrl.split("/").pop(); // 파일명 추출
@@ -84,17 +83,17 @@ const deleteNotice = async () => {
     <div v-if="notice.file_url" class="notice-item">
       <h4>📎 첨부 파일</h4>
       <div v-if="isImage(notice.file_url)">
-        <img :src="getFileUrl(notice.file_url)" alt="첨부 이미지" class="preview-img" />
+        <img :src="store.getFileUrl(notice.file_url)" alt="첨부 이미지" class="preview-img" />
       </div>
       <div v-else>
         <p class="file-name">파일 이름: {{ getFileName(notice.file_url) }}</p>
-        <a :href="getFileUrl(notice.file_url)" target="_blank" download>📥 다운로드</a>
+        <a :href="store.getFileUrl(notice.file_url)" target="_blank" download>📥 다운로드</a>
       </div>
     </div>
 
     <div class="button-container">
       <button @click="router.push('/notices')" class="back">돌아가기</button>
-      <button @click="editNotice">수정</button>
+      <button v-if="user?.role !== '학생'" @click="editNotice">수정</button>
       <button @click="deleteNotice">삭제</button>
     </div>
   </div>
