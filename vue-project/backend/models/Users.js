@@ -11,6 +11,21 @@ export const findUserByEmail = async (email) => {
     }
 };
 
+export const findAllUsers  = async () => {
+  const [rows] = await db.query("SELECT * FROM users");
+  return rows;
+};
+
+// ✅ 사용자 승인 (approved = 1)
+export const approveUserById = async (id) => {
+  await db.execute("UPDATE users SET approved = 1 WHERE id = ?", [id]);
+};
+
+// ✅ 사용자 거절 (삭제)
+export const deleteUserById = async (id) => {
+  await db.execute("DELETE FROM users WHERE id = ?", [id]);
+};
+
 // ✅ 사용자 추가
 export const createUser = async (name, student_id, grade, email, phone, international) => {
     try {

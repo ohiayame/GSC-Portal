@@ -1,7 +1,8 @@
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { findUserByEmail, createUser } from '../models/Users.js';
+import { findUserByEmail, createUser,
+  findAllUsers, approveUserById, deleteUserById } from '../models/Users.js';
 
 dotenv.config();
 
@@ -132,4 +133,36 @@ export const logoutUser = (req, res) => {
     });
     console.log("✅ 로그아웃 완료");
     res.status(200).json({ success: true, message: "로그아웃 완료" });
+};
+
+// ✅ 관리자 - 전체 사용자 목록 (프론트에서 필터링)
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await findAllUsers();
+    console.log("회원정보 :", users);
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ error: "전체 사용자 목록 조회 실패" });
+  }
+};
+
+export const approveUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await approveUserById(id);
+    res.status(200).json({ message: "사용자 승인 완료" });
+  } catch (error) {
+    res.status(500).json({ error: "사용자 승인 실패" });
+  }
+};
+
+// ✅ 관리자 - 사용자 거절 (삭제)
+export const rejectUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await deleteUserById(id);
+    res.status(200).json({ message: "사용자 삭제 완료" });
+  } catch (error) {
+    res.status(500).json({ error: "사용자 삭제 실패" });
+  }
 };

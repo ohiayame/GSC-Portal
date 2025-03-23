@@ -28,6 +28,7 @@
           <router-link to="/">홈</router-link>
           <router-link to="/notices">공지사항</router-link>
           <router-link to="/timetable">시간표</router-link>
+          <router-link to="/approval">관리자 페이지</router-link>
           <HeaderPage />
       </nav>
       <router-view />

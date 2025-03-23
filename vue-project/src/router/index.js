@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import HomePage from "@/pages/Home.vue";
 import RegisterPage from "@/pages/Register.vue";
 
+import AdminApprovalPage from "@/pages/AdminApproval.vue";
+
 import NoticesPage from "@/pages/Notices.vue";
 import NoticeItem from '@/components/NoticeItem.vue';
 import NoticeForm from '@/components/NoticeForm.vue';
@@ -15,6 +17,7 @@ import TimetableManage from "@/components/TimetableManage.vue";
 const routes = [
   { path: "/", component: HomePage },
   { path: "/register", component: RegisterPage },
+  { path: "/approval", component: AdminApprovalPage },
 
   { path: "/notices", component: NoticesPage },
   { path: '/notices/:id', component: NoticeItem, props: true }, // 공지사항 상세 페이지

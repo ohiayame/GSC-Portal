@@ -8,6 +8,7 @@
         <ul v-if="notices.length > 0">
           <li v-for="(notice, index) in sortedNotices" :key="notice.id">
             <span class="index-number">{{ index + 1 }}.</span>
+            <span>{{noticeStore.getTargetLabel(notice.target)}}</span>
             <span v-if="notice.priority === 'pinned'" class="pinned">📌</span>
             <router-link :to="`/notices/${notice.id}`">{{ notice.title }}</router-link>
           </li>
@@ -17,7 +18,7 @@
 
       <!-- 📅 이번 주 1학년 시간표 -->
       <div class="timetable">
-        <h2>📅 이번 주 1학년 시간표</h2>
+        <h2>📅 정규 시간표</h2>
         <table>
           <thead>
             <tr>
@@ -51,6 +52,10 @@ import { storeToRefs } from "pinia";
 import { computed, onMounted } from "vue";
 import { useNoticesStore } from "@/stores/notices";
 import { useTimetableStore } from "@/stores/timetable";
+import { useAuthStore } from "@/stores/auth";
+
+const auth = useAuthStore();
+const user = computed(() => auth.user);
 
 // ✅ 공지사항 상태 가져오기 (Pinia 활용)
 const noticeStore = useNoticesStore();
@@ -77,7 +82,7 @@ onMounted(() => {
 // ✅ 특정 요일, 교시에 해당하는 1학년 수업 찾기
 const getClassAt = (day, period) => {
   const session = timetables.value.find(
-    (cls) => cls.day === day && cls.period === period && cls.grade === 1
+    (cls) => cls.day === day && cls.period === period && cls.grade === user.value?.grade
   );
   return session ? session.course_name : "";
 };
@@ -85,7 +90,7 @@ const getClassAt = (day, period) => {
 // ✅ 병합된 셀을 고려하여 `<td>` 렌더링 여부 결정
 const shouldRenderCell = (day, period) => {
   const session = timetables.value.find(
-    (cls) => cls.day === day && cls.period === period && cls.grade === 1
+    (cls) => cls.day === day && cls.period === period && cls.grade === user.value?.grade
   );
 
   if (!session) {
@@ -95,7 +100,7 @@ const shouldRenderCell = (day, period) => {
         cls.day === day &&
         cls.period < period &&
         cls.period + (cls.duration - 1) >= period &&
-        cls.grade === 1
+        cls.grade === user.value?.grade
     );
   }
 
@@ -106,7 +111,7 @@ const shouldRenderCell = (day, period) => {
 // ✅ 해당 수업의 지속 시간(duration) 반환 (최소 1교시)
 const getDuration = (day, period) => {
   const session = timetables.value.find(
-    (cls) => cls.day === day && cls.period === period && cls.grade === 1
+    (cls) => cls.day === day && cls.period === period && cls.grade === user.value?.grade
   );
   return session ? session.duration || 1 : 1;
 };

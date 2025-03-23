@@ -5,6 +5,7 @@ export const useAuthStore = defineStore('auth', {
         user: null,
         isAuthenticated: false,
         accessToken: localStorage.getItem("auth_token") || null,
+        pendingUsers: []
     }),
     actions: {
         async fetchUser() {
@@ -108,6 +109,31 @@ export const useAuthStore = defineStore('auth', {
 
           console.log("✅ [LOGIN] 로그인 성공 → 사용자 정보 저장 완료");
         }
+    },
+
+
+
+    async fetchPendingUsers() {
+      try {
+        const res = await fetch("http://localhost:3001/auth/all-users");
+        const data = await res.json();
+        this.pendingUsers = data;
+
+      } catch (err) {
+        console.error("❌ 승인 대기 사용자 불러오기 실패", err);
+      }
+    },
+
+    // ✅ 사용자 승인
+    async approveUser(id) {
+      await fetch(`http://localhost:3001/auth/approve-user/${id}`, { method: "PUT" });
+      await this.fetchPendingUsers(); // 목록 새로고침
+    },
+
+    // ✅ 사용자 거절
+    async rejectUser(id) {
+      await fetch(`http://localhost:3001/auth/reject-user/${id}`, { method: "DELETE" });
+      await this.fetchPendingUsers();
     }
     }
 });

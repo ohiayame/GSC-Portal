@@ -19,12 +19,9 @@ onMounted(async () => {
 
 const filteredSpecialSessions = computed(() => {
   return specialStore.sessions.filter(session => {
-    const relatedClass = store.timetables.find(cls => cls.course_id === session.course_id);
-    const isValidGrade = relatedClass && relatedClass.grade === Number(store.searchTarget);
-
     // ✅ 보강 숨기기 기능 적용
     const isPast = new Date(session.date) < new Date(); // 이미 지난 보강 확인
-    return isValidGrade && (!hidePastSessions.value || session.type !== '보강' || !isPast);
+    return  (!hidePastSessions.value || session.type !== '보강' || !isPast);
   });
 });
 
