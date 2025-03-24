@@ -76,7 +76,7 @@ async function handleCredentialResponse(response) {
 // ✅ 로그아웃 후 Google 버튼 다시 렌더링
 async function logout() {
     await auth.logout();  // ✅ 쿠키 삭제 요청
-    auth.fetchUser();     // ✅ 로그아웃 후 로그인 상태 다시 확인
+    window.location.href = "/";
 }
 
 // ✅ 로그인 상태 변화 감지 → Google 버튼 다시 렌더링
