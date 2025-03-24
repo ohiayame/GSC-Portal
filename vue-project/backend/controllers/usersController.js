@@ -2,7 +2,8 @@ import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { findUserByEmail, createUser,
-  findAllUsers, approveUserById, deleteUserById } from '../models/Users.js';
+        findAllUsers, approveUserById,
+        deleteUserById, updateRole } from '../models/Users.js';
 
 dotenv.config();
 
@@ -166,3 +167,10 @@ export const rejectUser = async (req, res) => {
     res.status(500).json({ error: "사용자 삭제 실패" });
   }
 };
+
+export const Role = async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+  await updateRole(id, role)
+  res.status(200).json({ message: "권한 수정 완료" });
+}

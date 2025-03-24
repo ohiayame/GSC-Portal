@@ -118,6 +118,7 @@ export const useAuthStore = defineStore('auth', {
         const res = await fetch("http://localhost:3001/auth/all-users");
         const data = await res.json();
         this.pendingUsers = data;
+        console.log("회원 데이터", data)
 
       } catch (err) {
         console.error("❌ 승인 대기 사용자 불러오기 실패", err);
@@ -126,14 +127,33 @@ export const useAuthStore = defineStore('auth', {
 
     // ✅ 사용자 승인
     async approveUser(id) {
-      await fetch(`http://localhost:3001/auth/approve-user/${id}`, { method: "PUT" });
+      await fetch(`http://localhost:3001/auth/approve-user/${id}`, {
+        method: "PUT"
+      });
       await this.fetchPendingUsers(); // 목록 새로고침
     },
 
     // ✅ 사용자 거절
     async rejectUser(id) {
-      await fetch(`http://localhost:3001/auth/reject-user/${id}`, { method: "DELETE" });
+      await fetch(`http://localhost:3001/auth/reject-user/${id}`, {
+        method: "DELETE" });
       await this.fetchPendingUsers();
+    },
+
+    async updateRole(id, role) {
+      try {
+        await fetch(`http://localhost:3001/auth/add-role/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ role })  // 반드시 객체로 감싸야 함!!
+        });
+        console.log(" role 전송 완료  ")
+        await this.fetchPendingUsers(); // 목록 새로고침
+      } catch (err) {
+        console.error("❌ 역할 업데이트 실패:", err);
+      }
     }
-    }
+  }
 });

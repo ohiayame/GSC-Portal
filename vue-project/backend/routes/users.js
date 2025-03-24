@@ -1,5 +1,6 @@
 import express from 'express';
-import { googleLogin, registerUser, logoutUser, getUser, getAllUsers, approveUser, rejectUser } from '../controllers/usersController.js';
+import { googleLogin, registerUser, logoutUser,
+  getUser, getAllUsers, approveUser, rejectUser, Role } from '../controllers/usersController.js';
 
 const router = express.Router();
 
@@ -19,5 +20,7 @@ router.post('/logout', logoutUser);
 router.get('/all-users', getAllUsers);
 router.put('/approve-user/:id', approveUser );
 router.delete('/reject-user/:id', rejectUser );
+
+router.put('/add-role/:id', Role );
 
 export default router;

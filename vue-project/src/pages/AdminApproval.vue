@@ -3,12 +3,9 @@ import { ref, onMounted, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
 
 const auth = useAuthStore();
-
-// 🔹 전체 유저 목록에서 승인 대기자만 필터링
-// const pendingUsers = computed(() =>
-//   auth.pendingUsers.filter(user => user.approved === 0)
-// );
-
+const userRole = ref({
+  role: ""
+})
 // 🔹 승인 및 거절 버튼 액션
 const approveUser = (id) => auth.approveUser(id);
 const rejectUser = (id) => auth.rejectUser(id);
@@ -21,6 +18,9 @@ const filteredUsers = computed(() => {
   }
   return auth.pendingUsers;
 });
+
+// stores/auth.js의 updateRole(id, role)에 선택된 정보 전달달
+const updateRole = (id, role) => auth.updateRole(id, role);
 
 onMounted(async () => {
   await auth.fetchPendingUsers(); // 전체 유저 목록 불러오기
@@ -52,6 +52,7 @@ onMounted(async () => {
           <th>학년</th>
           <th>전화번호</th>
           <th>유학생 여부</th>
+          <th>권한</th>
           <th>승인</th>
           <th>거절</th>
         </tr>
@@ -64,6 +65,14 @@ onMounted(async () => {
           <td>{{ user.grade || "-" }}</td>
           <td>{{ user.phone || "-" }}</td>
           <td>{{ user.international }}</td>
+          <td>
+            <label for="role"></label>
+            <select v-model="user.role" @change="updateRole(user.id, user.role)">
+              <option value="학생">학생</option>
+              <option value="교수">교수</option>
+              <option value="관리자">관리자</option>
+            </select>
+          </td>
           <td><button  v-if="user.approved === 0" @click="approveUser(user.id)">✅ 승인</button></td>
           <td><button  v-if="user.approved === 0" @click="rejectUser(user.id)">❌ 거절</button></td>
         </tr>

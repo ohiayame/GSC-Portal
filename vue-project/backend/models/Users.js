@@ -39,3 +39,8 @@ export const createUser = async (name, student_id, grade, email, phone, internat
         throw error;
     }
 };
+
+export const updateRole = async (id, role) => {
+  await db.execute("UPDATE users SET role = ? WHERE id = ?",
+    [role, id]);
+};
