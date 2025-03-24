@@ -3,7 +3,11 @@ import { ref, onMounted, computed } from "vue";
 import { useNoticesStore } from "../stores/notices";
 import { useRoute, useRouter } from "vue-router";
 import { useTimetableStore } from "../stores/timetable";
+import { useAuthStore } from '@/stores/auth';
 
+const auth = useAuthStore();
+const user = computed(() => auth.user);
+console.log("author_id", user.value.id)
 const store = useNoticesStore();
 const timetableStore = useTimetableStore();
 
@@ -12,7 +16,7 @@ const router = useRouter();
 
 const title = ref("");
 const content = ref("");
-const author_id = ref(1);
+const author_id = null;
 const target = ref(0);
 const priority = ref("normal");
 const selectedCourse = ref(null);
@@ -106,7 +110,7 @@ const saveNotice = async () => {
   const noticeData = {
     title: title.value,
     content: content.value,
-    author_id: author_id.value,
+    author_id: user.value.id,
     target: target.value,
     priority: priority.value,
     course_id: selectedCourse.value,

@@ -3,6 +3,7 @@ import { onMounted, computed, watch } from "vue";
 import { useNoticesStore } from "../stores/notices";
 import { useTimetableStore } from "../stores/timetable";
 import { useAuthStore } from '@/stores/auth';
+
 const auth = useAuthStore();
 const user = computed(() => auth.user);
 
@@ -11,7 +12,9 @@ const timetableStore = useTimetableStore();
 
 // ✅ 선택한 학년에 맞는 과목 필터링 (과목 선택 리스트용)
 const filteredCourses = computed(() => {
-  return timetableStore.timetables.filter(course => store.searchTarget === 0 || course.grade == store.searchTarget);
+  return timetableStore.timetables.filter(course =>
+    store.searchTarget === 0 || course.grade == store.searchTarget
+  );
 });
 
 // ✅ 검색된 공지 목록 (학년 + 과목 + 키워드 필터 적용)
@@ -47,10 +50,20 @@ const filteredNoticesWithCourses = computed(() => {
 
 
 watch(() => store.searchTarget, (newTarget) => {
+  // 학년이 변경되었을 때 다른 학년 과목선택 예방방
+  const availableCourses = timetableStore.timetables.filter(course =>
+    newTarget === 0 || course.grade == newTarget
+  );
+  // 다른 학년 선택시 과목 초기화
+  if (!availableCourses.some(course => course.course_id == store.searchCourse)) {
+    store.searchCourse = "";
+  }
+  // 전체로 했을 때 과목 초기화
   if (newTarget === 0) {
     store.searchCourse = "";
   }
 });
+
 
 // ✅ 페이지 로드 시 공지사항 가져오기
 onMounted(() => {
@@ -77,7 +90,8 @@ onMounted(() => {
       <!-- ✅ 학년 선택 시 해당 학년의 과목만 표시 -->
       <select v-model="store.searchCourse">
         <option value="">전체 공지</option>
-        <option v-for="course in filteredCourses" :key="course.course_id" :value="course.course_id">
+        <option v-for="course in filteredCourses"
+          :key="course.course_id" :value="course.course_id">
           {{ course.course_name }}
         </option>
       </select>

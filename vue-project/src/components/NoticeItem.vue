@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, computed } from "vue";
+import { computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNoticesStore } from "../stores/notices";
 import { useTimetableStore } from "../stores/timetable";
@@ -24,9 +24,12 @@ const formatDate = (timestamp) => {
   return new Date(timestamp).toLocaleString();
 };
 
-// const props = defineProps({
-//   notice: Object, // ✅ 공지 객체 전달받기
+// 작성자 이름 찾기
+
+  const author = auth.pendingUsers.find(user => user.id === notice.author_id);
+//   return author ? author.name : "알 수 없음";
 // });
+
 
 // ✅ 파일 유형이 이미지인지 확인하는 함수
 const isImage = (fileUrl) => {
@@ -69,7 +72,7 @@ const deleteNotice = async () => {
         <tr>
           <td>{{ store.getTargetLabel(notice.target) }}</td>
           <td>{{ course.course_name }}</td>
-          <td>/</td>
+          <td>{{ author ? author.name : "알 수 없음" }}</td>
           <td>{{ formatDate(notice.created_at) }}</td>
         </tr>
       </tbody>
