@@ -1,6 +1,6 @@
 <template>
   <div class="home-container">
-    <h1>GSC 포털</h1>
+    <h1>GSC Portal</h1>
     <div class="grid">
       <!-- 📢 공지사항 -->
       <div class="notice-list">
@@ -201,7 +201,7 @@ const getDuration = (day, period) => {
   height: 50px;
 }
 .timetable th {
-  background: #007bff;
+  background: #65b0ff;
   color: white;
   font-weight: bold;
 }
@@ -218,5 +218,8 @@ const getDuration = (day, period) => {
 
 .timetable .empty {
   color: #ccc;
+}
+h1{
+  color: rgb(60, 161, 255);
 }
 </style>

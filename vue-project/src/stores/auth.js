@@ -5,7 +5,7 @@ export const useAuthStore = defineStore('auth', {
         user: null,
         isAuthenticated: false,
         accessToken: localStorage.getItem("auth_token") || null,
-        pendingUsers: []
+        pendingUsers: [],
     }),
     actions: {
         async fetchUser() {
@@ -65,6 +65,7 @@ export const useAuthStore = defineStore('auth', {
                 setTimeout(() => {
                     console.log("🔄 fetchUser() 실행하여 로그인 상태 갱신");
                     this.fetchUser();
+
                 }, 500);
 
             } catch (error) {

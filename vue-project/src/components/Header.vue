@@ -13,7 +13,8 @@ function renderGoogleLoginButton() {
             googleLoginDiv.innerHTML = "";  // ⚠ 기존 버튼 삭제 (중복 생성 방지)
             google.accounts.id.renderButton(googleLoginDiv, {
                 theme: "outline",
-                size: "large"
+                size: "large",
+                shape:"pill"
             });
         }
     });
@@ -60,12 +61,13 @@ async function handleCredentialResponse(response) {
 
         } else if(data.redirect) {
             console.log(`🔄 페이지 이동: ${data.redirect}`);
+            const url= `${data.redirect}?email=${encodeURIComponent(data.email)}&name=${encodeURIComponent(data.name)}`;
 
-            const url = `${data.redirect}?email=${encodeURIComponent(data.email)}&name=${encodeURIComponent(data.name)}`;
-            alert("📌 이동할 URL:"+ url);
+            // alert("📌 이동할 URL:"+ url);
             window.location.href = url;  // ✅ 로그인 상태 업데이트
 
         } else {
+            alert("승인을 기다려주세요")
             console.error("⚠ 이동할 경로 없음");
         }
     } catch (error) {

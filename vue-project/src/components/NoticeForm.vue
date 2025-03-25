@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/auth';
 
 const auth = useAuthStore();
 const user = computed(() => auth.user);
-console.log("author_id", user.value.id)
+
 const store = useNoticesStore();
 const timetableStore = useTimetableStore();
 

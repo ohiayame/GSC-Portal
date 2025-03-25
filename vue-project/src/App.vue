@@ -12,11 +12,16 @@
 </script>
 
 <template>
-  <template v-if="!auth.isAuthenticated || auth.user?.approved === 0">
+  <template v-if="$route.path === '/register'">
+    <router-view />
+  </template>
+  <template v-else-if="!auth.isAuthenticated ||
+      auth.user?.approved === 0">
       <div class="pending-approval">
 
-        <h2 v-if="!auth.isAuthenticated"> 로그인해주세요 </h2>
-        <h2 v-else>승인을 기다려주세요</h2>
+        <h2 v-if="auth.user?.approved === 0">승인을 기다려주세요</h2>
+        <h2 v-else> 로그인해주세요 </h2>
+
 
         <nav class="login">
           <HeaderPage />
@@ -24,6 +29,7 @@
 
       </div>
     </template>
+
     <template v-else>
       <nav class="page">
           <router-link to="/">홈</router-link>
@@ -49,13 +55,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #a0bad7;
+  background: #d3e7ff;
   padding: 10px 20px;
   height: 50px;
 }
+.page .router-link-active {
+  color: rgb(49, 145, 235);
+  font-weight: bolder;
+  border-bottom: 2px solid white;
+}
+
 
 .page a {
-  color: aliceblue;
+  color: rgba(22, 32, 66, 0.511);
   text-decoration: none;
   margin: 0 10px;
   font-weight: bold;
