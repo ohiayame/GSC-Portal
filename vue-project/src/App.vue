@@ -15,13 +15,11 @@
   <template v-if="$route.path === '/register'">
     <router-view />
   </template>
-  <template v-else-if="!auth.isAuthenticated ||
-      auth.user?.approved === 0">
+  <template v-else-if="
+    !auth.isAuthenticated || auth.user?.approved === 0">
+
       <div class="pending-approval">
-
-        <h2 v-if="auth.user?.approved === 0">승인을 기다려주세요</h2>
-        <h2 v-else> 로그인해주세요 </h2>
-
+        <h2 > 로그인해주세요 </h2>
 
         <nav class="login">
           <HeaderPage />
@@ -35,7 +33,7 @@
           <router-link to="/">홈</router-link>
           <router-link to="/notices">공지사항</router-link>
           <router-link to="/timetable">시간표</router-link>
-          <router-link to="/approval">관리자 페이지</router-link>
+          <router-link to="/approval" v-if="auth.user.role ==='관리자'">관리자 페이지</router-link>
           <HeaderPage />
       </nav>
       <router-view />
