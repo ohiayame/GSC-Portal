@@ -34,10 +34,10 @@ onMounted(() => {
   timetableStore.fetchTimetables();
   if (route.params.id) {
     const notice = store.getNoticeById(route.params.id);
+    console.log("공지 내용 : ", notice)
     if (notice) {
       title.value = notice.title;
       content.value = notice.content;
-      author_id.value = notice.author_id;
       target.value = notice.target;
       selectedCourse.value = notice.course_id;
       priority.value = notice.priority;

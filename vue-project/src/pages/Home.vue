@@ -5,14 +5,20 @@
       <!-- 📢 공지사항 -->
       <div class="notice-list">
         <h2>📢 공지사항</h2>
-        <ul v-if="notices.length > 0">
-          <li v-for="(notice, index) in sortedNotices" :key="notice.id">
-            <span class="index-number">{{ index + 1 }}.</span>
-            <span>{{noticeStore.getTargetLabel(notice.target)}}</span>
-            <span v-if="notice.priority === 'pinned'" class="pinned">📌</span>
-            <router-link :to="`/notices/${notice.id}`">{{ notice.title }}</router-link>
-          </li>
-        </ul>
+
+        <div v-if="slicedNotices.length > 0">
+          <div v-for="notice in slicedNotices" :key="notice.id" class="notice-item">
+            <router-link :to="`/notices/${notice.id}`" class="notice-title">
+              <span v-if="notice.priority === 'pinned'">📌</span>
+              {{ notice.title }}
+            </router-link>
+            <div class="notice-meta">
+              {{ notice.course_name ? notice.course_name : noticeStore.getTargetLabel(notice.target) }} |
+              {{ formatDate(notice.created_at) }}
+            </div>
+          </div>
+          <router-link to="/notices" class="see-all">전체 공지 보기 →</router-link>
+        </div>
         <p v-else>📌 등록된 공지사항이 없습니다.</p>
       </div>
 
@@ -115,6 +121,32 @@ const getDuration = (day, period) => {
   );
   return session ? session.duration || 1 : 1;
 };
+
+
+// ✅ 최근 공지 5개만 가져오기
+const slicedNotices = computed(() =>
+  sortedNotices.value
+    .map(notice => {
+      const course = timetableStore.timetables.find(
+        (c) => c.course_id === notice.course_id
+      );
+      return {
+        ...notice,
+        course_name: course ? course.course_name : null
+      };
+    })
+    .filter(notice =>
+      notice.target === 0 || notice.target === user.value?.grade
+    )
+    .slice(0, 5)
+);
+
+
+
+// ✅ 날짜 포맷용 함수
+const formatDate = (dateStr) =>
+  new Date(dateStr).toLocaleDateString();
+
 </script>
 
 
@@ -136,10 +168,11 @@ const getDuration = (day, period) => {
 /* 📌 공지사항 스타일 */
 .notice-list {
   background: #ffffff;
-  padding: 20px;
+  padding: 10px 16px;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 250px;
+  width: 320px;
+  max-height: 360px;
   text-align: left;
 }
 
@@ -155,6 +188,7 @@ const getDuration = (day, period) => {
   align-items: center;
   gap: 6px;
 }
+
 
 .index-number {
   font-weight: bold;
@@ -176,6 +210,44 @@ const getDuration = (day, period) => {
   text-decoration: underline;
 }
 
+.notice-item {
+  margin-bottom: 12px;
+}
+
+.notice-title {
+  font-weight: bold;
+  color: #1e6eea;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 2px;
+}
+
+.notice-title:hover {
+  text-decoration: underline;
+}
+
+.notice-meta {
+  font-size: 13px;
+  color: #777;
+}
+
+.see-all {
+  display: block;
+  text-align: right;
+  margin-top: 10px;
+  font-size: 13px;
+  text-decoration: none;
+  font-weight: 500;
+  padding-right: 4px;
+}
+
+.see-all:hover {
+  text-decoration: underline;
+  color: #003e91;
+}
+
+
+
 /* 📌 시간표 스타일 */
 .timetable {
   background: #ffffff;
@@ -189,6 +261,7 @@ const getDuration = (day, period) => {
 .timetable table {
   width: 90%;
   border-collapse: collapse;
+  margin: 0 auto;
 }
 
 .timetable th,
@@ -219,6 +292,7 @@ const getDuration = (day, period) => {
 .timetable .empty {
   color: #ccc;
 }
+
 h1{
   color: rgb(60, 161, 255);
 }

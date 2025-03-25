@@ -238,6 +238,7 @@ tbody tr:hover {
   content: "📌 ";
 }
 
+
 /* 제목 링크 */
 a {
   color: #1a4dc2;
@@ -272,14 +273,15 @@ a:hover {
 
 .search-bar select,
 .search-bar input {
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #f9f9f9;
+  padding: 5px 5px;
   min-width: 120px;
   font-size: 14px;
   transition: border-color 0.2s;
+  border: 2px solid #5fa2d2;
+  border-radius: 6px;
+  background-color: #f6faff;
 }
+
 
 .search-bar select:focus,
 .search-bar input:focus {

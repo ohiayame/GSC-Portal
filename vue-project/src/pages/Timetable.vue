@@ -124,7 +124,7 @@ const goToSpecialSession = (course) => {
 
 <template>
   <div class="timetable-container">
-    <h2>시간표</h2>
+    <h1>시간표</h1>
 
     <div class="filter-container">
       <label for="grade">학년 선택:</label>
@@ -196,6 +196,19 @@ const goToSpecialSession = (course) => {
 </template>
 
 <style scoped>
+h1{
+  text-align: center;
+  color: rgb(60, 161, 255);
+}
+select, input[type="date"] {
+  padding: 3px 8px;
+  font-size: 14px;
+  border: 2px solid #5fa2d2;
+  border-radius: 6px;
+  background-color: #f6faff;
+  transition: border-color 0.2s;
+}
+
 .timetable-container {
   width: 90%;
   max-width: 800px;
@@ -250,7 +263,7 @@ td {
 }
 
 th {
-  background: #a7c7e7;
+  background: #e1ecfa;
   font-weight: bold;
 }
 
@@ -290,6 +303,6 @@ td {
 }
 
 .clickable-cell:hover {
-  background-color: rgba(72, 95, 247, 0.2);
+  background-color: rgba(110, 129, 250, 0.2);
 }
 </style>
