@@ -181,80 +181,98 @@ const saveTimetable = async () => {
 
 <style scoped>
 .timetable-form {
-  width: 500px;
-  margin: 20px auto;
-  padding: 20px;
-  background:#f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
 }
 
 .timetable-form h2 {
   text-align: center;
-  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 800;
+  color: #3ca1ff;
+  margin-bottom: 25px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 12px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
 }
 
 .form-group input,
 .form-group select {
-  min-width: 120px;
-  max-width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 10px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-color: #f6faff;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
 }
 
-/* 🔹 관련 필드 가로 정렬 */
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #4d8eff;
+  outline: none;
+}
+
+/* 🔹 가로 정렬 */
 .inline-group {
   display: flex;
-  gap: 10px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .inline-group .form-group {
   flex: 1;
 }
 
-/* 🔹 버튼 정렬 */
+/* 🔹 버튼 영역 */
 .button-container {
   display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
 }
 
 button {
-  padding: 10px 16px;
+  padding: 10px 18px;
   font-size: 14px;
-  border-radius: 6px;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
 
 button.back {
   background-color: #ccc;
-  color: black;
+  color: #333;
 }
 
 button.back:hover {
-  background-color: #b3b3b3;
+  background-color: #b1b1b1;
 }
 
 button.register {
-  background-color: #485ff7;
+  background-color: #3ca1ff;
   color: white;
   border: none;
+  box-shadow: 0 3px 10px rgba(60, 161, 255, 0.2);
 }
 
 button.register:hover {
-  background-color: #5fb7ff;
+  background-color: #1d8fff;
 }
+
 </style>

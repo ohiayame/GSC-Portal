@@ -31,7 +31,7 @@ onMounted(async () => {
 
 <template>
   <div class="approval-container">
-    <h2>👥 가입 승인 대기 목록</h2>
+    <h2>가입 승인 대기 목록</h2>
     <div class="filter-container">
       <input
         type="checkbox"
@@ -46,6 +46,7 @@ onMounted(async () => {
     <table v-else>
       <thead>
         <tr>
+          <th>번호</th>
           <th>이름</th>
           <th>이메일</th>
           <th>학번</th>
@@ -58,7 +59,8 @@ onMounted(async () => {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in filteredUsers" :key="user.id">
+        <tr v-for="(user, index) in filteredUsers" :key="user.id">
+          <td>{{ index+1 }}</td>
           <td>{{ user.name }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.student_id || "-" }}</td>
@@ -84,49 +86,98 @@ onMounted(async () => {
 <style scoped>
 .approval-container {
   padding: 30px;
-  max-width: 900px;
-  margin: auto;
+  max-width: 1000px;
+  margin: 30px auto;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+}
+
+h2 {
+  text-align: center;
+  color: #3ca1ff;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.toggle-filter {
+  transform: scale(1.2);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: center;
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 14px;
+  background-color: #fdfdfd;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
 }
 
 th {
   background-color: #e1ecfa;
   font-weight: bold;
-}
-select,
-input {
-  font-size: 14px;
-  transition: border-color 0.2s;
-  border: 2px solid #5fa2d200;
-  border-radius: 6px;
-  background-color: #edf5ff;
+  padding: 14px;
+  color: #2c3e50;
 }
 
-select:focus,
-input:focus {
+td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  color: #333;
+}
+
+tbody tr:hover {
+  background-color: #f4faff;
+  transition: background-color 0.2s;
+}
+
+select {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background-color: #f6faff;
+  transition: border-color 0.2s;
+}
+
+select:focus {
   border-color: #4d8eff;
   outline: none;
 }
 
 button {
-  padding: 6px 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s;
+  color: white;
 }
 
 button:hover {
-  opacity: 0.9;
+  filter: brightness(1.05);
 }
+
+td button:nth-child(1) {
+  background-color: #40a9ff;
+}
+td button:nth-child(2) {
+  background-color: #ff4d4f;
+}
+
 </style>

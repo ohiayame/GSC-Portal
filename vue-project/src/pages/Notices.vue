@@ -111,6 +111,9 @@ onMounted(() => {
   store.fetchNotices();
   timetableStore.fetchTimetables();
 });
+
+const formatDate = (dateStr) =>
+  new Date(dateStr).toLocaleDateString();
 </script>
 
 <template>
@@ -162,7 +165,7 @@ onMounted(() => {
           <td><router-link :to="'/notices/' + notice.id">{{ notice.title }}</router-link></td>
           <td>{{ store.getTargetLabel(notice.target) }}</td>
           <td>{{ notice.course_name }}</td>
-          <td>{{ new Date(notice.created_at).toLocaleString() }}</td>
+          <td>{{ formatDate(notice.created_at) }}</td>
         </tr>
       </tbody>
 
@@ -190,62 +193,21 @@ onMounted(() => {
 </template>
 
 <style scoped>
-h1{
+:root {
+  --color-main: #007bff;
+  --color-bg: #f9fafe;
+  --color-border: #e0e6ed;
+  --color-hover: rgba(0, 123, 255, 0.08);
+  --color-button-text: #fff;
+  --color-time: #f1f3f5;
+}
+
+h1 {
   text-align: center;
   color: rgb(60, 161, 255);
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  border-radius: 10px;
-  background-color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  font-family: 'Segoe UI', sans-serif;
-  font-size: 14px;
-}
-
-/* 헤더 */
-th {
-  background-color: #e1ecfa;
-  color: #2c3e50;
-  font-weight: bold;
-  padding: 14px;
-  text-align: center;
-}
-
-/* 셀 */
-td {
-  padding: 14px 10px;
-  border-bottom: 1px solid #eee;
-  color: #333;
-  text-align: center;
-}
-
-tbody tr:hover {
-  background-color: #f4faff;
-  transition: background-color 0.3s;
-}
-
-/* 고정 공지 (중요 공지) 스타일 */
-.pinned-row {
-  background-color: #fff7f5ab;
-  font-weight: 600;
-}
-
-.pinned-row td:first-child::before {
-  content: "📌 ";
-}
-
-
-/* 제목 링크 */
-a {
-  color: #1a4dc2;
-  text-decoration: none;
-  font-weight: 500;
-}
-a:hover {
-  text-decoration: underline;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 24px;
 }
 
 .notice-top-bar {
@@ -254,9 +216,8 @@ a:hover {
   align-items: center;
   margin-bottom: 20px;
   flex-wrap: wrap;
-  padding: 0 16px; /* 좌우 여백 추가 */
+  padding: 0 16px;
 }
-
 
 .search-bar {
   display: flex;
@@ -272,15 +233,14 @@ a:hover {
 
 .search-bar select,
 .search-bar input {
-  padding: 5px 5px;
+  padding: 5px 10px;
   min-width: 120px;
   font-size: 14px;
-  transition: border-color 0.2s;
   border: 2px solid #5fa2d200;
   border-radius: 6px;
   background-color: #f6faff;
+  transition: border-color 0.2s;
 }
-
 
 .search-bar select:focus,
 .search-bar input:focus {
@@ -288,22 +248,74 @@ a:hover {
   outline: none;
 }
 
-/* 버튼 */
 button {
   padding: 10px 16px;
   font-size: 14px;
-  color: white;
+  font-weight: 600;
+  background-color: var(--color-main);
+  color: var(--color-button-text);
   border: none;
   border-radius: 6px;
-  font-weight: 500;
   cursor: pointer;
   margin-bottom: 12px;
-  transition: background-color 0.3s;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 12px rgba(122, 186, 255, 0.468);
 }
 
 button:hover {
-  background-color: #154fc1;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.417);
 }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 14px;
+}
+
+th {
+  background-color: #eef4fb;
+  color: #333;
+  font-weight: 600;
+  padding: 14px;
+  text-align: center;
+}
+
+td {
+  padding: 14px 10px;
+  border-bottom: 1px solid #eee;
+  color: #333;
+  text-align: center;
+}
+
+tbody tr:hover {
+  background-color: #f6faff;
+  transition: background-color 0.3s ease;
+}
+
+.pinned-row {
+  background-color: #fff8ef;
+  font-weight: 600;
+}
+
+.pinned-row td:first-child::before {
+  content: "📌 ";
+}
+
+a {
+  color: #1a4dc2;
+  text-decoration: none;
+  font-weight: 500;
+}
+a:hover {
+  text-decoration: underline;
+}
+
 .pagination {
   display: flex;
   justify-content: center;
@@ -315,7 +327,7 @@ button:hover {
 .pagination button {
   padding: 8px 14px;
   min-width: 36px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   border: 1px solid #d0d7de;
   background-color: white;
@@ -342,6 +354,5 @@ button:hover {
   opacity: 0.4;
   cursor: not-allowed;
 }
-
 
 </style>

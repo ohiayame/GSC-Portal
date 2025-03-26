@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from "vue";
+import { computed, ref  } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNoticesStore } from "../stores/notices";
 import { useTimetableStore } from "../stores/timetable";
@@ -13,7 +13,8 @@ const store = useNoticesStore();
 
 const notice = store.getNoticeById(route.params.id);
 const timetableStore = useTimetableStore();
-
+const codeRef = ref(null);
+const copied = ref(false);
 
 const course = timetableStore.timetables.find(course =>
   course.course_id === notice.course_id)?? {};
@@ -25,11 +26,16 @@ const formatDate = (timestamp) => {
 };
 
 // 작성자 이름 찾기
+const author = auth.pendingUsers.find(user => user.id === notice.author_id);
 
-  const author = auth.pendingUsers.find(user => user.id === notice.author_id);
-//   return author ? author.name : "알 수 없음";
-// });
+const copyToClipboard = () => {
+  if (!codeRef.value) return;
 
+  navigator.clipboard.writeText(codeRef.value.textContent).then(() => {
+    copied.value = true;
+    setTimeout(() => copied.value = false, 3000); // ✅ 1.5초 뒤 복원
+  });
+};
 
 // ✅ 파일 유형이 이미지인지 확인하는 함수
 const isImage = (fileUrl) => {
@@ -78,8 +84,13 @@ const deleteNotice = async () => {
       </tbody>
     </table>
 
-    <div class="content-box">
-      <p>{{ notice.content }}</p>
+    <div class="code-wrapper">
+      <pre ref="codeRef" class="code-block">{{ notice.content }}</pre>
+
+      <button class="copy-button" @click="copyToClipboard">
+        <span v-if="copied">✔ 복사됨</span>
+        <span v-else>📋 복사</span>
+      </button>
     </div>
 
     <!-- ✅ 파일이 있으면 파일 이름 출력 -->
@@ -106,85 +117,160 @@ const deleteNotice = async () => {
 
 <style scoped>
 .notice-container {
-  width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
 }
 
 h2 {
   text-align: center;
-  margin-bottom: 15px;
+  font-size: 26px;
+  color: #3ca1ff;
+  font-weight: 800;
+  margin-bottom: 25px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 8px;
+th,
+td {
+  padding: 12px;
+  border: 1px solid #e0e6ed;
   text-align: center;
+  font-size: 14px;
 }
 
 th {
-  background-color: #b0c4de;
-  font-weight: bold;
+  background-color: #e1ecfa;
+  font-weight: 700;
+  color: #2c3e50;
 }
 
 .content-box {
-  background: white;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  min-height: 80px; /* ✅ 내용 박스를 최소 크기로 조정 */
+  background-color: #f8fbff;
+  padding: 16px;
+  border-radius: 10px;
+  min-height: 100px;
+  font-size: 15px;
+  color: #333;
+  border: 1.5px solid #e0e6ed;
+  line-height: 1.6;
 }
 
 .notice-item {
-  border: 1px solid #ddd;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
+  background: #f9fafe;
+  border-radius: 10px;
+  padding: 16px;
+  border: 1.5px solid #e0e6ed;
+  margin-top: 20px;
 }
 
 .preview-img {
   max-width: 100%;
   height: auto;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-top: 5px;
+  margin-top: 12px;
+  border-radius: 8px;
+  border: 1px solid #d0d7de;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.file-name {
+  margin: 10px 0;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+a {
+  color: #1e6eea;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 .button-container {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 12px;
+  margin-top: 25px;
 }
 
 button {
-  padding: 8px 12px;
+  padding: 10px 16px;
   font-size: 14px;
-  background-color: #485ff7;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
+  border: none;
 }
 
 button:hover {
-  background-color: #5fb7ff;
+  opacity: 0.9;
 }
+
 button.back {
   background-color: #ccc;
   color: black;
 }
+
 button.back:hover {
   background-color: #b3b3b3;
 }
+
+button:not(.back) {
+  background-color: #3ca1ff;
+  color: white;
+}
+
+button:not(.back):hover {
+  background-color: #1d8fff;
+}
+.code-wrapper {
+  position: relative;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-top: 20px;
+  font-family: 'Courier New', monospace;
+}
+
+.code-block {
+  white-space: pre-wrap;
+  font-size: 14px;
+  color: #24292f;
+  line-height: 1.6;
+}
+
+.copy-button {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.copy-button:hover {
+  background-color: #e4edf7;
+}
+
 </style>

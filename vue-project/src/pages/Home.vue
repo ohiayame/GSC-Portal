@@ -172,7 +172,7 @@ const formatDate = (dateStr) =>
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 320px;
-  max-height: 360px;
+  height: 400px ;
   text-align: left;
 }
 

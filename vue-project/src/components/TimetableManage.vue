@@ -176,148 +176,160 @@ const editTimetable = (timetable) => {
 
 <style scoped>
 .manage-container {
-  width: auto;
-  max-width: 900px;
-  margin: auto;
-  text-align: center; /* ✅ 컨테이너 내 요소들 가운데 정렬 */
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
 }
 
-.timetable-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* ✅ 테이블을 중앙으로 정렬 */
+.manage-container h2 {
+  text-align: center;
+  color: #3ca1ff;
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 24px;
 }
 
 .timetable {
+  width: 100%;
   border-collapse: collapse;
-  background: white;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  margin: auto; /* ✅ 테이블을 중앙 정렬 */
+  font-size: 14px;
+  margin-bottom: 40px;
+  background-color: #fafcff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
-
 th, td {
-  border: 1px solid #ddd;
-  padding: 12px;
+  padding: 12px 10px;
+  border: 1px solid #e0e6ed;
   text-align: center;
+  color: #333;
 }
 
 th {
-  background: #a7c7e7;
-  font-weight: bold;
+  background-color: #e1ecfa;
+  font-weight: 700;
 }
 
-h3{
+h3 {
   margin-top: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #444;
+  text-align: left;
   margin-bottom: 10px;
 }
+
+/* 🔹 필터 영역 */
 .filter-container {
   display: flex;
-  justify-content: flex-start; /* 오른쪽 정렬 */
   align-items: center;
-  margin-bottom: 10px;
-  margin-left: 115px;
-  font-weight: bold;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  font-size: 14px;
 }
 
-.toggle-filter{
+/* 체크박스 */
+.toggle-filter {
   appearance: none;
   width: 18px;
   height: 18px;
-  border: 2px solid #485ff7;
+  border: 2px solid #3ca1ff;
   border-radius: 4px;
-  cursor: pointer;
   position: relative;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-.toggle-filter:checked {
-  background-color: #485ff7;
-  border-color: #485ff7;
+  cursor: pointer;
 }
 
-/* ✅ 체크된 상태에서 아이콘 추가 */
+.toggle-filter:checked {
+  background-color: #3ca1ff;
+  border-color: #3ca1ff;
+}
+
 .toggle-filter:checked::after {
   content: "✔";
-  font-size: 14px;
+  font-size: 13px;
   color: white;
   position: absolute;
-  left: 50%;
-  top: 50%;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   font-weight: bold;
 }
 
-.bottom-button-container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-top: 15px;
-  margin-left: 65px;
-}
-
-/* ✅ 새 시간표 등록 버튼 스타일 적용 */
+/* 🔹 버튼 영역 */
 .new-btn {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 15px;
-  padding: 8px 12px;
-  font-size: 14px;
-  background-color: #485ff7;
+  float: right;
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  background-color: #3ca1ff;
   color: white;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
   border: none;
-  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.2s;
-
+  transition: all 0.2s ease;
 }
 
 .new-btn:hover {
-  background-color: #5fb7ff;
+  background-color: #1d8fff;
 }
 
-/* ✅ 수정 & 삭제 버튼 스타일 */
+/* 수정, 삭제 버튼 */
 .edit-btn, .delete-btn {
-  padding: 5px 10px;
-  border: none;
-  border-radius: 5px;
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 6px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 14px;
+  transition: all 0.2s ease;
+  border: none;
 }
 
 .edit-btn {
-  background-color: #ffc107;
-  color: black;
-}
-
-.delete-btn {
-  background-color: #f44336;
-  color: white;
+  background-color: #ffd966;
+  color: #333;
 }
 
 .edit-btn:hover {
-  background-color: #ffb300;
+  background-color: #ffc107;
+}
+
+.delete-btn {
+  background-color: #ff7369;
+  color: white;
 }
 
 .delete-btn:hover {
   background-color: #d32f2f;
 }
 
-/* ✅ 돌아가기 버튼 스타일 */
-.back {
+/* 돌아가기 버튼 */
+.bottom-button-container {
   display: flex;
   justify-content: flex-start;
-  background-color: #ccc;
-  color: black;
-  padding: 6px 20px;
+  margin-top: 20px;
+}
+
+.back {
+  padding: 10px 20px;
   font-size: 14px;
-  border-radius: 6px;
+  border-radius: 8px;
+  background-color: #ccc;
+  color: #333;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.2s ease;
+  border: none;
 }
 
 .back:hover {
-  background-color: #b3b3b3;
+  background-color: #b1b1b1;
 }
+
 </style>
