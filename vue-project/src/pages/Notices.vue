@@ -229,8 +229,7 @@ tbody tr:hover {
 
 /* 고정 공지 (중요 공지) 스타일 */
 .pinned-row {
-  background-color: #fff7f5;
-  color: #d94a38;
+  background-color: #fff7f5ab;
   font-weight: 600;
 }
 
@@ -277,7 +276,7 @@ a:hover {
   min-width: 120px;
   font-size: 14px;
   transition: border-color 0.2s;
-  border: 2px solid #5fa2d2;
+  border: 2px solid #5fa2d200;
   border-radius: 6px;
   background-color: #f6faff;
 }
@@ -293,7 +292,6 @@ a:hover {
 button {
   padding: 10px 16px;
   font-size: 14px;
-  background-color: #1e6eea;
   color: white;
   border: none;
   border-radius: 6px;
@@ -311,13 +309,13 @@ button:hover {
   justify-content: center;
   align-items: center;
   margin-top: 25px;
-  gap: 8px;
+  gap: 5px;
 }
 
 .pagination button {
   padding: 8px 14px;
   min-width: 36px;
-  font-size: 14px;
+  font-size: 10px;
   font-weight: 500;
   border: 1px solid #d0d7de;
   background-color: white;

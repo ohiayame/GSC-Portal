@@ -101,8 +101,22 @@ th, td {
 }
 
 th {
-  background: #a7c7e7;
+  background-color: #e1ecfa;
   font-weight: bold;
+}
+select,
+input {
+  font-size: 14px;
+  transition: border-color 0.2s;
+  border: 2px solid #5fa2d200;
+  border-radius: 6px;
+  background-color: #edf5ff;
+}
+
+select:focus,
+input:focus {
+  border-color: #4d8eff;
+  outline: none;
 }
 
 button {

@@ -33,40 +33,6 @@ onMounted(() => {
   }
 });
 
-// const checkDuplicateTimetable = () => {
-//   // 🔹 현재 선택한 값 가져오기
-//   const selectedGrade = form.value.grade;
-//   const selectedDay = form.value.day;
-//   const selectedPeriod = form.value.period;
-//   const selectedDuration = form.value.duration;
-//   const selectedSection = form.value.class_section;
-
-//   // 🔹 같은 학년, 같은 요일, 같은 시간에 중복된 수업이 있는지 확인
-//   const hasDuplicate = store.timetables.some((tt) => {
-//     return (
-//       tt.grade === selectedGrade &&
-//       tt.day === selectedDay &&
-//       tt.period <= selectedPeriod &&
-//       selectedPeriod < tt.period + tt.duration
-//     );
-//   });
-
-//   // 🔹 중복된 경우, 기존 수업 또는 새 수업 중 하나라도 분반이 없는지 확인
-//   if (hasDuplicate) {
-//     const overlappingClass = store.timetables.find((tt) =>
-//       tt.grade === selectedGrade && tt.day === selectedDay &&
-//       tt.period <= selectedPeriod && selectedPeriod < tt.period + tt.duration
-//     );
-
-//     if (overlappingClass.class_section === 1 || selectedSection === 1) {
-//       alert(`⚠️ 중복된 시간표가 존재하며, 분반이 없는 경우 등록할 수 없습니다.
-//       기존 수업: ${overlappingClass.course_name} (${overlappingClass.class_section}분반)`);
-//       return false;
-//     }
-//   }
-
-//   return true;
-// };
 
 
 const saveTimetable = async () => {
@@ -154,17 +120,26 @@ const saveTimetable = async () => {
         <input id="class_section" type="number" v-model="form.class_section" min="1" />
       </div>
     </div>
-
-    <div class="form-group">
-      <label for="day">요일</label>
-      <select id="day" v-model="form.day">
-        <option>월</option>
-        <option>화</option>
-        <option>수</option>
-        <option>목</option>
-        <option>금</option>
-      </select>
+    <div class="inline-group">
+        <div class="form-group">
+          <label for="day">요일</label>
+          <select id="day" v-model="form.day">
+            <option>월</option>
+            <option>화</option>
+            <option>수</option>
+            <option>목</option>
+            <option>금</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="type">수업 종류</label>
+          <select id="type" v-model="form.type">
+            <option value="regular">정규수업</option>
+            <option value="special">특강</option>
+          </select>
+        </div>
     </div>
+
 
     <div class="inline-group">
       <div class="form-group">
