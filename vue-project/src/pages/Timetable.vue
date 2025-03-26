@@ -4,6 +4,8 @@ import { useTimetableStore } from "../stores/timetable";
 import { useSpecialSessionStore } from "../stores/specialSessions";
 import { useRouter } from "vue-router";
 import { useAuthStore } from '@/stores/auth';
+import Modal from '@/components/TimetableModal.vue';
+
 const auth = useAuthStore();
 const user = computed(() => auth.user);
 
@@ -122,6 +124,19 @@ const isClassCancelled = (cls, day, period) => {
   return !!session;
 };
 
+const showModal = ref(false);
+const selectedClasses = ref([]);
+const selectedDay = ref('');
+const selectedPeriod = ref(0);
+
+const openModal = (day, period) => {
+  selectedDay.value = day;
+  selectedPeriod.value = period;
+  selectedClasses.value = getClassAt(day, period);
+  showModal.value = true;
+};
+
+
 
 
 
@@ -169,7 +184,7 @@ const goToSpecialSession = (courseList) => {
       <input type="date" id="date" v-model="selectedDate" />
       <br><br>
       <div v-if="user?.role !== '학생'" >
-      <labe for="professor">교수 선택 : </labe>
+      <label for="professor">교수 선택 : </label>
         <select id="professor" v-model="selectedProfessor">
           <option value="">전체</option>
           <option v-for="prof in professorList" :key="prof" :value="prof">
@@ -207,19 +222,28 @@ const goToSpecialSession = (courseList) => {
             @click="getClassAt(day, period) || getSpecialSessionAt(day, period) ? goToSpecialSession(getClassAt(day, period) || getSpecialSessionAt(day, period)) : null"
             class="clickable-cell"
           >
-            <!-- ✅ 휴강이면 기존 수업 숨기고 '❌ 휴강' 표시 -->
+          <div
+            v-if="getClassAt(day, period).length > 2"
+            class="multi-class-cell"
+            @click.stop="openModal(day, period)"
+          >
+            📚 {{ getClassAt(day, period).length }}개 수업
+          </div>
+
 
 
             <!-- ✅ 기존 수업 정보 (휴강이 아닐 때만 표시) -->
 
               <div
+              v-else
               v-for="cls in getClassAt(day, period)"
               :key="cls.course_id + '-' + cls.class_section"
             >
             <div v-if="isClassCancelled(cls, day, period)" class="specialH-session">
               ❌ 휴강
             </div>
-            <div v-else class="class-info">
+            <!-- 시간표 셀 내부 -->
+            <div v-else :class="['class-info', { 'special-class': cls.type === 'special' }]">
               <strong>{{ cls.course_name }}</strong><br />
               <span>{{ cls.location }}</span><br />
               <span>{{ cls.professor }}</span><br />
@@ -229,17 +253,36 @@ const goToSpecialSession = (courseList) => {
 
             <!-- ✅ 보강이 있는 경우 기존 수업이 없어도 표시 -->
             <div v-if="getSpecialSessionAt(day, period) && getSpecialSessionAt(day, period).type === '보강'" class="special-session">
-              🔄 보강 <br> <strong>{{ getSpecialSessionAt(day, period).course_name || "수업 정보 없음" }}</strong><br />
+              <strong>* 보강 * </strong><br> {{ getSpecialSessionAt(day, period).course_name || "수업 정보 없음" }}<br />
               <span v-if="getSpecialSessionAt(day, period).location">{{ getSpecialSessionAt(day, period).location }}</span><br />
               <span v-if="getSpecialSessionAt(day, period).professor">{{ getSpecialSessionAt(day, period).professor }}</span><br />
             </div>
-          </td>
-
+            </td>
         </tr>
       </tbody>
     </table>
   </div>
+            <!-- 🧩 모달 컴포넌트는 반복문 밖에 있어야 함 -->
+            <Modal v-if="showModal" @close="showModal = false">
+  <template #header>
+    <h3>{{ selectedDay }} {{ selectedPeriod }}교시 수업 목록</h3>
+  </template>
+
+  <div class="modal-class-list">
+    <div
+      class="modal-class-card"
+      v-for="cls in selectedClasses"
+      :key="cls.course_id + '-' + cls.class_section"
+      :class="cls.type === 'special' ? 'special' : 'regular'"
+    >
+      <div class="title">{{ cls.course_name }}</div>
+      <div class="sub">{{ cls.professor }} | {{ cls.location }}</div>
+    </div>
+  </div>
+</Modal>
+
 </template>
+
 
 <style scoped>
 :root {
@@ -365,43 +408,48 @@ td {
 }
 
 .class-info {
-  background-color: #f9fbff;  /* ✅ 거의 흰색에 가까운 밝은 배경 */
+  background-color: #f0f8ff; /* 연한 베이지-오렌지 배경 */
   padding: 10px 12px;
   border-radius: 12px;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.5;
-  color: #333;  /* ✅ 너무 어둡지도 연하지도 않은 텍스트 */
+  color: #333;
+
+  /* 예쁜 곡선 포인트 테두리 추가 */
+  border-left: 6px solid #4dacff; /* 오렌지 색 테두리 */
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
+
 
 .class-info:hover {
   transform: translateY(-3px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);  /* ✅ 살짝 강조되게 */
 }
+.special-class {
+  background-color: #fff4e6;  /* 부드러운 주황 계열 */
+  border-left: 5px solid #ffa94d;  /* 강조 효과 */
+  font-weight: 600;
+}
+
+
+
 
 
 .special-session {
-  background-color: var(--color-special);
-  padding: 6px 8px;
-  border-radius: 8px;
+  background-color: #fff0f0; /* 연한 하늘색 배경 */
+  padding: 10px 12px;
+  border-radius: 12px;
   font-size: 13px;
   font-weight: 500;
   line-height: 1.5;
-  color: #856404;
-  box-shadow: inset 0 0 0 1px #ffe58f;
+
+  border-left: 6px solid #eb481f; /* 파란 포인트 테두리 */
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.specialH-session {
-  background-color: var(--color-holiday);
-  padding: 6px 8px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #c92a2a;
-  box-shadow: inset 0 0 0 1px #ffa8a8;
-}
 
 .clickable-cell {
   cursor: pointer;
@@ -411,5 +459,69 @@ td {
 .clickable-cell:hover {
   background-color: var(--color-hover);
 }
+.multi-class-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  background-color: #f8fbff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.325);
+
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.multi-class-cell:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+
+.modal-class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.modal-class-card {
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: #333;
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+
+.modal-class-card .label {
+  font-size: 11px;
+  font-weight: bold;
+  color: #999;
+  margin-bottom: 4px;
+}
+
+.modal-class-card .title {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.modal-class-card .sub {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.modal-class-card.regular {
+  background-color: #f0f8ff;
+}
+
+.modal-class-card.special {
+  background-color: #fff4e6;
+}
+
 </style>
 
