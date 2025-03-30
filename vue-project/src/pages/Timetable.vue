@@ -39,18 +39,27 @@ const filteredTimetables = computed(() => {
   console.log(`🎯 선택된 날짜: ${selectedDate.value}`);
 
   const selectedGrade = Number(store.searchTarget);
+  const weekDates = getWeekDates(selectedDate.value);
+  const weekStart = new Date(weekDates[0]);
+  const weekEnd = new Date(weekDates[weekDates.length - 1]);
+
   return store.timetables.filter(cls => {
     const isCorrectGrade = Number(cls.grade) === selectedGrade;
-    const isWithinDateRange = new Date(cls.start_date) <= new Date(selectedDate.value) &&
-                              new Date(selectedDate.value) <= new Date(cls.end_date);
+    const classStart = new Date(cls.start_date);
+    const classEnd = new Date(cls.end_date);
+    const isWithinWeekRange = classStart <= weekEnd && classEnd >= weekStart;
+
     const isProfessorMatch = !selectedProfessor.value || cls.professor === selectedProfessor.value;
-    if (selectedProfessor.value !== ""){
+
+    if (selectedProfessor.value !== "") {
       console.log("교수 :", selectedProfessor.value);
-      return isWithinDateRange && isProfessorMatch;
+      return isWithinWeekRange && isProfessorMatch;
     }
-    return isCorrectGrade && isWithinDateRange ;
+
+    return isCorrectGrade && isWithinWeekRange;
   });
 });
+
 
 const filteredSessions = computed(() => {
   const weekDates = getWeekDates(selectedDate.value); // ✅ 이번 주의 모든 날짜 가져오기
@@ -78,17 +87,20 @@ const filteredSessions = computed(() => {
 const getWeekDates = (selectedDate) => {
   const date = new Date(selectedDate);
   const dayOfWeek = date.getDay(); // 0: 일요일 ~ 6: 토요일
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // 월요일로 이동
-  const monday  = new Date(date);
-  monday .setDate(date.getDate() + mondayOffset);
 
-  // return days.map((_, index) => {
-    return Array.from({ length: 5 }, (_, index) => {
+  // ✅ 일요일이면 다음 주 월요일로 계산
+  const mondayOffset = dayOfWeek === 0 ? 1 : 1 - dayOfWeek;
+
+  const monday = new Date(date);
+  monday.setDate(date.getDate() + mondayOffset);
+
+  return Array.from({ length: 5 }, (_, index) => {
     const newDate = new Date(monday);
-    newDate.setDate(monday.getDate() + index); // 월요일 + index 일 후
-    return newDate.toISOString().split("T")[0]; // YYYY-MM-DD 형식 반환
+    newDate.setDate(monday.getDate() + index);
+    return newDate.toISOString().split("T")[0]; // YYYY-MM-DD
   });
 };
+
 const daysWithDates = computed(() => {
   const weekDates = getWeekDates(selectedDate.value);
   return days.map((day, index) => `${day} (${weekDates[index].slice(5)})`);
