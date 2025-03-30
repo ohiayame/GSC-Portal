@@ -62,26 +62,30 @@ const filteredTimetables = computed(() => {
 
 
 const filteredSessions = computed(() => {
-  const weekDates = getWeekDates(selectedDate.value); // ✅ 이번 주의 모든 날짜 가져오기
-  const selectedGrade = Number(store.searchTarget); // ✅ 선택된 학년
+  const weekDates = getWeekDates(selectedDate.value);
+  const selectedGrade = Number(store.searchTarget);
   const selectedProf = selectedProfessor.value;
+
   return specialStore.sessions.filter(session => {
     const isInThisWeek = weekDates.includes(session.date);
+    const relatedClass = store.timetables.find(cls => cls.course_id === session.course_id);
+
+    if (!isInThisWeek) return false;
+
+    // 교수 필터 조건
     if (selectedProf) {
-      const relatedClass = store.timetables.find(cls => cls.course_id === session.course_id);
-      return relatedClass && relatedClass.professor === selectedProf && isInThisWeek;
-    }
-    // ✅ session.grade와 선택된 학년 비교 (grade 필드가 있는 경우)
-    if (session.grade !== undefined) {
-      return session.grade === selectedGrade && weekDates.includes(session.date);
+      return relatedClass && relatedClass.professor === selectedProf;
     }
 
-    // ✅ grade 필드가 없는 경우, timetable에서 course_id를 기반으로 학년 확인
-    const relatedClass = store.timetables.find(cls => cls.course_id === session.course_id);
-    return relatedClass && relatedClass.grade === selectedGrade && weekDates.includes(session.date);
+    // 보강/휴강 세션의 학년 조건 체크
+    if (session.grade !== undefined) {
+      return session.grade === selectedGrade;
+    }
+
+    // relatedClass가 없더라도, session이 이 주차에 존재하면 보여줘야 함
+    return !relatedClass || relatedClass.grade === selectedGrade;
   });
 });
-
 
 
 const getWeekDates = (selectedDate) => {
@@ -113,28 +117,40 @@ const getClassAt = (day, period) => {
   );
 };
 
-const getSpecialSessionAt = (day, period) => {
-  return filteredSessions.value.find(session => {
+const getSpecialSessionsAt = (day, period, type, courseId = null) => {
+  return filteredSessions.value.filter(session => {
     const sessionWeekDates = getWeekDates(selectedDate.value);
-    const sessionDay = days[sessionWeekDates.findIndex(d => d === session.date)];
+    const dateIndex = sessionWeekDates.findIndex(d => d === session.date);
+    if (dateIndex === -1) return false;
 
-    return sessionDay === day && session.start_period <= period && period < session.start_period + session.duration;
-  });
-};
-const isClassCancelled = (cls, day, period) => {
-  const session = filteredSessions.value.find(session => {
-    const sessionWeekDates = getWeekDates(selectedDate.value);
-    const sessionDay = days[sessionWeekDates.findIndex(d => d === session.date)];
-    return (
+    const sessionDay = days[dateIndex];
+
+    const isMatchingTime = (
       sessionDay === day &&
       session.start_period <= period &&
-      period < session.start_period + session.duration &&
-      session.course_id === cls.course_id &&
-      session.type === "휴강"
+      period < session.start_period + session.duration
     );
+
+    const isTypeMatch = session.type === type;
+    const isCourseMatch = courseId ? session.course_id === courseId : true;
+
+    return isMatchingTime && isTypeMatch && isCourseMatch;
   });
-  return !!session;
 };
+
+// 보강용
+const getMakeupSession = (day, period) => {
+  const result = getSpecialSessionsAt(day, period, "보강");
+  return result.length > 0 ? result[0] : null; // 기존 .find()와 동일하게 하나만 반환
+};
+
+// 휴강용
+const isClassCancelled = (cls, day, period) => {
+  const result = getSpecialSessionsAt(day, period, "휴강", cls.course_id);
+  return result.length > 0;
+};
+
+
 
 const showModal = ref(false);
 const selectedClasses = ref([]);
@@ -147,9 +163,6 @@ const openModal = (day, period) => {
   selectedClasses.value = getClassAt(day, period);
   showModal.value = true;
 };
-
-
-
 
 
 // ✅ 시간표 셀 클릭 시 보강/휴강 등록 페이지 이동
@@ -231,44 +244,47 @@ const goToSpecialSession = (courseList) => {
           <td
             v-for="day in days"
             :key="day"
-            @click="getClassAt(day, period) || getSpecialSessionAt(day, period) ? goToSpecialSession(getClassAt(day, period) || getSpecialSessionAt(day, period)) : null"
             class="clickable-cell"
           >
-          <div
-            v-if="getClassAt(day, period).length > 2"
-            class="multi-class-cell"
-            @click.stop="openModal(day, period)"
-          >
-            📚 {{ getClassAt(day, period).length }}개 수업
-          </div>
-
-
-
-            <!-- ✅ 기존 수업 정보 (휴강이 아닐 때만 표시) -->
-
-              <div
+            <!-- 여러개 수업 있는경우 -->
+            <div
+              v-if="getClassAt(day, period).length > 2"
+              class="multi-class-cell"
+              @click.stop="openModal(day, period)"
+            >
+              📚 {{ getClassAt(day, period).length }}개 수업
+            </div>
+            <!-- 휴강, 정규 출력 -->
+            <div
               v-else
               v-for="cls in getClassAt(day, period)"
               :key="cls.course_id + '-' + cls.class_section"
             >
-            <div v-if="isClassCancelled(cls, day, period)" class="specialH-session">
-              ❌ 휴강
+              <!-- 휴강 출력 -->
+              <div v-if="isClassCancelled(cls, day, period)" class="specialH-session">
+                ❌ 휴강
+              </div>
+              <!-- 출력 (클릭 시 휴강 등록) -->
+              <div v-else
+              @click.stop="goToSpecialSession([cls])"
+              :class="['class-info', { 'special-class': cls.type === 'special' }]"
+              >
+                <strong>{{ cls.course_name }}</strong><br />
+                <span>{{ cls.location }}</span><br />
+                <span>{{ cls.professor }}</span><br />
+                <span v-if="cls.class_section">({{ cls.class_section }}반)</span>
+              </div>
             </div>
-            <!-- 시간표 셀 내부 -->
-            <div v-else :class="['class-info', { 'special-class': cls.type === 'special' }]">
-              <strong>{{ cls.course_name }}</strong><br />
-              <span>{{ cls.location }}</span><br />
-              <span>{{ cls.professor }}</span><br />
-              <span v-if="cls.class_section">({{ cls.class_section }}반)</span>
-            </div>
-          </div>
 
-            <!-- ✅ 보강이 있는 경우 기존 수업이 없어도 표시 -->
-            <div v-if="getSpecialSessionAt(day, period) && getSpecialSessionAt(day, period).type === '보강'" class="special-session">
-              <strong>* 보강 * </strong><br> {{ getSpecialSessionAt(day, period).course_name || "수업 정보 없음" }}<br />
-              <span v-if="getSpecialSessionAt(day, period).location">{{ getSpecialSessionAt(day, period).location }}</span><br />
-              <span v-if="getSpecialSessionAt(day, period).professor">{{ getSpecialSessionAt(day, period).professor }}</span><br />
-            </div>
+            <!-- 보강 출력 -->
+            <template v-if="(makeup = getMakeupSession(day, period))">
+              <div class="special-session">
+                <strong>* 보강 * </strong><br>
+                {{ makeup.course_name }}<br />
+                <span>{{ makeup.location }}</span><br />
+                <span>{{ makeup.professor }}</span><br />
+              </div>
+            </template>
             </td>
         </tr>
       </tbody>

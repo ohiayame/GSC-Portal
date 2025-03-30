@@ -13,7 +13,7 @@ const form = ref({
   course_id: "",
   course_name: "",
   professor: "정영철",
-  grade: 1,
+  grade: null,
   class_section: null,
   type: "regular",
   day: "",
@@ -109,9 +109,10 @@ const saveTimetable = async () => {
       <div class="form-group">
         <label for="grade">학년</label>
         <select id="grade" v-model="form.grade">
-          <option :value="1">1학년</option>
-          <option :value="2">2학년</option>
-          <option :value="3">3학년</option>
+          <option value="1">1학년</option>
+          <option value="2">2학년</option>
+          <option value="3">3학년</option>
+          <option value="0">레벨 별</option>
         </select>
       </div>
 
