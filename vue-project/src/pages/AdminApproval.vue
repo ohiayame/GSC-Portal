@@ -1,11 +1,21 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { useAssignLevelStore } from '@/stores/assignLevel.js'
+import ModalChooseCourse from "@/components/ModalChooseCourse.vue";
 
+const router = useRouter();
 const auth = useAuthStore();
-const userRole = ref({
-  role: ""
-})
+const level= useAssignLevelStore();
+const showModal = ref(false);
+
+
+const goToAssignLevel = (mode) => {
+  level.mode = mode
+  router.push("/assignLevel");
+}
+
 // 🔹 승인 및 거절 버튼 액션
 const approveUser = (id) => auth.approveUser(id);
 const rejectUser = (id) => auth.rejectUser(id);
@@ -19,8 +29,15 @@ const filteredUsers = computed(() => {
   return auth.pendingUsers;
 });
 
-// stores/auth.js의 updateRole(id, role)에 선택된 정보 전달달
+// stores/auth.js의 updateRole(id, role)에 선택된 정보 전달
 const updateRole = (id, role) => auth.updateRole(id, role);
+
+const handleCourseSelection = ({ courses }) => {
+  console.log("courses", courses);
+  level.selectedCourses = courses;
+  level.mode = "new";
+  router.push("/assignLevel");
+};
 
 onMounted(async () => {
   await auth.fetchPendingUsers(); // 전체 유저 목록 불러오기
@@ -81,7 +98,23 @@ onMounted(async () => {
       </tbody>
     </table>
   </div>
+  <!-- AdminApproval.vue 내 -->
+  <div class="assign-box">
+    <h2>📚 분반 등록</h2>
+    <p class="assign-description">
+      학생들을 과목별로 분반에 등록하거나 수정할 수 있습니다.
+    </p>
+    <div class="mode-selector">
+      <button @click="showModal = true" class="mode-btn new">➕ 신규 등록</button>
+
+
+      <button @click="goToAssignLevel('edit')" class="mode-btn edit">✏️ 기존 수정</button>
+    </div>
+    <ModalChooseCourse v-if="showModal" @close="showModal = false" @confirm="handleCourseSelection" />
+  </div>
+
 </template>
+
 
 <style scoped>
 .approval-container {
@@ -166,7 +199,7 @@ button {
   border-radius: 6px;
   cursor: pointer;
   transition: background-color 0.2s;
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 button:hover {
@@ -179,5 +212,61 @@ td button:nth-child(1) {
 td button:nth-child(2) {
   background-color: #ff4d4f;
 }
+.assign-box {
+  padding: 30px;
+  max-width: 1000px;
+  margin: 40px auto;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  text-align: center;
+}
+
+.assign-box h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #3ca1ff;
+  margin-bottom: 10px;
+}
+
+.assign-description {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.mode-selector {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.mode-btn {
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.mode-btn.new {
+  background-color: #3ca1ff;
+}
+
+.mode-btn.edit {
+  background-color: #ffa940;
+}
+
+.mode-btn:hover {
+  filter: brightness(1.1);
+}
+
+
 
 </style>
