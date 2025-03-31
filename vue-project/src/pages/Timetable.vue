@@ -67,9 +67,10 @@ const filteredTimetables = computed(() => {
       new Date(cls.start_date) <= weekEnd &&
       new Date(cls.end_date) >= weekStart
     );
+    const specialCourses = timetable.filter(cls => cls.class_section === null);
 
     // 🔁 학년별 정규수업 + 특강 합쳐서 반환
-    return [...timetable, ...assignedCourses];
+    return [...specialCourses, ...assignedCourses];
   }
 
   return timetable;
@@ -217,6 +218,7 @@ const goToSpecialSession = (courseList) => {
     <div class="filter-container">
       <label for="grade">학년 선택 : </label>
       <select id="grade" v-model="store.searchTarget">
+        <option value="0" v-if="user?.role !== '학생'">특강</option>
         <option value="1">1학년</option>
         <option value="2">2학년</option>
         <option value="3">3학년</option>
