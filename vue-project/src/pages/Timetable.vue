@@ -4,6 +4,7 @@ import { useTimetableStore } from "../stores/timetable";
 import { useSpecialSessionStore } from "../stores/specialSessions";
 import { useRouter } from "vue-router";
 import { useAuthStore } from '@/stores/auth';
+import { useAssignLevelStore } from '@/stores/assignLevel.js'
 import Modal from '@/components/TimetableModal.vue';
 
 const auth = useAuthStore();
@@ -14,6 +15,7 @@ const specialStore = useSpecialSessionStore();
 const router = useRouter();
 const selectedDate = ref(new Date().toISOString().split("T")[0]); // ✅ 기본값: 오늘 날짜
 const selectedProfessor = ref("");
+const level = useAssignLevelStore();
 
 // ✅ 요일과 시간 범위 설정
 const days = ["월", "화", "수", "목", "금"];  // ,"토"
@@ -26,6 +28,10 @@ onMounted(async () => {
   await specialStore.fetchSessions();
   console.log("📌 초기 시간표 데이터:", store.timetables);
   console.log("📌 휴보강 시간표 데이터:", specialStore.sessions);
+
+  if (user.value.role === "학생") {
+    await level.fetchAssignedCourses(user.value.id);
+  }
 });
 
 const professorList = computed(() => {
@@ -43,6 +49,20 @@ const filteredTimetables = computed(() => {
   const weekStart = new Date(weekDates[0]);
   const weekEnd = new Date(weekDates[weekDates.length - 1]);
 
+  if (user.value.role === "학생") {
+    console.log("🧪 필터링 전 timetable:", store.timetables);
+    console.log("🧪 assignedCourses:", level.assignedCourses);
+
+    const assignedIds = level.assignedCourses?.map(a => a.course_id) || [];
+
+    const filtered = store.timetables.filter(cls =>
+      assignedIds.includes(cls.course_id)
+    );
+    console.log("🧪 학생 필터링 후:", filtered);
+    return filtered;
+  }
+
+  // 교수/관리자
   return store.timetables.filter(cls => {
     const isCorrectGrade = Number(cls.grade) === selectedGrade;
     const classStart = new Date(cls.start_date);
@@ -50,13 +70,23 @@ const filteredTimetables = computed(() => {
     const isWithinWeekRange = classStart <= weekEnd && classEnd >= weekStart;
 
     const isProfessorMatch = !selectedProfessor.value || cls.professor === selectedProfessor.value;
+    return isCorrectGrade && isWithinWeekRange && isProfessorMatch;
 
-    if (selectedProfessor.value !== "") {
-      console.log("교수 :", selectedProfessor.value);
-      return isWithinWeekRange && isProfessorMatch;
-    }
 
-    return isCorrectGrade && isWithinWeekRange;
+  // return store.timetables.filter(cls => {
+  //   const isCorrectGrade = Number(cls.grade) === selectedGrade;
+  //   const classStart = new Date(cls.start_date);
+  //   const classEnd = new Date(cls.end_date);
+  //   const isWithinWeekRange = classStart <= weekEnd && classEnd >= weekStart;
+
+  //   const isProfessorMatch = !selectedProfessor.value || cls.professor === selectedProfessor.value;
+
+  //   if (selectedProfessor.value !== "") {
+  //     console.log("교수 :", selectedProfessor.value);
+  //     return isWithinWeekRange && isProfessorMatch;
+  //   }
+
+  //   return isCorrectGrade && isWithinWeekRange;
   });
 });
 
@@ -200,6 +230,7 @@ const goToSpecialSession = (courseList) => {
     <div class="filter-container">
       <label for="grade">학년 선택 : </label>
       <select id="grade" v-model="store.searchTarget">
+        <option value="0">특강</option>
         <option value="1">1학년</option>
         <option value="2">2학년</option>
         <option value="3">3학년</option>
