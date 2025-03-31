@@ -16,6 +16,7 @@
         <label v-for="course in filteredCourses" :key="course.course_id">
           <input type="checkbox" :value="course" v-model="selectedCourses" />
           {{ course.course_name }}
+          <span v-if="course.class_section">({{ course.class_section }}반)</span>
         </label>
       </div>
 

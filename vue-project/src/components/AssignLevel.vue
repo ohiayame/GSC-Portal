@@ -2,7 +2,11 @@
   <div class="page-wrapper">
     <!-- 📚 명단 -->
     <div class="roster-area">
-      <div class="grade-roster" v-for="grade in [1,2,3]" :key="grade">
+    <template  v-for="grade in [1, 2, 3]" :key="grade">
+    <div
+      v-if="selectedGrade === null || selectedGrade === grade"
+      class="grade-roster"
+    >
         <h3>{{ grade }}학년</h3>
         <Draggable
           :list="students.filter(s => s.grade === grade && !isAssigned(s.id))"
@@ -16,7 +20,8 @@
           </template>
         </Draggable>
       </div>
-    </div>
+    </template>
+  </div>
 
     <!-- 🧩 분반 배정 -->
     <div class="assignment-area">
@@ -51,7 +56,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import Draggable from 'vuedraggable'
 import { useAuthStore } from "@/stores/auth"
 import { useAssignLevelStore } from "@/stores/assignLevel";
@@ -72,7 +77,16 @@ const isAssigned = (id) => {
   return Object.values(assigned.value).flat().some(s => s.id === id);
 };
 
+const selectedGrade = computed(() => {
+  if (selectedCourses.value.length === 0) return null;
 
+  const grades = selectedCourses.value.map(c => c.grade);
+  if (grades.includes(0)) return null; // 전체 학년 표시
+
+  const first = grades[0];
+  const allSame = grades.every(g => g === first);
+  return allSame ? first : null;  // 모두 같은 경우만 특정 학년
+});
 
 const submit = async () => {
   const assignments = [];
@@ -125,12 +139,14 @@ onMounted(async () => {
   flex-wrap: wrap;
   gap: 30px;
   width: 100%;
+  max-width: 1200px; /* ✅ 추가하면 화면 중앙정렬에 도움 */
 }
 
 .grade-roster {
-  flex: 1 1 260px;
-  width: 300px;
+  flex: 1 1 300px;
+  width: 360px;
   min-width: 240px;
+  min-height: 420px;
   background-color: #ffffff;
   border-radius: 14px;
   padding: 16px;
