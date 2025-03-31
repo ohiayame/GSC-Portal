@@ -48,7 +48,7 @@ const filteredTimetables = computed(() => {
 
   // ✅ 전체 시간표에서 해당 학년의 정규수업 필터링
   const timetable = store.timetables.filter(cls => {
-    const isCorrectGrade = Number(cls.grade) === selectedGrade;
+    const isCorrectGrade = Number(cls.grade) === selectedGrade
     const classStart = new Date(cls.start_date);
     const classEnd = new Date(cls.end_date);
     const isWithinWeekRange = classStart <= weekEnd && classEnd >= weekStart;
@@ -73,7 +73,14 @@ const filteredTimetables = computed(() => {
     return [...specialCourses, ...assignedCourses];
   }
 
-  return timetable;
+  const levelZeroCourses = store.timetables.filter(cls =>
+    cls.grade === 0 &&
+    new Date(cls.start_date) <= weekEnd &&
+    new Date(cls.end_date) >= weekStart &&
+    (!selectedProfessor.value || cls.professor === selectedProfessor.value)
+  );
+
+  return [...timetable, ...levelZeroCourses];
 });
 
 
@@ -218,7 +225,6 @@ const goToSpecialSession = (courseList) => {
     <div class="filter-container">
       <label for="grade">학년 선택 : </label>
       <select id="grade" v-model="store.searchTarget">
-        <option value="0" v-if="user?.role !== '학생'">특강</option>
         <option value="1">1학년</option>
         <option value="2">2학년</option>
         <option value="3">3학년</option>
