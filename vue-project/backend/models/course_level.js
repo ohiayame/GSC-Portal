@@ -5,13 +5,13 @@ export const getNextGroupId = async () => {
   return (rows[0].maxGroup || 0) + 1; // ❗ null 이면 0으로 처리
 };
 
-export const insertCourseLevel = async (course_id, student_id, group_id) => {
-  console.log("id", group_id)
+export const insertCourseLevel = async (course_id, student_id, targetGroupId) => {
+  console.log("id", targetGroupId)
   const sql = `
     INSERT INTO course_assignments (course_id, student_id, group_id)
     VALUES (?, ?, ?)
   `;
-  await db.query(sql, [course_id, student_id, group_id]);
+  await db.query(sql, [course_id, student_id, targetGroupId]);
 };
 
 

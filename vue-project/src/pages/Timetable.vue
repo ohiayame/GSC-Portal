@@ -1,116 +1,123 @@
 <script setup>
 import { computed, ref, onMounted } from "vue";
-import { useTimetableStore } from "../stores/timetable";
-import { useSpecialSessionStore } from "../stores/specialSessions";
 import { useRouter } from "vue-router";
 import { useAuthStore } from '@/stores/auth';
-import Modal from '@/components/TimetableModal.vue';
+import { useTimetableStore } from "../stores/timetable";
+import { useSpecialSessionStore } from "../stores/specialSessions";
 import { useAssignLevelStore } from '@/stores/assignLevel';
-const assignStore = useAssignLevelStore();
+import Modal from '@/components/TimetableModal.vue';
 
+const router = useRouter();
+// 학생 정보
 const auth = useAuthStore();
 const user = computed(() => auth.user);
-
+// 시간표 정보
 const store = useTimetableStore();
 const specialStore = useSpecialSessionStore();
-const router = useRouter();
+const assignStore = useAssignLevelStore();
+
 const selectedDate = ref(new Date().toISOString().split("T")[0]); // ✅ 기본값: 오늘 날짜
 const selectedProfessor = ref("");
 
-// ✅ 요일과 시간 범위 설정
+// 요일과 시간 범위 설정
 const days = ["월", "화", "수", "목", "금"];  // ,"토"
 const periods = Array.from({ length: 10 }, (_, i) => i + 1); // 1교시 ~ 10교시
 
-// ✅ 페이지 로드시 시간표 데이터 불러오기
+// 페이지 로드시 시간표 데이터 불러오기
 onMounted(async () => {
-  store.initSearchTarget();
-  await store.fetchTimetables();
-  await specialStore.fetchSessions();
+  store.initSearchTarget(); // 학년 셋팅
+  await store.fetchTimetables(); // 시간표 목록 불러오기
+  await specialStore.fetchSessions(); // 휴보강 목록 불러오기
   console.log("📌 초기 시간표 데이터:", store.timetables);
   console.log("📌 휴보강 시간표 데이터:", specialStore.sessions);
 
   if (user.value.role === '학생') {
+    // 학생 해당 반만 가져오기
     await assignStore.fetchAssignedCourses(user.value.id);
   }
 });
 
+// 교수님 이름 배열
 const professorList = computed(() => {
   const allProfessors = store.timetables.map(cls => cls.professor);
   return [...new Set(allProfessors)];
 });
 
-// ✅ 특정 학년 & 날짜 기준으로 시간표 필터링
+// 특정 학년 & 날짜 기준으로 시간표 필터링
 const filteredTimetables = computed(() => {
-  const selectedGrade = Number(store.searchTarget);
-  const weekDates = getWeekDates(selectedDate.value);
+  const selectedGrade = Number(store.searchTarget); // 학년 셋팅
+  const weekDates = getWeekDates(selectedDate.value); // 해당 주의 날짜 배열
   const weekStart = new Date(weekDates[0]);
   const weekEnd = new Date(weekDates[weekDates.length - 1]);
 
-  // ✅ 전체 시간표에서 해당 학년의 정규수업 필터링
+  // 전체 시간표에서 해당 학년의 정규수업 필터링
   const timetable = store.timetables.filter(cls => {
-    const isCorrectGrade = Number(cls.grade) === selectedGrade
+    const isCorrectGrade = Number(cls.grade) === selectedGrade || Number(cls.grade) === 0;  // 동일 학년의 과목
+    // 과목의 기간
     const classStart = new Date(cls.start_date);
     const classEnd = new Date(cls.end_date);
     const isWithinWeekRange = classStart <= weekEnd && classEnd >= weekStart;
-
+    // 교수 필터링(선택이 있으면 적용)
     const isProfessorMatch = !selectedProfessor.value || cls.professor === selectedProfessor.value;
-
-    return isCorrectGrade && isWithinWeekRange && isProfessorMatch;
+    // 학년, 기간, (교수 이름)으로 필터링 결과 반환 -> timetable에 저장
+    if (selectedProfessor.value){
+      return isWithinWeekRange && isProfessorMatch;
+    }
+    return isCorrectGrade && isWithinWeekRange;
   });
 
-  // ✅ 학생일 경우 assignedCourses 추가
-  if (user.value.role === "학생") {
+  // 학생일 경우 해당 반의 정보만 나오게 필터링
+  if (user.value.role === "학생" && user.value.grade === selectedGrade) {
+    // 학생의 id로 해당 과목 id 불러오기 (배열)
     const assignedIds = assignStore.assignedCourses.map(a => a.course_id);
 
+    // 해당 과목의 내용을 뽑아내기
     const assignedCourses = store.timetables.filter(cls =>
       assignedIds.includes(cls.course_id) &&
       new Date(cls.start_date) <= weekEnd &&
       new Date(cls.end_date) >= weekStart
     );
-    const specialCourses = timetable.filter(cls => cls.class_section === null);
+    // 분반 설정이 있는 과목 삭제 (assignedCourses에서 불러기 때문에 증복 방지)
+    const specialCourses = timetable.filter(cls => cls.class_section === null && cls.grade !== 0 );
 
-    // 🔁 학년별 정규수업 + 특강 합쳐서 반환
+    // 학년별 정규수업 + 특강 합쳐서 반환
     return [...specialCourses, ...assignedCourses];
   }
+  return timetable;
 
-  const levelZeroCourses = store.timetables.filter(cls =>
-    cls.grade === 0 &&
-    new Date(cls.start_date) <= weekEnd &&
-    new Date(cls.end_date) >= weekStart &&
-    (!selectedProfessor.value || cls.professor === selectedProfessor.value)
-  );
-
-  return [...timetable, ...levelZeroCourses];
 });
-
-
-
 
 const filteredSessions = computed(() => {
   const weekDates = getWeekDates(selectedDate.value);
   const selectedGrade = Number(store.searchTarget);
   const selectedProf = selectedProfessor.value;
 
-  return specialStore.sessions.filter(session => {
-    const isInThisWeek = weekDates.includes(session.date);
-    const relatedClass = store.timetables.find(cls => cls.course_id === session.course_id);
+  const assignedIds = assignStore.assignedCourses.map(a => a.course_id);
 
+  const sessions = specialStore.sessions.filter(session => {
+    const isInThisWeek = weekDates.includes(session.date);
     if (!isInThisWeek) return false;
 
-    // 교수 필터 조건
+    const relatedClass = store.timetables.find(cls => cls.course_id === session.course_id);
+
+    // 교수 필터 (관리자, 교수만 해당)
     if (selectedProf) {
       return relatedClass && relatedClass.professor === selectedProf;
     }
 
-    // 보강/휴강 세션의 학년 조건 체크
-    if (session.grade !== undefined) {
-      return session.grade === selectedGrade;
+    // 학생이 자기 학년을 선택했을 경우 → 자기 반에 배정된 수업만 표시
+    if (user.value.role === "학생" && user.value.grade === selectedGrade) {
+      return assignedIds.includes(session.course_id) || relatedClass.grade === selectedGrade;
     }
 
-    // relatedClass가 없더라도, session이 이 주차에 존재하면 보여줘야 함
-    return !relatedClass || relatedClass.grade === selectedGrade;
+    // 학년 일치 or 특강 표시
+    return relatedClass.grade === selectedGrade || relatedClass.grade === 0;
   });
+  return sessions;
 });
+
+
+
 
 
 const getWeekDates = (selectedDate) => {
@@ -143,6 +150,7 @@ const getClassAt = (day, period) => {
 };
 
 const getSpecialSessionsAt = (day, period, type, courseId = null) => {
+  console.log("filteredSessions", filteredSessions)
   return filteredSessions.value.filter(session => {
     const sessionWeekDates = getWeekDates(selectedDate.value);
     const dateIndex = sessionWeekDates.findIndex(d => d === session.date);

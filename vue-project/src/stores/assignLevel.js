@@ -5,8 +5,8 @@ export const useAssignLevelStore = defineStore("assignLevel", {
   state: () => ({
     status: null,
     group_id: null,
-    selectedCourses: [],
-    assignedCourses: [],
+    selectedCourses: [], // 분반 과목 목록
+    assignedCourses: [], // 분반 학생 목록
   }),
   actions: {
     async submitAssignments( assignments) {

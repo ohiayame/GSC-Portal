@@ -32,15 +32,15 @@ export const useTimetableStore = defineStore("timetable", {
     },
 
     // ✅ 보강/휴강 데이터 불러오기
-    async fetchSpecialSessions() {
-      try {
-        const response = await fetch("http://localhost:3001/api/timetable/special");
-        if (!response.ok) throw new Error("보강/휴강 데이터를 불러오는 데 실패했습니다.");
-        this.specialSessions = await response.json();
-      } catch (error) {
-        console.error("🚨 보강/휴강 데이터 불러오기 오류:", error);
-      }
-    },
+    // async fetchSpecialSessions() {
+    //   try {
+    //     const response = await fetch("http://localhost:3001/api/timetable/special");
+    //     if (!response.ok) throw new Error("보강/휴강 데이터를 불러오는 데 실패했습니다.");
+    //     this.specialSessions = await response.json();
+    //   } catch (error) {
+    //     console.error("🚨 보강/휴강 데이터 불러오기 오류:", error);
+    //   }
+    // },
 
     // ✅ 시간표 추가
     async addCourse(courseData) {

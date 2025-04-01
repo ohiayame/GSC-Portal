@@ -9,6 +9,7 @@
           <label>학년:</label>
           <select v-model="selectedGrade" class="input-field" @change="fetchCourses">
             <option value="" disabled>학년 선택</option>
+            <option value="0">특강</option>
             <option value="1">1학년</option>
             <option value="2">2학년</option>
             <option value="3">3학년</option>

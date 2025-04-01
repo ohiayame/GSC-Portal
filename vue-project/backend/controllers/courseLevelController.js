@@ -12,8 +12,9 @@ export const saveAssignments = async (req, res) => {
 
     if (!targetGroupId){
       // id 새로 생성
-      const targetGroupId = await getNextGroupId();
+      targetGroupId = await getNextGroupId();
       console.log("👉 새 group_id:", targetGroupId);
+
     }else{
       // 해당 group_id의 항목 삭제
       const courseIds = [...new Set(assignments.map(a => a.course_id))];
@@ -24,6 +25,7 @@ export const saveAssignments = async (req, res) => {
     }
     // 등록
     for (const { student_id, course_id } of assignments) {
+      console.log("targetGroupId", targetGroupId)
       await insertCourseLevel(course_id, student_id, targetGroupId );
     }
     res.status(200).json({ message: "배정 완료" });
