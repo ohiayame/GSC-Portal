@@ -5,6 +5,7 @@ export const useTimetableStore = defineStore("timetable", {
   state: () => ({
     timetables: [], // 전체 시간표 데이터
     specialSessions: [], // 보강/휴강 데이터
+    availableCourses: [], // 분반
     searchTarget: null,
   }),
 
@@ -98,5 +99,20 @@ export const useTimetableStore = defineStore("timetable", {
         console.error("🚨 시간표 삭제 오류:", error);
       }
     },
+
+    //
+    async fetchAvailableCourses(grade) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/courses/available?grade=${grade}`);
+        if (!response.ok) throw new Error("과목 불러오기 실패");
+
+        const data = await response.json();
+        this.availableCourses = data;
+      } catch (error) {
+        console.error("❌ 사용 가능한 과목 조회 실패:", error);
+      }
+    }
+
+
   },
 });

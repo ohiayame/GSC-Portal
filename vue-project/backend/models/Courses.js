@@ -35,6 +35,20 @@ const Course = {
     const [result] = await db.query("DELETE FROM courses WHERE course_id = ?", [course_id]);
     return result.affectedRows; // 삭제된 행 수 반환
   },
+
+  // 분반 조회
+  async getUnassignedCourses(grade) {
+    const [rows] = await db.query(
+      `SELECT * FROM courses
+        WHERE type = 'special' AND grade = ?
+        AND course_id NOT IN (
+        SELECT DISTINCT course_id FROM course_assignments
+        )`,
+      [grade]
+    );
+    return rows;
+  },
+
 };
 
 export default Course;

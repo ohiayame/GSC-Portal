@@ -35,7 +35,6 @@ const updateRole = (id, role) => auth.updateRole(id, role);
 const handleCourseSelection = ({ courses }) => {
   console.log("courses", courses);
   level.selectedCourses = courses;
-  level.mode = "new";
   router.push("/assignLevel");
 };
 

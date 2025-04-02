@@ -13,7 +13,7 @@
       <div class="select-container">
       <!-- 왼쪽: 체크박스 -->
       <div class="course-checkboxes">
-        <label v-for="course in filteredCourses" :key="course.course_id">
+        <label v-for="course in timetableStore.availableCourses" :key="course.course_id">
           <input type="checkbox" :value="course" v-model="selectedCourses" />
           {{ course.course_name }}
           <span v-if="course.class_section">({{ course.class_section }}반)</span>
@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useTimetableStore } from "@/stores/timetable"; // 모든 과목 불러오는 store 예시
 
 const selectedGrade = ref(1);
@@ -52,6 +52,7 @@ const filteredCourses = computed(() =>
     course.grade == selectedGrade.value && (course.type === "special" || course.class_section !== null)
   )
 );
+
 const removeCourse = (courseToRemove) => {
   selectedCourses.value = selectedCourses.value.filter(
     (c) => c.course_id !== courseToRemove.course_id
@@ -66,9 +67,16 @@ const confirmSelection = () => {
     emit("confirm", { courses: courseList });
   }
 };
-onMounted(() => {
-  timetableStore.fetchTimetables();
+
+watch(selectedGrade, async (newGrade) => {
+  await timetableStore.fetchAvailableCourses(newGrade);
 });
+
+onMounted(async () => {
+  // timetableStore.fetchTimetables();
+  await timetableStore.fetchAvailableCourses(selectedGrade.value);
+});
+
 </script>
 
 <style scoped>

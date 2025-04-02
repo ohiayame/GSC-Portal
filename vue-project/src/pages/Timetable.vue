@@ -118,8 +118,6 @@ const filteredSessions = computed(() => {
 
 
 
-
-
 const getWeekDates = (selectedDate) => {
   const date = new Date(selectedDate);
   const dayOfWeek = date.getDay(); // 0: 일요일 ~ 6: 토요일

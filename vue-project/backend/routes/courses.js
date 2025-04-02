@@ -1,5 +1,5 @@
 import express from "express";
-import { createCourse, getCourses, deleteTimetable } from "../controllers/coursesController.js";
+import { createCourse, getCourses, deleteTimetable, getAvailableCourses } from "../controllers/coursesController.js";
 
 const router = express.Router();
 
@@ -10,5 +10,8 @@ router.post("/", createCourse);
 router.get("/", getCourses);
 
 router.delete("/:course_id", deleteTimetable);
+
+// 분반 데이터 조회
+router.get("/available", getAvailableCourses);
 
 export default router;

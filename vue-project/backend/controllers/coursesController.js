@@ -42,3 +42,14 @@ export const deleteTimetable = async (req, res) => {
     res.status(500).json({ error: "시간표 삭제에 실패했습니다." });
   }
 };
+
+export const getAvailableCourses = async (req, res) => {
+  const { grade } = req.query;
+  try {
+    const rows = await Course.getUnassignedCourses(grade);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("❌ 사용 가능한 과목 불러오기 실패:", error);
+    res.status(500).json({ message: "서버 오류" });
+  }
+};
