@@ -51,24 +51,29 @@
       </div>
     </div>
 
+    <button @click="router.push('/approval')" class="back">돌아가기</button>
     <button @click="submit" class="submit-button">📝 등록</button>
   </div>
 </template>
 
 <script setup>
 import { onMounted, ref, computed } from 'vue'
+import { useRoute, useRouter } from "vue-router";
 import Draggable from 'vuedraggable'
 import { useAuthStore } from "@/stores/auth"
 import { useAssignLevelStore } from "@/stores/assignLevel";
 import { storeToRefs } from "pinia";
 
+const route = useRoute();
+const router = useRouter();
 const auth = useAuthStore();
-const levelStore = useAssignLevelStore();
-const { selectedCourses } = storeToRefs(levelStore);
+const assignStore = useAssignLevelStore();
+const { selectedCourses, assigned } = storeToRefs(assignStore);
 
 const students = ref([]);
-const assigned = ref({});  // 🔹 key: course_id, value: 학생 배열
-
+// const assigned = ref({});  // 🔹 key: course_id, value: 학생 배열
+const groupId = computed(() => route.query.group_id);
+console.log("groupId", groupId)
 // ✅ 학년순 정렬 함수
 const sortByGrade = (arr) => {
   arr.sort((a, b) => a.grade - b.grade);
@@ -100,17 +105,23 @@ const submit = async () => {
     });
   }
 
-  await levelStore.submitAssignments(assignments);
+  await assignStore.submitAssignments(assignments);
+
+  router.push("/approval");
 };
 
 
 onMounted(async () => {
   await auth.fetchPendingUsers();
-  // course_id별로 빈 배열 초기화
-  selectedCourses.value.forEach(course => {
-    assigned.value[course.course_id] = [];
-  });
-
+  console.log("groupId.value", groupId.value)
+  if (groupId.value) {
+    await assignStore.fetchAssignmentsByGroup(groupId.value);
+  }else{
+    // course_id별로 빈 배열 초기화
+    selectedCourses.value.forEach(course => {
+      assigned.value[course.course_id] = [];
+    });
+  }
   students.value = auth.pendingUsers
     .filter(user => user.role === "학생" && user.approved === 1)
     .map(user => ({ id: user.id, name: user.name, grade: user.grade }));

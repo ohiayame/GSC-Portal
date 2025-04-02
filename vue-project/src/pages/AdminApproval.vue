@@ -4,17 +4,14 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useAssignLevelStore } from '@/stores/assignLevel.js'
 import ModalChooseCourse from "@/components/ModalChooseCourse.vue";
+import ModalChooseGroup from "@/components/ModalChooseGroup.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
 const level= useAssignLevelStore();
+
 const showModal = ref(false);
-
-
-const goToAssignLevel = (mode) => {
-  level.mode = mode
-  router.push("/assignLevel");
-}
+const showGroupModal = ref(false);
 
 // 🔹 승인 및 거절 버튼 액션
 const approveUser = (id) => auth.approveUser(id);
@@ -37,6 +34,15 @@ const handleCourseSelection = ({ courses }) => {
   level.selectedCourses = courses;
   router.push("/assignLevel");
 };
+function handleGroupSelection(groupId) {
+  showGroupModal.value = false;
+  router.push({
+  path: "/assignLevel",
+  query: { group_id: groupId }
+});
+
+}
+
 
 onMounted(async () => {
   await auth.fetchPendingUsers(); // 전체 유저 목록 불러오기
@@ -107,9 +113,10 @@ onMounted(async () => {
       <button @click="showModal = true" class="mode-btn new">➕ 신규 등록</button>
 
 
-      <button @click="goToAssignLevel('edit')" class="mode-btn edit">✏️ 기존 수정</button>
+      <button @click="showGroupModal = true" class="mode-btn edit">✏️ 기존 수정</button>
     </div>
     <ModalChooseCourse v-if="showModal" @close="showModal = false" @confirm="handleCourseSelection" />
+    <ModalChooseGroup v-if="showGroupModal" @close="showGroupModal = false" @confirm="handleGroupSelection" />
   </div>
 
 </template>

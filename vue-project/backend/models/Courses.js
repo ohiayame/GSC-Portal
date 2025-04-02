@@ -40,7 +40,9 @@ const Course = {
   async getUnassignedCourses(grade) {
     const [rows] = await db.query(
       `SELECT * FROM courses
-        WHERE type = 'special' AND grade = ?
+        WHERE (type = 'special'
+        OR class_section IS NOT NULL)
+        AND grade = ?
         AND course_id NOT IN (
         SELECT DISTINCT course_id FROM course_assignments
         )`,
