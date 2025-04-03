@@ -32,7 +32,10 @@
     v-for="course in selectedCourses"
     :key="course.course_id"
   >
-    <h3>{{ course.course_name }}</h3>
+    <h3>{{ course.course_name }}
+      <span v-if="course.class_section"> ({{ course.class_section }}반)</span>
+    </h3>
+
     <Draggable
       v-model="assigned[course.course_id]"
       group="students"
@@ -73,7 +76,10 @@ const { selectedCourses, assigned } = storeToRefs(assignStore);
 const students = ref([]);
 // const assigned = ref({});  // 🔹 key: course_id, value: 학생 배열
 const groupId = computed(() => route.query.group_id);
-console.log("groupId", groupId)
+
+
+console.log("selectedCourses", selectedCourses)
+
 // ✅ 학년순 정렬 함수
 const sortByGrade = (arr) => {
   arr.sort((a, b) => a.grade - b.grade);
@@ -86,7 +92,7 @@ const selectedGrade = computed(() => {
   if (selectedCourses.value.length === 0) return null;
 
   const grades = selectedCourses.value.map(c => c.grade);
-  if (grades.includes(0)) return null; // 전체 학년 표시
+  if (grades.includes(0)|| grades.includes(4)) return null; // 전체 학년 표시
 
   const first = grades[0];
   const allSame = grades.every(g => g === first);
@@ -115,6 +121,7 @@ const submit = async () => {
 onMounted(async () => {
   await auth.fetchPendingUsers();
   console.log("groupId.value", groupId.value)
+  const isInternational = ref('no');
   if (groupId.value) {
     await assignStore.fetchAssignmentsByGroup(groupId.value);
   }else{
@@ -122,10 +129,17 @@ onMounted(async () => {
     selectedCourses.value.forEach(course => {
       assigned.value[course.course_id] = [];
     });
+
+    if (selectedCourses.value.some(course => course.grade === 4)){
+      isInternational.value = 'yes'
+    }
   }
   students.value = auth.pendingUsers
-    .filter(user => user.role === "학생" && user.approved === 1)
+    .filter(user =>
+    user.role === "학생" && user.approved === 1 && user.international === isInternational.value )
     .map(user => ({ id: user.id, name: user.name, grade: user.grade }));
+    console.log("승인된 학생 목록:", students.value);
+
 });
 
 

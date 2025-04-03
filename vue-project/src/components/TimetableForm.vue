@@ -113,6 +113,7 @@ const saveTimetable = async () => {
           <option value="2">2학년</option>
           <option value="3">3학년</option>
           <option value="0">레벨 별</option>
+          <option value="4">한국어</option>
         </select>
       </div>
 
