@@ -59,14 +59,17 @@ export const useAssignLevelStore = defineStore("assignLevel", {
 
         const courseMap = {};
         const grouped = {};
+        console.log("rows", rows)
 
         rows.forEach(({ course_id, course_name, class_section, grade, student_id, student_name }) => {
+          console.log("GRADE",grade )
           if (!courseMap[course_id]) {
             courseMap[course_id] = { course_id, course_name, class_section, grade };
           }
 
           if (!grouped[course_id]) grouped[course_id] = [];
-          grouped[course_id].push({ id: student_id, name: student_name });
+          grouped[course_id].push({ id: student_id, name: student_name, grade: grade });
+
         });
 
         this.selectedCourses = Object.values(courseMap); // ✅ 중복 제거한 과목 배열

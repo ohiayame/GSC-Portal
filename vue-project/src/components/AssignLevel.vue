@@ -101,6 +101,7 @@ const submit = async () => {
       assignments.push({
         course_id: Number(course_id),
         student_id: student.id,
+        grade: student.grade
       });
     });
   }
