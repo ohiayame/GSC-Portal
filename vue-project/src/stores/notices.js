@@ -45,6 +45,7 @@ export const useNoticesStore = defineStore("notices", {
             : target === 1 ? "1학년"
             : target === 2 ? "2학년"
             : target === 3 ? "3학년"
+            : target === 4 ? "한국어 및 특강"
             : "알 수 없음";
     },
 

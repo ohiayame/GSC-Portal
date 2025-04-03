@@ -19,7 +19,7 @@ const copied = ref(false);
 const course = timetableStore.timetables.find(course =>
   course.course_id === notice.course_id)?? {};
 
-
+console.log("notice", notice)
 // ✅ 날짜 변환 함수
 const formatDate = (timestamp) => {
   return new Date(timestamp).toLocaleString();
@@ -27,7 +27,7 @@ const formatDate = (timestamp) => {
 
 // 작성자 이름 찾기
 const author = auth.pendingUsers.find(user => user.id === notice.author_id);
-
+console.log("author", author)
 const copyToClipboard = () => {
   if (!codeRef.value) return;
 

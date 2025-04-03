@@ -52,7 +52,7 @@ const filteredTimetables = computed(() => {
 
   // 전체 시간표에서 해당 학년의 정규수업 필터링
   const timetable = store.timetables.filter(cls => {
-    const isCorrectGrade = Number(cls.grade) === selectedGrade || Number(cls.grade) === 0;  // 동일 학년의 과목
+    const isCorrectGrade = Number(cls.grade) === selectedGrade || Number(cls.grade) === 0 || Number(cls.grade) === 4;  // 동일 학년의 과목
     // 과목의 기간
     const classStart = new Date(cls.start_date);
     const classEnd = new Date(cls.end_date);
@@ -78,7 +78,7 @@ const filteredTimetables = computed(() => {
       new Date(cls.end_date) >= weekStart
     );
     // 분반 설정이 있는 과목 삭제 (assignedCourses에서 불러기 때문에 증복 방지)
-    const specialCourses = timetable.filter(cls => cls.class_section === null && cls.grade !== 0 );
+    const specialCourses = timetable.filter(cls => cls.class_section === null && cls.grade !== 0 && cls.grade !== 4);
 
     // 학년별 정규수업 + 특강 합쳐서 반환
     return [...specialCourses, ...assignedCourses];
@@ -111,7 +111,7 @@ const filteredSessions = computed(() => {
     }
 
     // 학년 일치 or 특강 표시
-    return relatedClass.grade === selectedGrade || relatedClass.grade === 0;
+    return relatedClass.grade === selectedGrade || relatedClass.grade === 0 || relatedClass.grade === 4 ;
   });
   return sessions;
 });

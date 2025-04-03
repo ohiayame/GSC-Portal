@@ -136,6 +136,7 @@ const formatDate = (dateStr) =>
           <option v-for="course in filteredCourses"
             :key="course.course_id" :value="course.course_id">
             {{ course.course_name }}
+            <template v-if="course.class_section !== null">({{ course.class_section }}반)</template>
           </option>
         </select>
 

@@ -54,8 +54,25 @@ const filteredCourses = computed(() => {
   if(target.value === 0){
     return;
   }
+  const today = new Date();
+  console.log("today:", today)
+
   // 전체(0) 선택 시 모든 과목 표시, 특정 학년 선택 시 해당 학년의 과목만 표시
-  return timetableStore.timetables.filter(course => target.value === 0 || course.grade === target.value);
+  return timetableStore.timetables.filter(course =>{
+    const start = new Date(course.start_date);
+    const end = new Date(course.end_date);
+    console.log("start: ", start,"end: ", end)
+
+    // ⏳ 현재 날짜가 개설 기간 안에 있어야 함
+    const isActive = start <= today && today <= end;
+    if (!isActive) return false;
+
+
+    if (target.value === 4){
+      return course.grade === 0 || course.grade === 4;
+    }
+    return target.value === 0 || course.grade === target.value
+  });
 });
 
 const isImage = (fileUrl) => {
@@ -143,6 +160,7 @@ const saveNotice = async () => {
           <option :value="1">1학년</option>
           <option :value="2">2학년</option>
           <option :value="3">3학년</option>
+          <option :value="4">한국어 및 특강</option>
         </select>
         <label for="priority">중요 공지 여부</label>
         <select id="priority" v-model="priority">
@@ -159,8 +177,13 @@ const saveNotice = async () => {
         <label for="course">과목 선택</label>
         <select id="course" v-model="selectedCourse">
           <option value="">과목 선택 없음</option>
-          <option v-for="course in filteredCourses" :key="course.course_id" :value="course.course_id">
+          <option
+            v-for="course in filteredCourses"
+            :key="course.course_id"
+            :value="course.course_id"
+          >
             {{ course.course_name }}
+            <template v-if="course.class_section !== null">({{ course.class_section }}반)</template>
           </option>
         </select>
 

@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useTimetableStore } from "@/stores/timetable"; // 모든 과목 불러오는 store 예시
 
 const selectedGrade = ref(1);
@@ -48,11 +48,7 @@ const timetableStore = useTimetableStore();
 
 const emit = defineEmits(["close", "confirm"]);
 
-const filteredCourses = computed(() =>
-  timetableStore.timetables.filter(course =>
-    course.grade == selectedGrade.value && (course.type === "special" || course.class_section !== null)
-  )
-);
+
 
 const removeCourse = (courseToRemove) => {
   selectedCourses.value = selectedCourses.value.filter(
