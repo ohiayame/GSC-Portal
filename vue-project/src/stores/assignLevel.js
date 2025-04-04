@@ -61,14 +61,14 @@ export const useAssignLevelStore = defineStore("assignLevel", {
         const grouped = {};
         console.log("rows", rows)
 
-        rows.forEach(({ course_id, course_name, class_section, grade, student_id, student_name }) => {
-          console.log("GRADE",grade )
+        rows.forEach(({ course_id, course_name, class_section, course_grade, student_grade , student_id, student_name }) => {
+
           if (!courseMap[course_id]) {
-            courseMap[course_id] = { course_id, course_name, class_section, grade };
+            courseMap[course_id] = { course_id, course_name, class_section, course_grade };
           }
 
           if (!grouped[course_id]) grouped[course_id] = [];
-          grouped[course_id].push({ id: student_id, name: student_name, grade: grade });
+          grouped[course_id].push({ id: student_id, name: student_name, grade: student_grade });
 
         });
 

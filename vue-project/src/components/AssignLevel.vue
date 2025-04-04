@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from "vue-router";
 import Draggable from 'vuedraggable'
 import { useAuthStore } from "@/stores/auth"
@@ -76,6 +76,7 @@ const { selectedCourses, assigned } = storeToRefs(assignStore);
 const students = ref([]);
 // const assigned = ref({});  // 🔹 key: course_id, value: 학생 배열
 const groupId = computed(() => route.query.group_id);
+const isInternational = ref("no");
 
 
 console.log("selectedCourses", selectedCourses)
@@ -118,29 +119,52 @@ const submit = async () => {
 };
 
 
+
+const updateStudentList = () => {
+  console.log("selectedCourses", selectedCourses)
+  const hasKorean = selectedCourses.value.some(course => course.grade === 4);
+  console.log("✅ hasKorean:", hasKorean);
+  isInternational.value = hasKorean ? 'yes' : 'no';
+
+  students.value = auth.pendingUsers
+    .filter(user =>
+      user.role === "학생" &&
+      user.approved === 1 &&
+      user.international === isInternational.value
+    )
+    .map(user => ({ id: user.id, name: user.name, grade: user.grade }));
+
+  console.log("🎯 적용된 학생 목록:", students.value);
+};
+
 onMounted(async () => {
   await auth.fetchPendingUsers();
-  console.log("groupId.value", groupId.value)
-  const isInternational = ref('no');
+  console.log("📦 pendingUsers loaded:", auth.pendingUsers);
+
   if (groupId.value) {
     await assignStore.fetchAssignmentsByGroup(groupId.value);
-  }else{
-    // course_id별로 빈 배열 초기화
+  } else {
     selectedCourses.value.forEach(course => {
       assigned.value[course.course_id] = [];
     });
-
-    if (selectedCourses.value.some(course => course.grade === 4)){
-      isInternational.value = 'yes'
-    }
   }
-  students.value = auth.pendingUsers
-    .filter(user =>
-    user.role === "학생" && user.approved === 1 && user.international === isInternational.value )
-    .map(user => ({ id: user.id, name: user.name, grade: user.grade }));
-    console.log("승인된 학생 목록:", students.value);
 
+  // ✅ 여기에 selectedCourses가 채워졌는지 확인
+  console.log("🚩 selectedCourses onMounted:", selectedCourses.value);
+
+  // ✅ selectedCourses가 비어있지 않을 때만 업데이트 수행
+  if (selectedCourses.value.length > 0) {
+    updateStudentList();
+  } else {
+    // selectedCourses가 비어있으면 반응형 watch로 fallback
+    watch(selectedCourses, (newVal) => {
+      if (newVal.length > 0) {
+        updateStudentList();
+      }
+    });
+  }
 });
+
 
 
 

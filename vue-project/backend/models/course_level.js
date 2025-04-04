@@ -65,7 +65,8 @@ export const getAssignmentsByGroupId = async (group_id) => {
         u.name AS student_name,
         c.course_name,
         c.class_section,
-        u.grade
+        c.grade AS course_grade,
+        u.grade AS student_grade
       FROM course_assignments ca
       JOIN users u ON ca.student_id = u.id
       JOIN courses c ON ca.course_id = c.course_id
