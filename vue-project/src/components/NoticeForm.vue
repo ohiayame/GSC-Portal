@@ -24,6 +24,7 @@ const selectedCourse = ref(null);
 const selectedFile = ref(null);
 const previewImage = ref(null);
 const selectedFileUrl = ref("");
+const sendLine = ref(false);
 
 const computedFileUrl = computed(() => {
   return selectedFileUrl.value ? store.getFileUrl(selectedFileUrl.value) : "";
@@ -132,6 +133,7 @@ const saveNotice = async () => {
     priority: priority.value,
     course_id: selectedCourse.value,
     file_url: file_url,
+    send_line: sendLine.value
   };
 
   if (route.params.id) {
@@ -198,6 +200,15 @@ const saveNotice = async () => {
       <img :src="previewImage" alt="이미지 미리보기" class="preview-img" />
       <button @click=removeFile class="del">❌삭제</button>
     </div>
+    <!-- ✅ LINE 전송 스위치 -->
+    <div class="line-toggle">
+      <label class="line-switch">
+        <input type="checkbox" v-model="sendLine" />
+        <span class="slider"></span>
+      </label>
+      <span>LINE 메시지 전송</span>
+    </div>
+
     <div class="button-container">
       <button @click="router.push('/notices')" class="back">돌아가기</button>
       <button @click="saveNotice">{{ route.params.id ? "수정" : "등록" }}</button>
@@ -308,4 +319,47 @@ button.back:hover {
 .del:hover {
   background-color: #d1e7fa;
 }
+
+.line-toggle {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.line-switch {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.line-switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+}
+input:checked + .slider {
+  background-color: #2dbfbe;
+}
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  top: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+input:checked + .slider::before {
+  transform: translateX(20px);
+}
+
 </style>

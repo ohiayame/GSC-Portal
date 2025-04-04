@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref  } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useNoticesStore } from "../stores/notices";
 import { useTimetableStore } from "../stores/timetable";
@@ -26,8 +26,11 @@ const formatDate = (timestamp) => {
 };
 
 // 작성자 이름 찾기
-const author = auth.pendingUsers.find(user => user.id === notice.author_id);
-console.log("author", author)
+const author = computed(() =>
+  auth.pendingUsers.find(user => user.id === notice.author_id)
+);
+
+
 const copyToClipboard = () => {
   if (!codeRef.value) return;
 
@@ -59,6 +62,10 @@ const deleteNotice = async () => {
   await store.deleteNotice(route.params.id);
   router.push("/notices");
 };
+
+onMounted(async () => {
+  await auth.fetchPendingUsers();
+});
 </script>
 
 <template>

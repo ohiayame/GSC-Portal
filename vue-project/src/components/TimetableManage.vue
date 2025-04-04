@@ -8,7 +8,31 @@ const store = useTimetableStore();
 const specialStore = useSpecialSessionStore();
 const router = useRouter();
 const isLoading = ref(true);
-const hidePastSessions = ref(false);
+const hidePastMakeups = ref(false); // 보강용
+const hidePastCancels = ref(false); // 휴강용
+const hidePastSchedules = ref(false);
+
+
+const selectedGrade = ref("");
+const sortOrder = ref("desc");
+
+
+const filteredSortedTimetables = computed(() => {
+  return store.timetables
+    .filter(tt => {
+      const matchGrade = !selectedGrade.value || tt.grade === Number(selectedGrade.value);
+      const isPast = new Date(tt.end_date) < new Date().setHours(0, 0, 0, 0);
+      const matchTime = !hidePastSchedules.value || !isPast;
+      return matchGrade && matchTime;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.end_date);
+      const dateB = new Date(b.end_date);
+      return sortOrder.value === "asc" ? dateA - dateB : dateB - dateA;
+    });
+});
+
+
 
 // ✅ 페이지 로드시 시간표 데이터 불러오기
 onMounted(async () => {
@@ -17,13 +41,21 @@ onMounted(async () => {
   isLoading.value = false;
 });
 
-const filteredSpecialSessions = computed(() => {
+const filteredMakeups = computed(() => {
   return specialStore.sessions.filter(session => {
-    // ✅ 보강 숨기기 기능 적용
-    const isPast = new Date(session.date) < new Date(); // 이미 지난 보강 확인
-    return  (!hidePastSessions.value || session.type !== '보강' || !isPast);
+    const isPast = new Date(session.date) < new Date().setHours(0, 0, 0, 0);
+    return session.type === '보강' && (!hidePastMakeups.value || !isPast);
   });
 });
+
+const filteredCancels = computed(() => {
+  return specialStore.sessions.filter(session => {
+    const isPast = new Date(session.date) < new Date().setHours(0, 0, 0, 0);
+    return session.type === '휴강' && (!hidePastCancels.value || !isPast);
+  });
+});
+
+
 
 
 // ✅ 시간표 삭제 함수
@@ -69,6 +101,26 @@ const editTimetable = (timetable) => {
     <h2>시간표 관리</h2>
     <button  @click="$router.push('/timetable/new')" class="new-btn">새 시간표 등록</button>
 
+    <div class="toolbar">
+      <select v-model="selectedGrade">
+        <option value="">전체 학년</option>
+        <option value="1">1학년</option>
+        <option value="2">2학년</option>
+        <option value="3">3학년</option>
+        <option value="4">유학생</option>
+      </select>
+
+      <select v-model="sortOrder">
+        <option value="desc">최신순</option>
+        <option value="asc">오래된 순</option>
+      </select>
+    </div>
+
+    <div class="filter-container">
+      <input type="checkbox" v-model="hidePastSchedules" class="toggle-filter" />
+      지난 수업 숨김
+    </div>
+
     <div v-if="isLoading">⏳ 데이터 불러오는 중...</div>
     <div v-else-if="store.timetables.length === 0">📭 등록된 시간표가 없습니다.</div>
 
@@ -88,7 +140,7 @@ const editTimetable = (timetable) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="timetable in store.timetables" :key="timetable.course_id">
+          <tr v-for="timetable in filteredSortedTimetables" :key="timetable.course_id">
             <td>{{ timetable.grade }}</td>
             <td>{{ timetable.course_name }}</td>
             <td>{{ timetable.professor }}</td>
@@ -104,6 +156,12 @@ const editTimetable = (timetable) => {
       </table>
 
       <h3>❌ 휴강 정보</h3>
+      <!-- ✅ 휴강 필터 -->
+      <div class="filter-container">
+        <input type="checkbox" @click="hidePastCancels = !hidePastCancels" class="toggle-filter">
+        지난 휴강 숨김
+      </div>
+
       <table class="timetable">
         <thead>
           <tr>
@@ -116,7 +174,7 @@ const editTimetable = (timetable) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="session in filteredSpecialSessions.filter(s => s.type === '휴강')" :key="session.id">
+          <tr v-for="session in filteredCancels" :key="session.id">
             <td>{{ store.timetables.find(cls => cls.course_id === session.course_id)?.grade }}</td>
             <td>
               {{ store.timetables.find(cls => cls.course_id === session.course_id)?.course_name || "수업 정보 없음" }}
@@ -134,7 +192,7 @@ const editTimetable = (timetable) => {
       <!-- ✅ 보강 테이블 -->
       <h3>🔄 보강 정보</h3>
       <div class="filter-container">
-        <input type="checkbox" @click="hidePastSessions = !hidePastSessions" class="toggle-filter">
+        <input type="checkbox" @click="hidePastMakeups  = !hidePastMakeups " class="toggle-filter">
         지난 보강 숨김
       </div>
       <table class="timetable">
@@ -150,7 +208,7 @@ const editTimetable = (timetable) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="session in filteredSpecialSessions.filter(s => s.type === '보강')" :key="session.id">
+          <tr v-for="session in filteredMakeups" :key="session.id">
             <td>{{ store.timetables.find(cls => cls.course_id === session.course_id)?.grade }}</td>
             <td>
               {{ store.timetables.find(cls => cls.course_id === session.course_id)?.course_name || "수업 정보 없음" }}

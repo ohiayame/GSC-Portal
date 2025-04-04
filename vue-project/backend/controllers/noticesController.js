@@ -3,6 +3,16 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { sendLineMessage } from '../utils/lineMessenger.js';
+
+// 라인
+export const sendNoticeMessage = async (userId, message) => {
+  try {
+    await sendLineMessage(userId, message);
+  } catch (error) {
+    console.error("🔴 라인 메시지 전송 실패:", error);
+  }
+};
 
 // ✅ 공지사항 목록 조회 (검색 기능 포함)
 export const getNotices = async (req, res) => {
@@ -73,13 +83,19 @@ export const createNotice = async (req, res) => {
   try {
     console.log("📌 요청 받은 데이터:", req.body);
 
-    const { title, content, author_id, target, priority, course_id, file_url } = req.body;
+    const { title, content, author_id, target, priority, course_id, file_url, send_line } = req.body;
 
     if (!title || !content || !author_id) {
       return res.status(400).json({ error: "필수 입력값이 누락되었습니다." });
     }
 
     const newNoticeId = await Notice.create({ title, content, author_id, target, priority, course_id, file_url });
+
+    if (send_line){
+      const lineMessage = `📢 공지사항 등록됨\n\n제목: ${title}\n\n${content}`;
+      await sendNoticeMessage(process.env.LINE_TEST_USER_ID, lineMessage);
+    }
+
     res.status(201).json({ id: newNoticeId, title, content, author_id, target, priority, course_id, file_url });
   } catch (err) {
     console.error("🚨 공지사항 추가 오류:", err);
@@ -90,13 +106,18 @@ export const createNotice = async (req, res) => {
 // ✅ 공지사항 수정
 export const updateNotice = async (req, res) => {
   try {
-    const { title, content, author_id, target, priority, course_id, file_url } = req.body; // ✅ 모든 필드 추가
+    const { title, content, author_id, target, priority, course_id, file_url, send_line } = req.body; // ✅ 모든 필드 추가
     const { id } = req.params;
 
     // ✅ DB 업데이트 수행
     const affectedRows = await Notice.update(id, { title, content, author_id, target, priority, course_id, file_url });
 
     if (!affectedRows) return res.status(404).json({ error: "해당 공지사항이 존재하지 않습니다." });
+
+    if (send_line){
+      const lineMessage = `📢 공지사항 등록됨\n\n제목: ${title}\n\n${content}`;
+      await sendNoticeMessage(process.env.LINE_TEST_USER_ID, lineMessage);
+    }
 
     res.json({ id, title, content, author_id, target, priority, course_id, file_url }); // ✅ 모든 필드 반환
   } catch (err) {
