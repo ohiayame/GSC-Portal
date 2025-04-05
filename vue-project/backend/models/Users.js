@@ -44,3 +44,25 @@ export const updateRole = async (id, role) => {
   await db.execute("UPDATE users SET role = ? WHERE id = ?",
     [role, id]);
 };
+
+
+// line_id 저장
+export const updateUserLineId = async (userId, lineId) => {
+  await db.query(`UPDATE users SET line_id = ? WHERE id = ?`, [lineId, userId]);
+};
+
+// 사용자의 라인 id 조회
+export async function findLineUsersByTarget(target) {
+  let condition = '';
+  const params = [];
+
+  if (target !== 0) {
+    condition = 'WHERE grade = ? AND line_id IS NOT NULL';
+    params.push(target);
+  } else {
+    condition = 'WHERE line_id IS NOT NULL';
+  }
+
+  const [rows] = await db.query(`SELECT id, name, line_id FROM users ${condition}`, params);
+  return rows;
+}

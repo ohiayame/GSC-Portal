@@ -30,7 +30,7 @@
 
     <template v-else>
       <nav class="page">
-          <router-link to="/">홈</router-link>
+          <router-link to="/" class="home">GSC-PORTAL</router-link>
           <router-link to="/notices">공지사항</router-link>
           <router-link to="/timetable">시간표</router-link>
           <router-link to="/approval" v-if="auth.user.role ==='관리자'">관리자 페이지</router-link>
@@ -45,7 +45,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   padding: 10px 20px;
   height: 50px;
 }
@@ -69,6 +68,10 @@
   text-decoration: none;
   margin: 0 10px;
   font-weight: bold;
+}
+.page .home{
+  font-size: 24px;
+  color: rgb(49, 145, 235);
 }
 
 .pending-approval {

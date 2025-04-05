@@ -1,4 +1,5 @@
 import Notice from '../models/Notices.js';
+import { findLineUsersByTarget } from '../models/Users.js';
 import multer from "multer";
 import path from "path";
 import fs from "fs";
@@ -6,9 +7,9 @@ import { fileURLToPath } from "url";
 import { sendLineMessage } from '../utils/lineMessenger.js';
 
 // 라인
-export const sendNoticeMessage = async (userId, message) => {
+export const sendNoticeMessage = async (userLineId, message) => {
   try {
-    await sendLineMessage(userId, message);
+    await sendLineMessage(userLineId, message);
   } catch (error) {
     console.error("🔴 라인 메시지 전송 실패:", error);
   }
@@ -92,8 +93,13 @@ export const createNotice = async (req, res) => {
     const newNoticeId = await Notice.create({ title, content, author_id, target, priority, course_id, file_url });
 
     if (send_line){
+      const users = await findLineUsersByTarget(target);
       const lineMessage = `📢 공지사항 등록됨\n\n제목: ${title}\n\n${content}`;
-      await sendNoticeMessage(process.env.LINE_TEST_USER_ID, lineMessage);
+
+      for (const user of users) {
+        await sendNoticeMessage(user.line_id, lineMessage); // ✅ user.id가 아니라 line_id!
+      }
+      console.log(`✅ 총 ${users.length}명의 사용자에게 라인 메시지 발송 완료`);
     }
 
     res.status(201).json({ id: newNoticeId, title, content, author_id, target, priority, course_id, file_url });

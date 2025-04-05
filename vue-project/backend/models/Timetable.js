@@ -15,7 +15,7 @@ const Timetable = {
       FROM timetable t
       JOIN courses c ON t.course_id = c.course_id
     `);
-    console.log(rows)
+    // console.log(rows)
     return rows;
   },
 

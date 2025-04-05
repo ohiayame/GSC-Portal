@@ -57,7 +57,7 @@ export const googleLogin = async (req, res) => {
           grade: user.grade,
           email: user.email,
           phone: user.phone,
-          international: user.email,
+          international: user.international,
           role: user.role,
           approved: user.approved
         },

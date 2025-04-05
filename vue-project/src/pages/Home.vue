@@ -2,6 +2,7 @@
   <div class="home-container">
     <h1>GSC Portal</h1>
     <div class="grid">
+      <div>
       <!-- 📢 공지사항 -->
       <div class="notice-list">
         <h2>📢 공지사항</h2>
@@ -21,6 +22,14 @@
         </div>
         <p v-else>📌 등록된 공지사항이 없습니다.</p>
       </div>
+
+      <div class="line-button-wrapper">
+        <button class="line-register-btn" @click="test">LINE 연동하기</button>
+      </div>
+
+    </div>
+
+
 
       <!-- 📅 이번 주 1학년 시간표 -->
       <div class="timetable">
@@ -72,6 +81,33 @@ const sortedNotices = computed(() =>
   [...notices.value].sort((a, b) => (a.priority === "pinned" ? -1 : 1))
 );
 
+async function test() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    console.warn("❗ 토큰이 비어 있습니다. 로그인 이후에 실행하세요.");
+    return;
+  }
+
+  const res = await fetch("http://localhost:3001/line/issue-code", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}` // ⭕ 토큰만 보내면 됨
+    },
+  });
+
+  if (!res.ok) {
+    console.error("❌ 서버 응답 실패:", res.status);
+    return;
+  }
+
+  const data = await res.json();
+  console.log("✅ 발급된 연동 코드:", data.code);
+
+  // 👉 여기에 UI에 표시하거나, 클립보드 복사 등도 가능
+  alert(`📋 연동 코드: ${data.code}`);
+};
+
 // ✅ 1학년 시간표 상태 가져오기 (Pinia 활용)
 const timetableStore = useTimetableStore();
 const { timetables } = storeToRefs(timetableStore);
@@ -84,43 +120,55 @@ onMounted(() => {
   noticeStore.fetchNotices(); // 공지사항 불러오기
   timetableStore.fetchTimetables(); // 전체 시간표 불러오기
 });
+const today = new Date();
+const inPeriod = (cls) =>
+  new Date(cls.start_date) <= today && new Date(cls.end_date) >= today;
+
 
 // ✅ 특정 요일, 교시에 해당하는 1학년 수업 찾기
 const getClassAt = (day, period) => {
   const session = timetables.value.find(
-    (cls) => cls.day === day && cls.period === period && cls.grade === user.value?.grade
+    (cls) => cls.day === day && cls.period === period && cls.grade === user.value?.grade && inPeriod(cls)
   );
   return session ? session.course_name : "";
 };
 
 // ✅ 병합된 셀을 고려하여 `<td>` 렌더링 여부 결정
-const shouldRenderCell = (day, period) => {
+  const shouldRenderCell = (day, period) => {
   const session = timetables.value.find(
-    (cls) => cls.day === day && cls.period === period && cls.grade === user.value?.grade
+    (cls) =>
+      cls.day === day &&
+      cls.period === period &&
+      cls.grade === user.value?.grade &&
+      inPeriod(cls)
   );
 
-  if (!session) {
-    // ✅ 현재 교시가 병합된 수업의 범위 내에 있는지 확인
-    return !timetables.value.some(
-      (cls) =>
-        cls.day === day &&
-        cls.period < period &&
-        cls.period + (cls.duration - 1) >= period &&
-        cls.grade === user.value?.grade
-    );
+  if (session) {
+    return true; // 병합 시작 교시만 출력
   }
 
-  // ✅ 병합된 첫 번째 교시만 `<td>`를 생성하고, 이후 교시는 `<td>` 생성 안 함
-  return period === session.period;
+  return !timetables.value.some(
+    (cls) =>
+      cls.day === day &&
+      cls.grade === user.value?.grade &&
+      inPeriod(cls) &&
+      cls.period < period &&
+      cls.period + cls.duration - 1 >= period
+  );
 };
 
 // ✅ 해당 수업의 지속 시간(duration) 반환 (최소 1교시)
 const getDuration = (day, period) => {
   const session = timetables.value.find(
-    (cls) => cls.day === day && cls.period === period && cls.grade === user.value?.grade
+    (cls) =>
+      cls.day === day &&
+      cls.period === period &&
+      cls.grade === user.value?.grade &&
+      inPeriod(cls) // 🔥 추가: 기간 안에 있는 수업만 처리
   );
   return session ? session.duration || 1 : 1;
 };
+
 
 
 // ✅ 최근 공지 5개만 가져오기
@@ -163,7 +211,9 @@ const formatDate = (dateStr) =>
   gap: 30px;
   justify-content: center;
   flex-wrap: wrap;
+  align-items: flex-start;
 }
+
 
 /* 📌 공지사항 스타일 */
 .notice-list {
@@ -172,7 +222,7 @@ const formatDate = (dateStr) =>
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 320px;
-  height: 400px ;
+  height: 400px;
   text-align: left;
 }
 
@@ -235,6 +285,7 @@ const formatDate = (dateStr) =>
   display: block;
   text-align: right;
   margin-top: 10px;
+  margin-bottom: 10px;
   font-size: 13px;
   text-decoration: none;
   font-weight: 500;
@@ -244,6 +295,30 @@ const formatDate = (dateStr) =>
 .see-all:hover {
   text-decoration: underline;
   color: #003e91;
+}
+
+.line-button-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.line-register-btn {
+  padding: 20px 30px;
+  background-color: #00C300;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.line-register-btn:hover {
+  background-color: #00a700;
+  transform: translateY(-1px);
 }
 
 
