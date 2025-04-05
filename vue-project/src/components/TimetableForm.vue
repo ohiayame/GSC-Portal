@@ -173,7 +173,7 @@ const saveTimetable = async () => {
     </div>
 
     <div class="button-container">
-      <button @click="router.push(isEditMode ? '/timetable/manage' : '/timetable')" class="back">
+      <button @click="router.back();" class="back">
         돌아가기
       </button>
       <button @click="saveTimetable" class="register">{{ isEditMode ? "수정" : "등록" }}</button>

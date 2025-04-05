@@ -113,7 +113,7 @@ onMounted(async () => {
     </div>
 
     <div class="button-container">
-      <button @click="router.push('/notices')" class="back">돌아가기</button>
+      <button @click="router.back();" class="back">돌아가기</button>
       <button v-if="user?.role !== '학생'" @click="editNotice">수정</button>
       <button @click="deleteNotice">삭제</button>
     </div>

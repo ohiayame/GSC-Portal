@@ -63,7 +63,7 @@
       <!-- ✅ LINE 전송 스위치 -->
       <div class="line-toggle">
         <label class="line-switch">
-          <input type="checkbox" v-model="sendLine" />
+          <input type="checkbox" v-model="form.send_line" />
           <span class="slider"></span>
         </label>
         <span>LINE 메시지 전송</span>
@@ -71,7 +71,7 @@
 
       <!-- ✅ 버튼 -->
       <div class="button-container">
-        <button type="button" class="back" @click="$router.push('/timetable')">돌아가기</button>
+        <button type="button" class="back" @click="goBack">돌아가기</button>
         <button type="submit" class="register">등록</button>
       </div>
 
@@ -200,6 +200,10 @@ export default {
       }
     };
 
+    const goBack = () => {
+      router.back();
+    };
+
     return {
       form,
       submitForm,
@@ -207,6 +211,7 @@ export default {
       filteredCourses,
       fetchCourses,
       updateCourseName,
+      goBack,
     };
   },
 };
