@@ -16,6 +16,12 @@ const hidePastSchedules = ref(false);
 const selectedGrade = ref("");
 const sortOrder = ref("desc");
 
+const props = defineProps({
+  mode: {
+    type: String,
+    default: 'page', // 기본은 페이지 전체 뷰
+  },
+});
 
 const filteredSortedTimetables = computed(() => {
   return store.timetables
@@ -97,8 +103,8 @@ const editTimetable = (timetable) => {
 </script>
 
 <template>
-  <div class="manage-container">
-    <h2>시간표 관리</h2>
+  <div :class="[props.mode === 'modal' ? 'modal-container' : 'manage-container']">
+    <h2 v-if="props.mode !== 'modal'">시간표 관리</h2>
     <button  @click="$router.push('/timetable/new')" class="new-btn">새 시간표 등록</button>
 
     <div class="toolbar">
@@ -191,6 +197,7 @@ const editTimetable = (timetable) => {
 
       <!-- ✅ 보강 테이블 -->
       <h3>🔄 보강 정보</h3>
+      <button  @click="$router.push({ path: '/timetable/special', query: { type: '보강' } })" class="new-btn">보강 등록</button>
       <div class="filter-container">
         <input type="checkbox" @click="hidePastMakeups  = !hidePastMakeups " class="toggle-filter">
         지난 보강 숨김
@@ -227,9 +234,10 @@ const editTimetable = (timetable) => {
   </div>
 
 
-  <div class="bottom-button-container">
+  <div v-if="props.mode !== 'modal'" class="bottom-button-container">
     <button @click="router.push('/timetable')" class="back">돌아가기</button>
   </div>
+
 </template>
 
 <style scoped>
@@ -248,8 +256,33 @@ const editTimetable = (timetable) => {
   color: #3ca1ff;
   font-size: 26px;
   font-weight: 800;
-  margin-bottom: 24px;
 }
+.modal-container{
+  margin: 40px 40px 0px 40px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.toolbar select {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1.5px solid #cdd8e3;
+  background-color: #f9fbff;
+  color: #333;
+  transition: border-color 0.2s ease;
+}
+
+.toolbar select:focus {
+  outline: none;
+  border-color: #3ca1ff;
+}
+
 
 .timetable {
   width: 100%;

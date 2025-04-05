@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/auth";
 import { useAssignLevelStore } from '@/stores/assignLevel.js'
 import ModalChooseCourse from "@/components/ModalChooseCourse.vue";
 import ModalChooseGroup from "@/components/ModalChooseGroup.vue";
+import TimetableManage from "@/components/TimetableManage.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -12,6 +13,7 @@ const level= useAssignLevelStore();
 
 const showModal = ref(false);
 const showGroupModal = ref(false);
+const showTimetableModal = ref(false);
 
 // 🔹 승인 및 거절 버튼 액션
 const approveUser = (id) => auth.approveUser(id);
@@ -117,6 +119,19 @@ onMounted(async () => {
     </div>
     <ModalChooseCourse v-if="showModal" @close="showModal = false" @confirm="handleCourseSelection" />
     <ModalChooseGroup v-if="showGroupModal" @close="showGroupModal = false" @confirm="handleGroupSelection" />
+  </div>
+
+  <div class="timetable-toggle-card">
+    <div class="card-header" @click="showTimetableModal = !showTimetableModal">
+      <h2>🗓️ 시간표 관리</h2>
+      <span class="toggle-icon">{{ showTimetableModal ? '∧' : '∨' }}</span>
+    </div>
+
+    <transition name="expand">
+      <div v-if="showTimetableModal" class="card-body">
+        <TimetableManage mode="modal" />
+      </div>
+    </transition>
   </div>
 
 </template>
@@ -273,6 +288,67 @@ td button:nth-child(2) {
   filter: brightness(1.1);
 }
 
+/* 🔹 카드 전체 스타일 */
+.timetable-toggle-card {
+  max-width: 1000px;
+  margin: 40px auto;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
+  overflow: hidden;
+}
+
+
+/* 🔹 상단 클릭 영역 */
+.card-header {
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background-color: #f4f8ff;
+  border-bottom: 1px solid #dde8f3;
+}
+
+.card-header h2 {
+  color: #3ca1ff;
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.toggle-icon {
+  font-size: 26px;
+  color: #3ca1ff;
+  transition: transform 0.2s ease;
+}
+
+/* 🔹 본문 확장 영역 */
+.card-body {
+  padding: 0px 0px;
+  animation: fadeIn 0.3s ease;
+}
+
+
+/* 🔹 부드러운 transition 효과 */
+.expand-enter-active, .expand-leave-active {
+  transition: all 0.3s ease;
+}
+.expand-enter-from, .expand-leave-to {
+  opacity: 0;
+  transform: scaleY(0.9);
+}
+.expand-enter-to, .expand-leave-from {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* 🔹 부드러운 나타남 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 
 </style>
