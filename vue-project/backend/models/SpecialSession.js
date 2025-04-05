@@ -2,9 +2,7 @@ import pool from "../config/db.js"; // ✅ DB 연결 가져오기
 
 export const SpecialSession = {
   // ✅ 새로운 보강/휴강 데이터 추가 (INSERT INTO)
-  async create(sessionData) {
-    const { course_id, date, type, start_period, duration, location } = sessionData;
-
+  async create({ course_id, date, type, start_period, duration, location }) {
     try {
       // 1️⃣ 먼저 `courses` 테이블에 `course_id`가 있는지 확인
       const [courseExists] = await pool.execute("SELECT course_id FROM courses WHERE course_id = ?", [course_id]);

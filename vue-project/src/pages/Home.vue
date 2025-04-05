@@ -24,7 +24,7 @@
       </div>
 
       <div class="line-button-wrapper">
-        <button class="line-register-btn" @click="test">LINE 연동하기</button>
+        <button class="line-register-btn" @click="showModal = true">LINE 연동하기</button>
       </div>
 
     </div>
@@ -60,14 +60,16 @@
       </div>
     </div>
   </div>
+  <LineLinkModal :show="showModal" @close="showModal = false" />
 </template>
 
 <script setup>
 import { storeToRefs } from "pinia";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useNoticesStore } from "@/stores/notices";
 import { useTimetableStore } from "@/stores/timetable";
 import { useAuthStore } from "@/stores/auth";
+import LineLinkModal from '@/components/LineLinkModal.vue';
 
 const auth = useAuthStore();
 const user = computed(() => auth.user);
@@ -75,6 +77,7 @@ const user = computed(() => auth.user);
 // ✅ 공지사항 상태 가져오기 (Pinia 활용)
 const noticeStore = useNoticesStore();
 const { notices } = storeToRefs(noticeStore);
+const showModal = ref(false);
 
 // ✅ 공지사항 정렬 (고정 공지는 상단에 표시)
 const sortedNotices = computed(() =>

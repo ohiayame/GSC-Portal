@@ -121,8 +121,13 @@ export const updateNotice = async (req, res) => {
     if (!affectedRows) return res.status(404).json({ error: "해당 공지사항이 존재하지 않습니다." });
 
     if (send_line){
-      const lineMessage = `📢 공지사항 등록됨\n\n제목: ${title}\n\n${content}`;
-      await sendNoticeMessage(process.env.LINE_TEST_USER_ID, lineMessage);
+      const users = await findLineUsersByTarget(target);
+      const lineMessage = `📢 공지사항 수정됨\n\n제목: ${title}\n\n${content}`;
+
+      for (const user of users) {
+        await sendNoticeMessage(user.line_id, lineMessage); // ✅ user.id가 아니라 line_id!
+      }
+      console.log(`✅ 총 ${users.length}명의 사용자에게 라인 메시지 발송 완료`);
     }
 
     res.json({ id, title, content, author_id, target, priority, course_id, file_url }); // ✅ 모든 필드 반환

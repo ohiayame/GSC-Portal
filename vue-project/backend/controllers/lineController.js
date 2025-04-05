@@ -3,7 +3,7 @@ import {
   findUserIdByCode,
   markCodeAsUsed,
   createLinkCode,
-  checkExistingCode
+  deleteLinkCodeByUserId
   } from '../models/lineLinkCodes.js';
 import { updateUserLineId } from '../models/Users.js';
 import { sendLineMessage } from '../utils/lineMessenger.js';
@@ -48,11 +48,8 @@ export const issueLinkCode = async (req, res) => {
   const user_id = req.user.id; // JWT나 세션에서 유저 ID 확보
   console.log("user_id", user_id);
 
-  // 이미 발급된 코드가 있으면 재사용
-  const existing = await checkExistingCode(user_id);
-  if (existing) {
-    return res.json({ code: existing.code });
-  }
+  // 이미 발급된 코드가 있으면 삭제
+  await deleteLinkCodeByUserId(user_id);
 
   // 새 코드 발급
   const code = randomBytes(3).toString('hex').toUpperCase(); // 예: '7A3F1C'

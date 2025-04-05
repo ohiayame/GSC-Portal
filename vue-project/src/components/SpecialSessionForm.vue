@@ -13,6 +13,7 @@
             <option value="1">1학년</option>
             <option value="2">2학년</option>
             <option value="3">3학년</option>
+            <option value="4">한국어</option>
           </select>
         </div>
 
@@ -59,6 +60,15 @@
         </div>
       </div>
 
+      <!-- ✅ LINE 전송 스위치 -->
+      <div class="line-toggle">
+        <label class="line-switch">
+          <input type="checkbox" v-model="sendLine" />
+          <span class="slider"></span>
+        </label>
+        <span>LINE 메시지 전송</span>
+      </div>
+
       <!-- ✅ 버튼 -->
       <div class="button-container">
         <button type="button" class="back" @click="$router.push('/timetable')">돌아가기</button>
@@ -90,6 +100,7 @@ export default {
       start_period: null,
       duration: null,
       location: "",
+      send_line: true
     });
 
     const selectedGrade = ref("");
@@ -264,5 +275,46 @@ button.register {
 
 button.register:hover {
   background-color: #5fb7ff;
+}
+.line-toggle {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.line-switch {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.line-switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+}
+input:checked + .slider {
+  background-color: #2dbfbe;
+}
+.slider::before {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 2px;
+  top: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+input:checked + .slider::before {
+  transform: translateX(20px);
 }
 </style>
