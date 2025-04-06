@@ -1,4 +1,6 @@
 import Timetable from "../models/Timetable.js";
+import { getHolidays } from '../utils/holidayApi.js';
+import { SpecialSession } from '../models/SpecialSession.js';
 
 // ✅ 전체 시간표 조회
 export const getAllTimetables = async (req, res) => {
@@ -64,6 +66,49 @@ export const createTimetable = async (req, res) => {
     }
 
     await Timetable.create({ course_id, day, period, duration, location, start_date, end_date });
+
+
+// 공휴일 자동 휴강 처리
+const end = new Date(end_date);
+const weekDayKor = ["일", "월", "화", "수", "목", "금", "토"];
+
+// 시작~종료 구간의 모든 연도-월 조합으로 공휴일 가져오기
+let current = new Date(start_date);
+const holidayDates = [];
+
+while (current <= end) {
+  const year = current.getFullYear();
+  const month = current.getMonth() + 1;
+
+  const monthlyHolidays = await getHolidays(year, month);
+  holidayDates.push(...monthlyHolidays);
+
+  current.setMonth(current.getMonth() + 1);
+}
+
+// 날짜 순회하며 공휴일의 요일 계산
+for (let d = new Date(start_date); d <= end; d.setDate(d.getDate() + 1)) {
+  const yyyyMMdd = d.toISOString().split('T')[0].replace(/-/g, '');
+  const yoil = weekDayKor[d.getDay()];
+  const dateStr = d.toISOString().split('T')[0];
+
+  const isHoliday = holidayDates.some(h => String(h.locdate) === yyyyMMdd);
+
+  // 해당 요일 + 공휴일이면 자동 등록
+  if (isHoliday && yoil === day) {
+    await SpecialSession.create({
+      course_id,
+      date: dateStr,
+      type: '휴강',
+      start_period: period,
+      duration,
+      location
+    });
+
+    console.log(`✅ 자동 휴강 처리됨: ${dateStr} (${yoil})`);
+  }
+}
+
     res.status(201).json({ message: "시간표 추가 완료" });
   } catch (error) {
     console.error("🚨 시간표 추가 오류:", error);
