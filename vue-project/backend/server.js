@@ -11,6 +11,7 @@ import specialSessionsRouter from './routes/specialSessions.js'; // ✅ 휴·보
 import coursesRouter from "./routes/courses.js";
 import assignLevelRoutes from "./routes/assignLevel.js";
 import lineRoutes from './routes/line.js';
+import holidayRoutes from './routes/holiday.js';
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use('/api/specialSession', specialSessionsRouter); // ✅ 추가
 app.use("/api/courses", coursesRouter);
 app.use("/api/assign-level", assignLevelRoutes);
 app.use('/line', lineRoutes);
+app.use('/api/holidays', holidayRoutes);
 
 const PORT = process.env.PORT || 3001;
 

@@ -30,7 +30,7 @@ onMounted(async () => {
   await specialStore.fetchSessions(); // 휴보강 목록 불러오기
   console.log("📌 초기 시간표 데이터:", store.timetables);
   console.log("📌 휴보강 시간표 데이터:", specialStore.sessions);
-
+  console.log("📌 공휴일 데이터:", selectedDate.value.getFullYear());
   if (user.value.role === '학생') {
     // 학생 해당 반만 가져오기
     await assignStore.fetchAssignedCourses(user.value.id);
@@ -116,6 +116,24 @@ const filteredSessions = computed(() => {
   return sessions;
 });
 
+const fetchHolidaysForWeek = async () => {
+  const weekDates = getWeekDates(selectedDate.value); // ['2025-04-28', ..., '2025-05-02']
+  const uniqueYearMonth = new Set(
+    weekDates.map(dateStr => {
+      const d = new Date(dateStr);
+      return `${d.getFullYear()}-${d.getMonth() + 1}`;
+    })
+  );
+
+  store.holidays = []; // 초기화 (중복 방지)
+
+  for (const ym of uniqueYearMonth) {
+    const [year, month] = ym.split('-').map(Number);
+    await store.fetchHolidays(year, month); // Pinia 내부에서 holidays에 합쳐서 저장하는 방식이면 OK
+  }
+
+  console.log("📅 주간 공휴일 데이터:", store.holidays);
+};
 
 
 const getWeekDates = (selectedDate) => {
@@ -135,10 +153,23 @@ const getWeekDates = (selectedDate) => {
   });
 };
 
+// 날짜가 공휴일인지 여부 확인 함수
+const isHoliday = (date) => {
+  const formatted = date.replaceAll('-', ''); // '2025-05-05' → '20250505'
+  return store.holidays.some(h => String(h.locdate) === formatted);
+};
+
 const daysWithDates = computed(() => {
   const weekDates = getWeekDates(selectedDate.value);
   return days.map((day, index) => `${day} (${weekDates[index].slice(5)})`);
 });
+
+// 🔹 공휴일 이름 반환 (ex: '어린이날') → 없으면 null
+const getHolidayName = (date) => {
+  const formatted = date.replaceAll('-', '');
+  const holiday = store.holidays.find(h => String(h.locdate) === formatted);
+  return holiday ? holiday.dateName : null;
+};
 
 // ✅ 특정 시간과 요일에 해당하는 수업 찾기 (연강 포함)
 const getClassAt = (day, period) => {
@@ -148,7 +179,7 @@ const getClassAt = (day, period) => {
 };
 
 const getSpecialSessionsAt = (day, period, type, courseId = null) => {
-  console.log("filteredSessions", filteredSessions)
+  // console.log("filteredSessions", filteredSessions)
   return filteredSessions.value.filter(session => {
     const sessionWeekDates = getWeekDates(selectedDate.value);
     const dateIndex = sessionWeekDates.findIndex(d => d === session.date);
@@ -237,7 +268,7 @@ const goToSpecialSession = (courseList) => {
       </select>
       <br><br>
       <label for="date">날짜 선택: </label>
-      <input type="date" id="date" v-model="selectedDate" />
+      <input type="date" id="date" v-model="selectedDate" @change="fetchHolidaysForWeek" />
       <br><br>
       <div v-if="user?.role !== '학생'" >
       <label for="professor">교수 선택 : </label>
@@ -263,7 +294,14 @@ const goToSpecialSession = (courseList) => {
       <thead>
         <tr>
           <th></th>
-          <th v-for="(day, index) in daysWithDates" :key="index">{{ day }}</th>
+          <th v-for="(day, index) in daysWithDates"
+          :key="index"
+          >
+            {{ day }}
+            <div v-if="getHolidayName(getWeekDates(selectedDate)[index])" style="color: red; font-size: 12px;">
+              {{ getHolidayName(getWeekDates(selectedDate)[index]) }}
+            </div>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -273,9 +311,9 @@ const goToSpecialSession = (courseList) => {
             <br /><span>{{ period + 8 }}시~</span>
           </td>
           <td
-            v-for="day in days"
+            v-for="(day, dayIndex) in days"
             :key="day"
-            class="clickable-cell"
+            :class="['clickable-cell', { 'holiday-column': isHoliday(getWeekDates(selectedDate)[dayIndex]) }]"
           >
             <!-- 여러개 수업 있는경우 -->
             <div
@@ -580,6 +618,9 @@ td {
 
 .modal-class-card.special {
   background-color: #fff4e6;
+}
+.holiday-column {
+  background-color: #fff1f1 !important; /* 연한 빨간색 배경 */
 }
 
 </style>

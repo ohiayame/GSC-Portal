@@ -7,6 +7,7 @@ export const useTimetableStore = defineStore("timetable", {
     specialSessions: [], // 보강/휴강 데이터
     availableCourses: [], // 분반
     searchTarget: null,
+    holidays: []
   }),
 
   actions: {
@@ -111,8 +112,20 @@ export const useTimetableStore = defineStore("timetable", {
       } catch (error) {
         console.error("❌ 사용 가능한 과목 조회 실패:", error);
       }
-    }
+    },
 
+    async fetchHolidays(year, month) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/holidays/?year=${year}&month=${month}`);
+        if (!response.ok) throw new Error("공휴일 불러오기 실패");
+
+        const data = await response.json();
+        this.holidays = data;
+        console.log("Holiday data", data)
+      } catch (error) {
+        console.error("❌ 사용 가능한 공휴일 조회 실패:", error);
+      }
+    }
 
   },
 });
