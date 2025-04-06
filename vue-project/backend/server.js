@@ -12,6 +12,7 @@ import coursesRouter from "./routes/courses.js";
 import assignLevelRoutes from "./routes/assignLevel.js";
 import lineRoutes from './routes/line.js';
 import holidayRoutes from './routes/holiday.js';
+import calendarRoutes from './routes/calendar.js';
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use("/api/courses", coursesRouter);
 app.use("/api/assign-level", assignLevelRoutes);
 app.use('/line', lineRoutes);
 app.use('/api/holidays', holidayRoutes);
+app.use('/api/calendar', calendarRoutes);
 
 const PORT = process.env.PORT || 3001;
 
