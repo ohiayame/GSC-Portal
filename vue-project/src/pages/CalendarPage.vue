@@ -2,7 +2,7 @@
   <div class="calendar-container">
     <h1 class="title">📅 학과 휴·보강 캘린더</h1>
     <div class="layout">
-      <!-- 오른쪽 커스텀 캘린더 -->
+      <!-- 커스텀 캘린더 -->
       <div class="calendar-wrapper">
         <div class="calendar-header">
           <button class="nav-btn" @click="goToPrevMonth">◀</button>
@@ -30,7 +30,7 @@
         </div>
       </div>
 
-      <!-- 왼쪽 일정 리스트 -->
+      <!-- 일정 리스트 -->
       <div class="schedule-list modern-style">
         <div
           v-for="(day, index) in formattedSchedules"
@@ -47,6 +47,8 @@
               v-for="(event, idx) in day.events"
               :key="idx"
               class="event-item"
+              @click="addToMyGoogleCalendar(day.date, event)"
+              style="cursor: pointer"
             >
               <span class="event-tag">{{ event.type }}</span>
               <span class="event-time">{{ event.time }}</span>
@@ -175,6 +177,40 @@ async function updateCalendar() {
     date,
     events: eventMap[date]
   }))
+}
+
+function convertTo24Hour(date, timeStr) {
+  let [ampm, time] = timeStr.split(' ')
+  if (!ampm || !time) return null
+
+  let [hour, minute] = time.split(':').map(Number)
+  if (ampm === '오후' && hour !== 12) hour += 12
+  if (ampm === '오전' && hour === 12) hour = 0
+
+  return new Date(`${date}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`)
+}
+
+
+function addToMyGoogleCalendar(date, event) {
+  const startDateTime = convertTo24Hour(date, event.time)
+  if (!startDateTime) {
+    console.error("시간 변환 실패", event.time)
+    return
+  }
+
+  const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000)
+
+  const formatDate = (d) =>
+    d.toISOString().replace(/[-:]|\.\d{3}/g, '').slice(0, 15) + 'Z'
+
+  const url = new URL('https://calendar.google.com/calendar/render')
+  url.searchParams.set('action', 'TEMPLATE')
+  url.searchParams.set('text', event.title)
+  url.searchParams.set('dates', `${formatDate(startDateTime)}/${formatDate(endDateTime)}`)
+  url.searchParams.set('details', `${event.type} 일정입니다.`)
+  url.searchParams.set('location', '학과 강의실')
+
+  window.open(url.toString(), '_blank')
 }
 
 onMounted(updateCalendar)
