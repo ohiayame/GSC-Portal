@@ -14,6 +14,7 @@ import TimetableForm from "@/components/TimetableForm.vue"; // 📌 시간표 �
 import SpecialSessionForm from "@/components/SpecialSessionForm.vue";
 import TimetableManage from "@/components/TimetableManage.vue";
 
+import CalendarPage from '@/pages/CalendarPage.vue'
 
 const routes = [
   { path: "/", component: HomePage },
@@ -31,11 +32,12 @@ const routes = [
   { path: "/timetable/edit/:id", component: TimetableForm, props: true }, // 기존 시간표 수정
   { path: "/timetable/special", component: SpecialSessionForm }, // 보강/휴강 추가
   { path: "/timetable/manage", component: TimetableManage },
+  { path: '/calendar', component: CalendarPage },
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes
+  history: createWebHistory(),
+  routes
 });
 
 export default router;

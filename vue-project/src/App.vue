@@ -33,6 +33,7 @@
           <router-link to="/" class="home">GSC-PORTAL</router-link>
           <router-link to="/notices">공지사항</router-link>
           <router-link to="/timetable">시간표</router-link>
+          <router-link to="/calendar">스케줄</router-link>
           <router-link to="/approval" v-if="auth.user.role ==='관리자'">관리자 페이지</router-link>
           <HeaderPage />
       </nav>
