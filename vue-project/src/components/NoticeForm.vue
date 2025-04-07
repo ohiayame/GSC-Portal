@@ -170,13 +170,13 @@ const saveNotice = async () => {
           <option :value="3">3학년</option>
           <option :value="4">한국어 및 특강</option>
         </select>
-        <label for="priority">중요 공지 여부</label>
+        <label for="priority">📌중요 공지 여부</label>
         <select id="priority" v-model="priority">
           <option value="normal">일반</option>
           <option value="pinned">중요 공지</option>
         </select>
 
-        <label for="date">📅 일정 날짜 (선택)</label>
+        <label for="date">📅 학과행사 날짜 (선택)</label>
         <input type="date" v-model="eventDate" />
 
       </div>

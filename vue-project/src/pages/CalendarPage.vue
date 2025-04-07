@@ -1,6 +1,6 @@
 <template>
   <div class="calendar-container">
-    <h1 class="title">📅 학과 휴·보강 캘린더</h1>
+    <h1 class="title">Schedule</h1>
     <div class="layout">
       <!-- 커스텀 캘린더 -->
       <div class="calendar-wrapper">
@@ -47,6 +47,7 @@
               v-for="(event, idx) in day.events"
               :key="idx"
               class="event-item"
+              :class="getEventClass(event.type)"
               @click="addToMyGoogleCalendar(day.date, event)"
               style="cursor: pointer"
             >
@@ -104,6 +105,14 @@ const colorMap = {
   yellow: '#f2c84a', // 학과 공지
   gray: '#9e9e9e',
 }
+
+function getEventClass(type) {
+  if (type.includes('보강')) return 'event-item-red'
+  if (type.includes('휴강')) return 'event-item-blue'
+  if (type === '공휴일') return 'event-item-gray'
+  return 'event-item-yellow'
+}
+
 
 function scrollToSchedule(date) {
   const el = document.getElementById(`schedule-${date}`)
@@ -225,12 +234,25 @@ onMounted(updateCalendar)
 }
 
 .title {
-  text-align: center;
-  font-size: 2.2rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
+  font-size: 2.4rem;
+  font-weight: 800;
   color: #213b75;
-  text-shadow: 1px 1px 0 #fff;
+  text-align: center;
+  font-family: 'Urbanist', 'Nunito', sans-serif;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+.title::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  width: 180px;
+  height: 4px;
+  background: linear-gradient(to right, #6db4ff, #007bff);
+  border-radius: 2px;
+
 }
 
 .layout {
@@ -253,16 +275,6 @@ onMounted(updateCalendar)
 }
 
 
-
-.schedule-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #aad3ff;
-  padding-bottom: 0.5rem;
-  color: #0a58ca;
-}
-
 .day-icon {
   margin-right: 0.5rem;
 }
@@ -277,8 +289,9 @@ onMounted(updateCalendar)
 }
 
 .calendar-wrapper {
-  width: 30%;
+  width: 40%;
   min-width: 280px;
+  max-width: 380px;
   background: #ffffffee;
   border-radius: 1rem;
   padding: 1.5rem;
@@ -339,7 +352,7 @@ onMounted(updateCalendar)
 
 /* 일정 리스트 - modern-style */
 .schedule-list.modern-style {
-  width: 70%;
+  width: 75%;
   max-width: 700px;
   background: #ffffffee;
   border-radius: 1rem;
@@ -393,6 +406,26 @@ onMounted(updateCalendar)
 }
 .event-item:hover {
   background-color: #e4edf7;
+}
+
+.event-item-red {
+  border-left-color: #e45d78;
+  background-color: #fff3f5;
+}
+
+.event-item-blue {
+  border-left-color: #5c9edc;
+  background-color: #e5f0ff;
+}
+
+.event-item-yellow {
+  border-left-color: #f2c84a;
+  background-color: #fff9e5;
+}
+
+.event-item-gray {
+  border-left-color: #9e9e9e;
+  background-color: #f2f2f2;
 }
 
 .event-tag {

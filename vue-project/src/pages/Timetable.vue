@@ -257,38 +257,45 @@ const goToSpecialSession = (courseList) => {
 
 <template>
   <div class="timetable-container">
-    <h1>시간표</h1>
+    <h1>Timetable</h1>
 
+    <!-- 템플릿 구조 개선 -->
     <div class="filter-container">
-      <label for="grade">학년 선택 : </label>
-      <select id="grade" v-model="store.searchTarget">
-        <option value="1">1학년</option>
-        <option value="2">2학년</option>
-        <option value="3">3학년</option>
-      </select>
-      <br><br>
-      <label for="date">날짜 선택: </label>
-      <input type="date" id="date" v-model="selectedDate" @change="fetchHolidaysForWeek" />
-      <br><br>
-      <div v-if="user?.role !== '학생'" >
-      <label for="professor">교수 선택 : </label>
-        <select id="professor" v-model="selectedProfessor">
-          <option value="">전체</option>
-          <option v-for="prof in professorList" :key="prof" :value="prof">
-            {{ prof }}
-          </option>
-        </select>
+      <div class="filters-left">
+        <div class="filter-item">
+          <label for="grade">학년 선택:</label>
+          <select id="grade" v-model="store.searchTarget">
+            <option value="1">1학년</option>
+            <option value="2">2학년</option>
+            <option value="3">3학년</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label for="date">날짜 선택:</label>
+          <input type="date" id="date" v-model="selectedDate" @change="fetchHolidaysForWeek" />
+        </div>
+        <div v-if="user?.role !== '학생'" class="filter-item">
+          <label for="professor">교수 선택:</label>
+          <select id="professor" v-model="selectedProfessor">
+            <option value="">전체</option>
+            <option v-for="prof in professorList" :key="prof" :value="prof">
+              {{ prof }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div v-if="user?.role !== '학생'" class="filters-right">
+        <button @click="$router.push('/timetable/manage')">시간표 편집</button>
+        <button @click="$router.push('/timetable/new')">새 시간표 등록</button>
+        <button @click="$router.push({ path: '/timetable/special', query: { type: '보강' } })">
+          보강 등록
+        </button>
       </div>
     </div>
 
-    <!-- ✅ 버튼 추가 -->
-    <div v-if="user?.role !== '학생'" class="button-container">
-      <button @click="$router.push('/timetable/manage')">시간표 편집</button>
-      <button @click="$router.push('/timetable/new')">새 시간표 등록</button>
-      <button @click="$router.push({ path: '/timetable/special', query: { type: '보강' } })">
-        보강 등록
-      </button>
-    </div>
+
+
 
     <table class="timetable">
       <thead>
@@ -298,7 +305,7 @@ const goToSpecialSession = (courseList) => {
           :key="index"
           >
             {{ day }}
-            <div v-if="getHolidayName(getWeekDates(selectedDate)[index])" style="color: red; font-size: 12px;">
+            <div v-if="getHolidayName(getWeekDates(selectedDate)[index])" class="holiday-label">
               {{ getHolidayName(getWeekDates(selectedDate)[index]) }}
             </div>
           </th>
@@ -307,8 +314,8 @@ const goToSpecialSession = (courseList) => {
       <tbody>
         <tr v-for="period in periods" :key="period">
           <td class="time-label">
-            {{ period }}교시
-            <br /><span>{{ period + 8 }}시~</span>
+            <span>{{ period }}교시</span>
+            <br />{{ period + 8 }}시~
           </td>
           <td
             v-for="(day, dayIndex) in days"
@@ -401,46 +408,114 @@ body {
 }
 
 h1 {
-  text-align: center;
-  color: rgb(60, 161, 255);
-  font-size: 28px;
+  font-size: 2.4rem;
   font-weight: 800;
+  color: #213b75;
+  text-align: center;
+  font-family: 'Urbanist', 'Nunito', sans-serif;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+h1::after{
+  content: '';
+  display: block;
+  margin: 0 auto;
+  width: 180px;
+  height: 4px;
+  background: linear-gradient(to right, #6db4ff, #007bff);
+  border-radius: 2px;
 }
 
+
 .timetable-container {
-  width: 95%;
-  max-width: 1000px;
-  margin: 10px auto;
-  padding: 24px;
-  background-color: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  font-family: var(--font);
+  background: linear-gradient(135deg, #eaf1fe, #e8f0ff);
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: 'Nunito', sans-serif;
+  color: #333;
 }
 
 .filter-container {
-  display: inline-block;
-  margin: 0 8px 0px 50px;
-  font-weight: 500;
-  color: #444;
+  margin: 0 auto;
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  background: #ffffffee;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 64, 128, 0.08);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.filters-left {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  align-items: center;
+  min-width: 320px;
 }
 
-select,
-input[type="date"] {
-  width: 100px;
-  padding: 1px 10px;
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 14px;
-  border: 1.5px solid var(--color-main);
-  transition: border-color 0.2s ease;
-  font-family: inherit;
-  border: 2px solid #5fa2d200;
-  border-radius: 6px;
-  background-color: #f6faff;
+  font-weight: 600;
+  color: #333;
 }
-select:focus,
-input:focus {
+
+
+.filter-item select,
+.filter-item input[type="date"] {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #f6faff;
+  border: 2px solid transparent;
+  border-radius: 0.6rem;
+  transition: border-color 0.2s ease;
+}
+
+.filter-item select:focus,
+.filter-item input[type="date"]:focus {
   border-color: #4d8eff;
   outline: none;
+}
+
+.filters-right {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  gap: 10px;
+  min-width: 300px;
+  justify-content: flex-end;
+}
+
+.filters-right button {
+  background-color: #0787e1;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 0.6rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  transition: 0.2s;
+}
+
+.filters-right button:hover {
+  background-color: #0065d1;
+  transform: translateY(-2px);
+}
+
+.holiday-label {
+  font-size: 12px;
+  color: #d04444;
+  font-weight: 600;
+  margin-top: 4px;
 }
 
 .button-container {
@@ -471,7 +546,7 @@ button:hover {
 
 table {
   width: 80%;
-  background: rgba(236, 236, 236, 0.381);
+  background: rgba(251, 253, 255, 0.823);
   border-radius: 12px;
   overflow: hidden;
   font-size: 14px;
@@ -481,13 +556,13 @@ table {
 th,
 td {
   border: 1px solid var(--color-border);
-  padding: 12px;
+  padding: 13px;
   text-align: center;
   vertical-align: middle;
 }
 
 th {
-  background: #eef4fb;
+  background: #f8f9fb9a;
   font-weight: 600;
   color: #333;
 }
@@ -501,7 +576,13 @@ td {
 .time-label {
   background: var(--color-time);
   font-weight: bold;
-  color: #555;
+  color: #5c5c5c;
+}
+.time-label span {
+  font-size: 18px;
+  color: #303030;
+  font-weight: 400;
+  font-weight: bold;
 }
 
 .class-info {
@@ -529,9 +610,6 @@ td {
   border-left: 5px solid #ffa94d;  /* 강조 효과 */
   font-weight: 600;
 }
-
-
-
 
 
 .special-session {
@@ -586,12 +664,11 @@ td {
 }
 
 .modal-class-card {
-  padding: 12px 16px;
-  border-radius: 12px;
-  color: #333;
-  font-weight: 500;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease-in-out;
+  background-color: #ffffffee;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 24px rgba(0, 64, 128, 0.1);
+  padding: 1rem;
+  overflow-x: auto;
 }
 
 .modal-class-card .label {

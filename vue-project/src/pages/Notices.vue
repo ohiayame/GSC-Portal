@@ -117,11 +117,12 @@ const formatDate = (dateStr) =>
 </script>
 
 <template>
-  <div>
-    <h1>공지사항</h1>
-    <div class="notice-top-bar">
-      <!-- ✅ 검색 필터 UI -->
-      <div class="search-bar">
+  <div class="page-wrapper">
+    <h1 class="page-title">Notices</h1>
+
+    <!-- 상단 필터 바 -->
+    <div class="notice-filter-box">
+      <div class="notice-filters">
         <label for="target">검색: </label>
         <select id="target" v-model="store.searchTarget">
           <option :value="0">전체</option>
@@ -130,13 +131,17 @@ const formatDate = (dateStr) =>
           <option :value="3">3학년</option>
         </select>
 
-        <!-- ✅ 학년 선택 시 해당 학년의 과목만 표시 -->
         <select v-model="store.searchCourse">
           <option value="">전체 공지</option>
-          <option v-for="course in filteredCourses"
-            :key="course.course_id" :value="course.course_id">
+          <option
+            v-for="course in filteredCourses"
+            :key="course.course_id"
+            :value="course.course_id"
+          >
             {{ course.course_name }}
-            <template v-if="course.class_section !== null">({{ course.class_section }}반)</template>
+            <template v-if="course.class_section !== null">
+              ({{ course.class_section }}반)
+            </template>
           </option>
         </select>
 
@@ -146,197 +151,232 @@ const formatDate = (dateStr) =>
           v-model="store.searchKeyword"
         />
       </div>
-      <button v-if="user.role !== '학생'" @click="$router.push('/notices/new')">새 공지 작성</button>
+
+      <button
+        v-if="user.role !== '학생'"
+        @click="$router.push('/notices/new')"
+        class="btn-create"
+      >
+        새 공지 작성
+      </button>
     </div>
-    <table border="1">
-      <thead>
-        <tr>
-          <th>번호</th>
-          <th>제목</th>
-          <th>대상</th>
-          <th>과목</th>
-          <th>작성일</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(notice, index) in paginatedNotices"
+
+    <!-- 공지 테이블 -->
+    <div class="notice-table-box">
+      <table class="notice-table">
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>제목</th>
+            <th>대상</th>
+            <th>과목</th>
+            <th>작성일</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(notice, index) in paginatedNotices"
             :key="notice.id"
-            :class="{'pinned-row': notice.priority === 'pinned'}">
-          <td>{{ (currentPage - 1) * itemsPerPage + index + 1 }}</td>
-          <td><router-link :to="'/notices/' + notice.id">{{ notice.title }}</router-link></td>
-          <td>{{ store.getTargetLabel(notice.target) }}</td>
-          <td>{{ notice.course_name }}</td>
-          <td>{{ formatDate(notice.created_at) }}</td>
-        </tr>
-      </tbody>
+            :class="['notice-row', { pinned: notice.priority === 'pinned' }]"
+          >
+            <td>
+              <span v-if="notice.priority === 'pinned'">📌 </span>
+              {{ (currentPage - 1) * itemsPerPage + index + 1 }}
+            </td>
+            <td>
+              <router-link :to="'/notices/' + notice.id">
+                {{ notice.title }}
+              </router-link>
+            </td>
+            <td>{{ store.getTargetLabel(notice.target) }}</td>
+            <td>{{ notice.course_name }}</td>
+            <td>{{ formatDate(notice.created_at) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-    </table>
+    <!-- 페이지네이션 -->
+    <div class="pagination">
+      <button @click="currentPage = 1" :disabled="currentPage === 1">«</button>
+      <button @click="currentPage--" :disabled="currentPage === 1">‹</button>
+
+      <button
+        v-for="(page, idx) in visiblePages"
+        :key="idx"
+        :class="{ active: currentPage === page }"
+        @click="typeof page === 'number' && (currentPage = page)"
+        :disabled="page === '...'"
+      >
+        {{ page }}
+      </button>
+
+      <button @click="currentPage++" :disabled="currentPage === totalPages">›</button>
+      <button @click="currentPage = totalPages" :disabled="currentPage === totalPages">»</button>
+    </div>
   </div>
-
-  <div class="pagination">
-    <button @click="currentPage = 1" :disabled="currentPage === 1">«</button>
-    <button @click="currentPage--" :disabled="currentPage === 1">‹</button>
-
-    <button
-  v-for="(page, idx) in visiblePages"
-  :key="idx"
-  :class="{ active: currentPage === page }"
-  @click="typeof page === 'number' && (currentPage = page)"
-  :disabled="page === '...'"
->
-  {{ page }}
-</button>
-
-    <button @click="currentPage++" :disabled="currentPage === totalPages">›</button>
-    <button @click="currentPage = totalPages" :disabled="currentPage === totalPages">»</button>
-  </div>
-
 </template>
 
 <style scoped>
-:root {
-  --color-main: #007bff;
-  --color-bg: #f9fafe;
-  --color-border: #e0e6ed;
-  --color-hover: rgba(0, 123, 255, 0.08);
-  --color-button-text: #fff;
-  --color-time: #f1f3f5;
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@500;700&display=swap');
+
+.page-wrapper {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0f5ff, #e8f0ff);
+  min-height: 100vh;
+  font-family: 'Nunito', sans-serif;
+  color: #333;
 }
 
-h1 {
-  text-align: center;
-  color: rgb(60, 161, 255);
-  font-size: 28px;
+.page-title {
+  font-size: 2.4rem;
   font-weight: 800;
-  margin-bottom: 24px;
+  color: #213b75;
+  text-align: center;
+  font-family: 'Urbanist', 'Nunito', sans-serif;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
 }
 
-.notice-top-bar {
+.page-title::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  width: 150px;
+  height: 4px;
+  background: linear-gradient(to right, #6db4ff, #007bff);
+  border-radius: 2px;
+
+}
+
+.notice-filter-box {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
   flex-wrap: wrap;
-  padding: 0 16px;
+  background: #ffffffee;
+  padding: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 64, 128, 0.08);
+  margin-bottom: 1.5rem;
 }
 
-.search-bar {
+.notice-filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-}
-
-.search-bar label {
+  gap: 0.8rem;
   font-weight: 600;
-  margin-right: 5px;
 }
 
-.search-bar select,
-.search-bar input {
-  padding: 5px 10px;
-  min-width: 120px;
-  font-size: 14px;
-  border: 2px solid #5fa2d200;
-  border-radius: 6px;
+.notice-filters select,
+.notice-filters input {
+  padding: 8px 12px;
+  border: 2px solid transparent;
+  border-radius: 0.6rem;
   background-color: #f6faff;
   transition: border-color 0.2s;
 }
 
-.search-bar select:focus,
-.search-bar input:focus {
+.notice-filters select:focus,
+.notice-filters input:focus {
   border-color: #4d8eff;
   outline: none;
 }
 
-button {
+.btn-create {
+  background-color: #0787e1;
+  color: #fff;
   padding: 10px 16px;
-  font-size: 14px;
+  border-radius: 0.6rem;
   font-weight: 600;
-  background-color: var(--color-main);
-  color: var(--color-button-text);
   border: none;
-  border-radius: 6px;
   cursor: pointer;
-  margin-bottom: 12px;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 12px rgba(122, 186, 255, 0.468);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+  transition: 0.2s;
+}
+.btn-create:hover {
+  background-color: #0660c7;
 }
 
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.417);
+/* 테이블 영역 */
+.notice-table-box {
+  background: #ffffffee;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 64, 128, 0.1);
 }
 
-table {
+.notice-table {
   width: 100%;
   border-collapse: collapse;
-  border-radius: 12px;
-  background-color: white;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
-  font-family: 'Segoe UI', sans-serif;
   font-size: 14px;
+  border-radius: 1rem;
+  overflow: hidden;
+  table-layout: fixed;
 }
 
-th {
+.notice-table th {
   background-color: #eef4fb;
-  color: #333;
-  font-weight: 600;
+  color: #213b75;
   padding: 14px;
-  text-align: center;
+  font-weight: 700;
+  white-space: nowrap;
+  height: 25px;
+  border-bottom: 3px solid #aeb6c7cb;
 }
 
-td {
-  padding: 14px 10px;
+.notice-table td {
+  padding: 12px 10px;
   border-bottom: 1px solid #eee;
   color: #333;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;  /* 말줄임표 표시 (...) */
+  max-width: 200px;
 }
 
-tbody tr:hover {
+
+.notice-row:hover {
   background-color: #f6faff;
   transition: background-color 0.3s ease;
 }
 
-.pinned-row {
+.notice-row.pinned {
   background-color: #fff8ef;
   font-weight: 600;
 }
 
-.pinned-row td:first-child::before {
-  content: "📌 ";
-}
-
-a {
+.notice-row a {
   color: #1a4dc2;
   text-decoration: none;
-  font-weight: 500;
 }
-a:hover {
+.notice-row a:hover {
   text-decoration: underline;
 }
 
+/* 페이지네이션 */
 .pagination {
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin-top: 25px;
-  gap: 5px;
+  margin-top: 1.5rem;
+  gap: 6px;
 }
-
 .pagination button {
   padding: 8px 14px;
   min-width: 36px;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
   border: 1px solid #d0d7de;
   background-color: white;
   color: #333;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .pagination button:hover:not(:disabled) {
@@ -355,5 +395,4 @@ a:hover {
   opacity: 0.4;
   cursor: not-allowed;
 }
-
 </style>
