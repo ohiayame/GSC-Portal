@@ -112,8 +112,8 @@ export default {
       if (course_id) {
         form.value.course_id = course_id;
         form.value.course_name = course_name;
-        form.value.start_period = start_period;
-        form.value.duration = duration;
+        form.value.start_period = Number(start_period);
+        form.value.duration = Number(duration);
         form.value.type = type || "보강";
         form.value.date = date || "";
       }

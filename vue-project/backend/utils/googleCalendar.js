@@ -46,7 +46,23 @@ export async function fetchCalendarEvents( timeMin, timeMax) {
     fields: 'items(summary,start,end)',
   })
 
-  console.log("res", res)
+  // console.log("res", res)
 
   return res.data.items
+}
+
+// 구글 공휴일
+export async function fetchHolidayEvents(timeMin, timeMax) {
+  const calendar = google.calendar({ version: 'v3', auth: await auth.getClient() });
+
+  const res = await calendar.events.list({
+    calendarId: 'ko.south_korea#holiday@group.v.calendar.google.com',
+    timeMin,
+    timeMax,
+    singleEvents: true,
+    orderBy: 'startTime',
+    fields: 'items(summary,start)',
+  });
+
+  return res.data.items;
 }

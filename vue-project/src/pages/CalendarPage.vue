@@ -90,6 +90,7 @@ const eventsMap = computed(() => {
     s.events.forEach((e) => {
       if (e.type.includes('보강')) colors.push('red')
       else if (e.type.includes('휴강')) colors.push('blue')
+      else if (e.type === '공휴일') colors.push('gray')
       else colors.push('yellow')
     })
     map[s.date] = colors
@@ -98,9 +99,10 @@ const eventsMap = computed(() => {
 })
 
 const colorMap = {
-  red: '#e45d78',
-  blue: '#5c9edc',
-  yellow: '#f2c84a',
+  red: '#e45d78',    // 보강
+  blue: '#5c9edc',   // 휴강
+  yellow: '#f2c84a', // 학과 공지
+  gray: '#9e9e9e',
 }
 
 function scrollToSchedule(date) {
@@ -159,15 +161,10 @@ async function updateCalendar() {
   // Google 이벤트 데이터 → [{ date, events: [{ type, time, title }] }] 형식으로 변환
   const eventMap = {}
   items.forEach(event => {
-    if (!event.start?.dateTime) return
-    const date = event.start.dateTime.slice(0, 10)
-    const time = new Date(event.start.dateTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
-    const title = event.summary || '(제목 없음)'
-
-    const type =
-      title.includes('보강') ? '보강' :
-      title.includes('휴강') ? '휴강' :
-      '기타'
+    const date = event.date;
+    const title = event.title;
+    const time = event.time;
+    const type = event.type;
 
     if (!eventMap[date]) eventMap[date] = []
     eventMap[date].push({ type, time, title })
@@ -311,6 +308,10 @@ onMounted(updateCalendar)
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s;
+}
+.calendar-cell:hover {
+  background-color: #e4edf7;
 }
 
 .calendar-cell.empty {
@@ -388,6 +389,10 @@ onMounted(updateCalendar)
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   box-shadow: 0 2px 4px rgba(0, 64, 128, 0.05);
+  transition: background-color 0.3s;
+}
+.event-item:hover {
+  background-color: #e4edf7;
 }
 
 .event-tag {

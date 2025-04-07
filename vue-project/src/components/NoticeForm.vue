@@ -25,6 +25,9 @@ const selectedFile = ref(null);
 const previewImage = ref(null);
 const selectedFileUrl = ref("");
 const sendLine = ref(false);
+const eventDate = ref(null);
+const startTime = ref('10:00');
+const endTime = ref('12:00');
 
 const computedFileUrl = computed(() => {
   return selectedFileUrl.value ? store.getFileUrl(selectedFileUrl.value) : "";
@@ -133,7 +136,10 @@ const saveNotice = async () => {
     priority: priority.value,
     course_id: selectedCourse.value,
     file_url: file_url,
-    send_line: sendLine.value
+    send_line: sendLine.value,
+    event_date: eventDate.value,
+    start_time: startTime.value,
+    end_time: endTime.value,
   };
 
   if (route.params.id) {
@@ -170,6 +176,9 @@ const saveNotice = async () => {
           <option value="pinned">중요 공지</option>
         </select>
 
+        <label for="date">📅 일정 날짜 (선택)</label>
+        <input type="date" v-model="eventDate" />
+
       </div>
 
 
@@ -191,6 +200,12 @@ const saveNotice = async () => {
 
         <label for="file">파일 업로드</label>
         <input id="file" type="file" @change="handleFileUpload" accept="image/*, .pdf" />
+        <div v-if="eventDate">
+          <label for="time" >시작 시간</label>
+          <input type="time"  v-model="startTime" />
+          <label>종료 시간</label>
+          <input type="time" v-model="endTime" />
+        </div>
       </div>
     </div>
 
