@@ -8,16 +8,23 @@
         <h2>📢 공지사항</h2>
 
         <div v-if="slicedNotices.length > 0">
-          <div v-for="notice in slicedNotices" :key="notice.id" class="notice-item">
-            <router-link :to="`/notices/${notice.id}`" class="notice-title">
-              <span v-if="notice.priority === 'pinned'">📌</span>
-              {{ notice.title }}
-            </router-link>
-            <div class="notice-meta">
+          <div
+            v-for="notice in slicedNotices"
+            :key="notice.id"
+            :class="['notice-card', getTargetClass(notice.target)]"
+            @click="goToNotice(notice.id)"
+            style="cursor: pointer;"
+          >
+            <div class="notice-card-title">
+              <span v-if="notice.priority === 'pinned'">📌</span> {{ notice.title }}
+            </div>
+            <p class="notice-card-meta">
               {{ notice.course_name ? notice.course_name : noticeStore.getTargetLabel(notice.target) }} |
               {{ formatDate(notice.created_at) }}
-            </div>
+            </p>
           </div>
+
+
           <router-link to="/notices" class="see-all">전체 공지 보기 →</router-link>
         </div>
         <p v-else>📌 등록된 공지사항이 없습니다.</p>
@@ -66,6 +73,7 @@
 <script setup>
 import { storeToRefs } from "pinia";
 import { computed, onMounted, ref } from "vue";
+import { useRouter } from 'vue-router';
 import { useNoticesStore } from "@/stores/notices";
 import { useTimetableStore } from "@/stores/timetable";
 import { useAuthStore } from "@/stores/auth";
@@ -73,6 +81,7 @@ import LineLinkModal from '@/components/LineLinkModal.vue';
 
 const auth = useAuthStore();
 const user = computed(() => auth.user);
+const router = useRouter();
 
 // ✅ 공지사항 상태 가져오기 (Pinia 활용)
 const noticeStore = useNoticesStore();
@@ -116,7 +125,7 @@ const timetableStore = useTimetableStore();
 const { timetables } = storeToRefs(timetableStore);
 console.log("timetables", timetables.value);
 
-const weekDays = ["월", "화", "수", "목", "금"];
+const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const periods = [1, 2, 3, 4, 5, 6, 7, 8];
 
 onMounted(() => {
@@ -198,6 +207,20 @@ const slicedNotices = computed(() =>
 const formatDate = (dateStr) =>
   new Date(dateStr).toLocaleDateString();
 
+const goToNotice = (id) => {
+  router.push(`/notices/${id}`);
+};
+const getTargetClass = (target) => {
+  switch (target) {
+    case 0: return 'all';
+    case 1: return 'first';
+    case 2: return 'second';
+    case 3: return 'third';
+    case 4: return 'intl';
+    default: return '';
+  }
+};
+
 </script>
 
 
@@ -234,7 +257,7 @@ h1::after{
 /* 📌 공지사항 + 시간표 그리드 */
 .grid {
   display: flex;
-  gap: 30px;
+  gap: 50px;
   justify-content: center;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -248,9 +271,46 @@ h1::after{
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 320px;
-  height: 400px;
+  height: 550px;
   text-align: left;
 }
+.notice-card {
+  background-color: #fff;
+  border-left: 6px solid #007bff; /* 기본 색상 */
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  width: 270px; /* 🔹 폭 줄이기 */
+  min-height: 5px; /* 🔹 높이 줄이기 */
+  transition: transform 0.2s ease;
+}
+.notice-card:hover {
+  transform: translateY(-3px);
+}
+.notice-card.all     { border-left-color: #007bff; background-color: #f0f8ff; }
+.notice-card.first   { border-left-color: #28a745; background-color: #f6fff5; }
+.notice-card.second  { border-left-color: #ffc107; background-color: #fffdeb; }
+.notice-card.third   { border-left-color: #dc3545; background-color: #fff5f5; }
+.notice-card.intl    { border-left-color: #8e44ad; background-color: #f7f0ff;
+}
+.notice-card-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #1e6eea;
+  text-decoration: none;
+}
+
+.notice-card-title:hover {
+  text-decoration: underline;
+}
+
+.notice-card-meta {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #777;
+}
+
 
 /* 📌 공지사항 리스트 */
 .notice-list ul {
@@ -278,7 +338,7 @@ h1::after{
 
 .notice-list a {
   text-decoration: none;
-  color: #007bff;
+  color: #000000;
   font-weight: bold;
 }
 
@@ -310,7 +370,7 @@ h1::after{
 .see-all {
   display: block;
   text-align: right;
-  margin-top: 10px;
+  margin-top: 30px;
   margin-bottom: 10px;
   font-size: 13px;
   text-decoration: none;
@@ -355,12 +415,12 @@ h1::after{
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 500px;
+  width: 50%;
   text-align: center;
 }
 
 .timetable table {
-  width: 90%;
+  width: 100%;
   border-collapse: collapse;
   margin: 0 auto;
 }
@@ -375,9 +435,10 @@ h1::after{
   height: 50px;
 }
 .timetable th {
-  background: #65b0ff;
-  color: white;
+  background: #d3e8ff;
+  color: rgb(75, 75, 75);
   font-weight: bold;
+  font-size:15px;
 }
 
 .timetable td {

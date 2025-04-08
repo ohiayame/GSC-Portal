@@ -91,6 +91,7 @@ const saveTimetable = async () => {
 </script>
 
 <template>
+  <div class="page">
   <div class="timetable-form">
     <h2>{{ isEditMode ? "시간표 수정" : "시간표 등록" }}</h2>
 
@@ -179,16 +180,22 @@ const saveTimetable = async () => {
       <button @click="saveTimetable" class="register">{{ isEditMode ? "수정" : "등록" }}</button>
     </div>
   </div>
+</div>
 </template>
 
 <style scoped>
+.page{
+  background: linear-gradient(135deg, #f0f5ff, #e8f0ff);
+  height: 100vh;
+}
 .timetable-form {
-  max-width: 600px;
-  margin: 40px auto;
+  max-width: 800px;
+  margin: 0px auto;
+  margin-bottom: 150px;
   padding: 30px;
   background-color: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.137);
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
 }
 
@@ -222,8 +229,10 @@ const saveTimetable = async () => {
   transition: border-color 0.2s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+input:focus,
+select:focus,
+input:hover,
+select:hover {
   border-color: #4d8eff;
   outline: none;
 }
