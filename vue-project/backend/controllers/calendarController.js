@@ -36,5 +36,10 @@ export async function getMergedCalendar(req, res) {
     });
   }
 
+  combined.sort((a, b) => {
+    if (a.date !== b.date) return a.date.localeCompare(b.date);
+    return a.time.localeCompare(b.time);
+  });
+
   res.json(combined);
 }
