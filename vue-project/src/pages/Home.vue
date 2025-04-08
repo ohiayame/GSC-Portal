@@ -204,9 +204,32 @@ const formatDate = (dateStr) =>
 <style scoped>
 /* 📌 전체 레이아웃 */
 .home-container {
-  text-align: center;
-  padding: 20px;
+  background: linear-gradient(135deg, #f0f5ff, #e8f0ff);
+  height: 100vh;
+  padding: 2rem;
 }
+h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #213b75;
+  text-align: center;
+  font-family: 'Urbanist', 'Nunito', sans-serif;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+h1::after{
+  content: '';
+  display: block;
+  margin: 0 auto;
+  margin-bottom: 5%;
+  width: 200px;
+  height: 4px;
+  background: linear-gradient(to right, #6db4ff, #007bff);
+  border-radius: 2px;
+}
+
 
 /* 📌 공지사항 + 시간표 그리드 */
 .grid {
@@ -371,7 +394,4 @@ const formatDate = (dateStr) =>
   color: #ccc;
 }
 
-h1{
-  color: rgb(60, 161, 255);
-}
 </style>

@@ -234,7 +234,7 @@ onMounted(updateCalendar)
 }
 
 .title {
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   font-weight: 800;
   color: #213b75;
   text-align: center;
@@ -248,7 +248,7 @@ onMounted(updateCalendar)
   content: '';
   display: block;
   margin: 0 auto;
-  width: 180px;
+  width: 170px;
   height: 4px;
   background: linear-gradient(to right, #6db4ff, #007bff);
   border-radius: 2px;

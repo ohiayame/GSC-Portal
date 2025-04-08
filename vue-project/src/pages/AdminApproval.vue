@@ -54,94 +54,125 @@ onMounted(async () => {
 
 
 <template>
-  <div class="approval-container">
-    <h2>가입 승인 대기 목록</h2>
-    <div class="filter-container">
-      <input
-        type="checkbox"
-        id="togglePending"
-        v-model="showOnlyPending"
-        class="toggle-filter"
-      />
-      <label for="togglePending">승인 대기자만 보기</label>
-    </div>
+  <div class="timetable-container">
+    <h1>Management Page</h1>
 
-    <div v-if="isLoading">불러오는 중...</div>
-    <table v-else>
-      <thead>
-        <tr>
-          <th>번호</th>
-          <th>이름</th>
-          <th>이메일</th>
-          <th>학번</th>
-          <th>학년</th>
-          <th>전화번호</th>
-          <th>유학생 여부</th>
-          <th>권한</th>
-          <th>승인</th>
-          <th>거절</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(user, index) in filteredUsers" :key="user.id">
-          <td>{{ index+1 }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.student_id || "-" }}</td>
-          <td>{{ user.grade || "-" }}</td>
-          <td>{{ user.phone || "-" }}</td>
-          <td>{{ user.international }}</td>
-          <td>
-            <label for="role"></label>
-            <select v-model="user.role" @change="updateRole(user.id, user.role)">
-              <option value="학생">학생</option>
-              <option value="교수">교수</option>
-              <option value="관리자">관리자</option>
-            </select>
-          </td>
-          <td><button  v-if="user.approved === 0" @click="approveUser(user.id)">✅ 승인</button></td>
-          <td><button  v-if="user.approved === 0" @click="rejectUser(user.id)">❌ 거절</button></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <!-- AdminApproval.vue 내 -->
-  <div class="assign-box">
-    <h2>📚 분반 등록</h2>
-    <p class="assign-description">
-      학생들을 과목별로 분반에 등록하거나 수정할 수 있습니다.
-    </p>
-    <div class="mode-selector">
-      <button @click="showModal = true" class="mode-btn new">➕ 신규 등록</button>
-
-
-      <button @click="showGroupModal = true" class="mode-btn edit">✏️ 기존 수정</button>
-    </div>
-    <ModalChooseCourse v-if="showModal" @close="showModal = false" @confirm="handleCourseSelection" />
-    <ModalChooseGroup v-if="showGroupModal" @close="showGroupModal = false" @confirm="handleGroupSelection" />
-  </div>
-
-  <div class="timetable-toggle-card">
-    <div class="card-header" @click="showTimetableModal = !showTimetableModal">
-      <h2>🗓️ 시간표 관리</h2>
-      <span class="toggle-icon">{{ showTimetableModal ? '∧' : '∨' }}</span>
-    </div>
-
-    <transition name="expand">
-      <div v-if="showTimetableModal" class="card-body">
-        <TimetableManage mode="modal" />
+    <!-- 기존 승인 대기 목록 -->
+    <div class="approval-container">
+      <h2>가입 승인 대기 목록</h2>
+      <div class="filter-container">
+        <input
+          type="checkbox"
+          id="togglePending"
+          v-model="showOnlyPending"
+          class="toggle-filter"
+        />
+        <label for="togglePending">승인 대기자만 보기</label>
       </div>
-    </transition>
-  </div>
 
+      <div v-if="isLoading">불러오는 중...</div>
+      <table v-else>
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>이름</th>
+            <th>이메일</th>
+            <th>학번</th>
+            <th>학년</th>
+            <th>전화번호</th>
+            <th>유학생 여부</th>
+            <th>권한</th>
+            <th>승인</th>
+            <th>거절</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(user, index) in filteredUsers" :key="user.id">
+            <td>{{ index+1 }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.student_id || "-" }}</td>
+            <td>{{ user.grade || "-" }}</td>
+            <td>{{ user.phone || "-" }}</td>
+            <td>{{ user.international }}</td>
+            <td>
+              <select v-model="user.role" @change="updateRole(user.id, user.role)">
+                <option value="학생">학생</option>
+                <option value="교수">교수</option>
+                <option value="관리자">관리자</option>
+              </select>
+            </td>
+            <td><button v-if="user.approved === 0" @click="approveUser(user.id)">✅ 승인</button></td>
+            <td><button v-if="user.approved === 0" @click="rejectUser(user.id)">❌ 거절</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 분반 등록 -->
+    <div class="assign-box">
+      <h2>📚 분반 등록</h2>
+      <p class="assign-description">
+        학생들을 과목별로 분반에 등록하거나 수정할 수 있습니다.
+      </p>
+      <div class="mode-selector">
+        <button @click="showModal = true" class="mode-btn new">➕ 신규 등록</button>
+        <button @click="showGroupModal = true" class="mode-btn edit">✏️ 기존 수정</button>
+      </div>
+      <ModalChooseCourse v-if="showModal" @close="showModal = false" @confirm="handleCourseSelection" />
+      <ModalChooseGroup v-if="showGroupModal" @close="showGroupModal = false" @confirm="handleGroupSelection" />
+    </div>
+
+    <!-- 시간표 카드 -->
+    <div class="timetable-toggle-card">
+      <div class="card-header" @click="showTimetableModal = !showTimetableModal">
+        <h2>🗓️ 시간표 관리</h2>
+        <span class="toggle-icon">{{ showTimetableModal ? '∧' : '∨' }}</span>
+      </div>
+      <transition name="expand">
+        <div v-if="showTimetableModal" class="card-body">
+          <TimetableManage mode="modal" />
+        </div>
+      </transition>
+    </div>
+  </div>
 </template>
 
-
 <style scoped>
+/* 🔹 제목 및 배경 설정 */
+h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #213b75;
+  text-align: center;
+  font-family: 'Urbanist', 'Nunito', sans-serif;
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+  position: relative;
+  display: inline-block;
+}
+h1::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  width: 335px;
+  height: 4px;
+  background: linear-gradient(to right, #6db4ff, #007bff);
+  border-radius: 2px;
+}
+
+.timetable-container {
+  background: linear-gradient(135deg, #f0f5ff, #e8f0ff);
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: 'Nunito', sans-serif;
+  color: #333;
+}
+
 .approval-container {
   padding: 30px;
-  max-width: 1000px;
-  margin: 30px auto;
+  max-width: 80%;
+  margin: 0px auto;
   background-color: white;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
@@ -235,7 +266,7 @@ td button:nth-child(2) {
 }
 .assign-box {
   padding: 30px;
-  max-width: 1000px;
+  max-width: 80%;
   margin: 40px auto;
   background-color: white;
   border-radius: 16px;
@@ -290,7 +321,7 @@ td button:nth-child(2) {
 
 /* 🔹 카드 전체 스타일 */
 .timetable-toggle-card {
-  max-width: 1000px;
+  max-width: 87%;
   margin: 40px auto;
   background-color: white;
   border-radius: 16px;
@@ -307,7 +338,7 @@ td button:nth-child(2) {
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  background-color: #f4f8ff;
+  background-color: #ffffff;
   border-bottom: 1px solid #dde8f3;
 }
 

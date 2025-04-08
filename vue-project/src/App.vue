@@ -80,9 +80,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 80vh;
+  height: 100vh;
   text-align: center;
-  background-color: #f7f9fc;
+  background: linear-gradient(135deg, #f0f5ff, #e8f0ff);
 }
 
 .pending-approval h2 {
@@ -90,7 +90,7 @@
   color: #3a4f7a;
   margin-top: 30px;
   padding: 15px 30px;
-  background-color: #e1ecf7;
+  background-color: #f3f9ff;
   border: 1px solid #aac4de;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);

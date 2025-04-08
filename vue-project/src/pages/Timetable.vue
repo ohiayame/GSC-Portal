@@ -408,7 +408,7 @@ body {
 }
 
 h1 {
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   font-weight: 800;
   color: #213b75;
   text-align: center;
@@ -430,7 +430,7 @@ h1::after{
 
 
 .timetable-container {
-  background: linear-gradient(135deg, #eaf1fe, #e8f0ff);
+  background: linear-gradient(135deg, #f0f5ff, #e8f0ff);
   min-height: 100vh;
   padding: 2rem;
   font-family: 'Nunito', sans-serif;
@@ -471,7 +471,7 @@ h1::after{
 
 .filter-item select,
 .filter-item input[type="date"] {
-  padding: 8px 12px;
+  padding: 6px 2px;
   font-size: 14px;
   background-color: #f6faff;
   border: 2px solid transparent;
@@ -545,7 +545,7 @@ button:hover {
 }
 
 table {
-  width: 80%;
+  width: 85%;
   background: rgba(251, 253, 255, 0.823);
   border-radius: 12px;
   overflow: hidden;
@@ -568,7 +568,7 @@ th {
 }
 
 td {
-  height: 60px;
+  height: 40px;
   min-width: 120px;
   background-color: white;
 }
