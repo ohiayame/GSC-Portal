@@ -53,6 +53,14 @@
             border-color: #69dbdb;
             outline: none;
         }
+        select{
+            width: 50%;
+            padding: 5px 10px;
+            background-color: #69dbdb32;
+            border: 2px solid transparent;
+            margin: 2px 0px 15px 15px;
+            border-radius: 10px;
+        }
 
         /* 버튼 스타일 */
         button {
@@ -150,57 +158,72 @@
 </head>
 <body>
     <div class="container">
-      <h2>Welcome Back</h2>
-      <p>Enter your email and password to sign in</p>
-  
-      <!-- 🔸 form으로 감싸기 -->
-      <form action="/login" method="post">
-        <label for="email">Email</label>
-        <input type="text" id="email" name="email" placeholder="Your email address" />
-  
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" placeholder="Your password" />
-  
-        <!-- 🔸 추가: 의견 입력 textarea -->
-        <label for="feedback">Feedback</label>
-        <textarea id="feedback" name="feedback" rows="3" placeholder="Leave your feedback here..."></textarea>
-  
-        <!-- 🔸 기억하기 스위치 -->
-        <div class="remember-me">
-            <label class="remember-switch">
-                <input type="checkbox" />
-                <span class="slider"></span>
-            </label>
-            <span>Remember me</span>
-        </div>
+        <h2>Welcome Back</h2>
+        <p>Enter your email and password to sign in</p>
+    
+        <form id="loginForm">
+            <label for="email">Email</label>
+            <input type="text" id="email" name="email" placeholder="Your email address" />
 
-        <button type="submit">SIGN IN</button>
-      </form>
-  
-      <!-- 🔸 링크 추가 -->
-      <p style="text-align:center;">
-        Need help? <a href="https://example.com/help" target="_blank">Contact us</a>
-      </p>
-  
-      <!-- 🔸 목록 추가 -->
-      <ul>
-        <li>로그인 시 이메일과 비밀번호가 필요합니다.</li>
-        <li>Remember me를 체크하면 자동 로그인됩니다.</li>
-        <li>피드백을 통해 의견을 남겨주세요.</li>
-      </ul>
-  
-      <!-- 🔸 이미지 추가 (예시 이미지 URL 사용) -->
-      <div>
-        <img src="https://i.pinimg.com/originals/c5/1f/5a/c51f5ad5cc105c0b2cc6b278a04e4a82.gif" alt="샘플 이미지" />
-      </div>
-  
-      <!-- 🔸 회원가입 안내 -->
-      <div class="sign-up">
-        <p>
-          Don't have an account? <span>Sign Up</span>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Your password" />
+
+            <!-- 선택 -->
+            <label for="msg">Grade</label>
+            <select name="grade" id="grade">
+                <option value="1">1학년</option>
+                <option value="2">2학년</option>
+                <option value="3">3학년</option>
+            </select>
+
+            <label for="msg">Message</label>
+            <textarea id="msg" name="msg" rows="3" placeholder="message..."></textarea>
+
+            <!-- 버튼 -->
+            <div class="remember-me">
+                <label class="remember-switch">
+                    <input type="checkbox" />
+                    <span class="slider"></span> <!-- 버튼 --> 
+                </label>
+                <span>Remember me</span>
+            </div>
+
+            <button type="submit">SIGN IN</button>
+        </form>
+    
+        <!-- 링크 -->
+        <p style="text-align:center;">
+            Need help? <a href="https://i.pinimg.com/originals/c5/1f/5a/c51f5ad5cc105c0b2cc6b278a04e4a82.gif" target="_blank">Contact us</a>
         </p>
-      </div>
+    
+        <!-- 이미지  -->
+        <div>
+            <img src="https://i.pinimg.com/originals/c5/1f/5a/c51f5ad5cc105c0b2cc6b278a04e4a82.gif" alt="샘플 이미지" />
+        </div>
+    
+        <!-- 회원가입 -->
+        <div class="sign-up">
+            <p>
+            Don't have an account? <span>Sign Up</span>
+            </p>
+        </div>
     </div>
-  </body>
-  
+</body>
 </html>
+
+<script>
+    const form = document.getElementById("loginForm");
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const grade = document.getElementById("grade").value;
+        const msg = document.getElementById("msg").value;
+
+        // 쿼리 문자열로 전달
+        const query = `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&grade=${encodeURIComponent(grade)}&msg=${encodeURIComponent(msg)}`;
+        window.location.href = `test.html?${query}`;
+    });
+</script>

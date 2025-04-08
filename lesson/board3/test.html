@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome Back Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #eaf1fe, #2dbfbe);
+            display: flex; /* 화면의 중안 설정을 위해  flexbox을 사용용 */
+            justify-content: center; /* 가로축 중안 */
+            align-items: center; /* 새로 축 중안 */
+            height: 100vh; /* 화면 높이 100% */ 
+            margin: 0;/* 여백 재거 */
+        }    
+        .container {
+            background-color: rgb(243, 250, 250);
+            width: 400px; /* 컨테이너 너비 */
+            padding: 20px;
+            border-radius: 10px; /* 모서리를 둥글게 설정 丸角 */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.277); /* 그림자자 */
+        }
+        h2{
+            color: #2dbfbe;
+            margin-bottom: 5px; /* 위의 여백을 0px로 설정 */
+        }
+        p {
+            color: #000000; /* 텍스트 색상을 회색으로 설정 */
+
+            font-weight: bold;
+        }
+        strong{
+            color: #aaaaaa;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+    <body>
+        <div class="container">
+            <h2>입력 받은 정보</h2>
+            <div id="result"></div>
+        </div>
+    </body>
+</html>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    // 받은 정보를 추출
+    const email = params.get("email");
+    const password = params.get("password");
+    const grade = params.get("grade");
+    const msg = params.get("msg");
+
+    document.getElementById("result").innerHTML = `
+    <p><strong>Email:</strong>${email}</p>
+    <p><strong>Password: </strong> ${password}</p>
+    <p><strong>Grade:</strong> ${grade}</p>
+    <p><strong>Message:</strong> ${msg}</p>
+    `;
+</script>
