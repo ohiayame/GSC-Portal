@@ -103,6 +103,7 @@ const editTimetable = (timetable) => {
 </script>
 
 <template>
+  <div :class="[props.mode === 'modal' ? 'modal-container' : 'page']">
   <div :class="[props.mode === 'modal' ? 'modal-container' : 'manage-container']">
     <h2 v-if="props.mode !== 'modal'">시간표 관리</h2>
     <button  @click="$router.push('/timetable/new')" class="new-btn">새 시간표 등록</button>
@@ -237,13 +238,19 @@ const editTimetable = (timetable) => {
   <div v-if="props.mode !== 'modal'" class="bottom-button-container">
     <button @click="router.push('/timetable')" class="back">돌아가기</button>
   </div>
-
+</div>
 </template>
 
 <style scoped>
+.page {
+  background: linear-gradient(135deg, #f0f5ff, #e8f0ff);
+  height: auto;
+  padding-top: 40px;
+}
+
 .manage-container {
   max-width: 1000px;
-  margin: 40px auto;
+  margin: 0 auto;
   padding: 24px;
   background: #fff;
   border-radius: 16px;
@@ -254,8 +261,9 @@ const editTimetable = (timetable) => {
 .manage-container h2 {
   text-align: center;
   color: #3ca1ff;
-  font-size: 26px;
+  font-size: 28px;
   font-weight: 800;
+  margin-bottom: 16px;
 }
 .modal-container{
   margin: 40px 40px 0px 40px;

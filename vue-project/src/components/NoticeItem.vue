@@ -69,6 +69,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <div class="page">
   <div class="notice-container" v-if="notice">
     <h2>{{ notice.title }}</h2>
 
@@ -119,17 +120,23 @@ onMounted(async () => {
     </div>
   </div>
   <p v-else>공지사항을 불러오는 중...</p>
+</div>
 </template>
 
 
 <style scoped>
+.page {
+  background: linear-gradient(135deg, #f0f5ff, #e8f0ff);
+  min-height: 100vh;
+}
 .notice-container {
-  max-width: 800px;
-  margin: 30px auto;
+  width: 50%;
+  margin: 0px auto;
+  margin-bottom: 200px;
   padding: 30px;
-  background: #ffffff;
+  background-color: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.137);
   font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
 }
 
@@ -247,11 +254,12 @@ button:not(.back):hover {
   background-color: #1d8fff;
 }
 .code-wrapper {
+  max-height: 700px;
+  overflow-y: auto;
   position: relative;
   background-color: #f6f8fa;
   border-radius: 6px;
   padding: 12px 16px;
-  margin-top: 20px;
   font-family: 'Courier New', monospace;
 }
 

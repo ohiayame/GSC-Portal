@@ -53,9 +53,10 @@
 
       </div>
     </div>
-
+    <div class="button-container">
     <button @click="router.push('/approval')" class="back">돌아가기</button>
     <button @click="submit" class="submit-button">📝 등록</button>
+  </div>
   </div>
 </template>
 
@@ -269,6 +270,7 @@ onMounted(async () => {
   flex: 1 1 260px;
   width: 300px;
   min-width: 240px;
+  padding: 0 10px
 }
 
 .assign-column h3 {
@@ -285,10 +287,9 @@ onMounted(async () => {
 .draggable-list {
   display: flex;
   flex-wrap: wrap; /* ✅ 여러 줄 허용 */
-  gap: 8px;
+  gap: 30px;
   min-height: 300px;
   max-height: 400px;
-  width: 90%;
   overflow-y: auto;
   padding: 14px;
   border: 2px dashed #8ecdf3;
@@ -329,23 +330,45 @@ onMounted(async () => {
   background-color: #d2edff;
 }
 
-.submit-button {
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  gap: 30px;
   margin-top: 30px;
-  padding: 14px 30px;
+}
+
+button {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+button.submit-button {
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 16px;
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.25);
   transition: background-color 0.2s, transform 0.2s;
 }
 
-.submit-button:hover {
+button.submit-button:hover {
   background-color: #0056b3;
   transform: translateY(-2px);
 }
+button.back {
+  background-color: #ccc;
+  color: #333;
+  border: none;
+  box-shadow: 0 4px 12px rgba(112, 112, 112, 0.25);
+  transition: background-color 0.2s, transform 0.2s;
+}
 
+button.back:hover {
+  background-color: #b1b1b1;
+  transform: translateY(-2px);
+}
 </style>

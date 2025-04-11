@@ -154,6 +154,7 @@ const saveNotice = async () => {
 </script>
 
 <template>
+  <div class="page">
   <div class="notice-form">
     <h2>{{ route.params.id ? "공지 수정" : "공지 작성" }}</h2>
 
@@ -226,59 +227,84 @@ const saveNotice = async () => {
 
     <div class="button-container">
       <button @click="router.push('/notices')" class="back">돌아가기</button>
-      <button @click="saveNotice">{{ route.params.id ? "수정" : "등록" }}</button>
+      <button @click="saveNotice" class="register">{{ route.params.id ? "수정" : "등록" }}</button>
     </div>
   </div>
+</div>
 </template>
 
 
 <style scoped>
+.page {
+  background: linear-gradient(135deg, #f0f5ff, #e8f0ff);
+  height: 100vh;
+}
+
 .notice-form {
-  width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  width: 50%;
+  margin: 0px auto;
+  margin-bottom: 150px;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.137);
+  font-family: 'Pretendard', 'Noto Sans KR', sans-serif;
 }
 
 .notice-form h2 {
   text-align: center;
-  margin-bottom: 20px;
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 24px;
+  font-weight: 800;
+  color: #3ca1ff;
+  margin-bottom: 25px;
 }
 
 label {
   display: block;
   margin-top: 10px;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 600;
+  color: #333;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   width: 100%;
   padding: 10px;
   margin-top: 5px;
   font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-color: #f6faff;
+  transition: border-color 0.2s ease;
   box-sizing: border-box;
 }
 
+input:focus,
+textarea:focus,
+select:focus,
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: #4d8eff;
+  outline: none;
+}
+
 textarea {
-  height: 300px; /* 내용 입력칸 크기 조정 */
-  resize: vertical; /* 크기 조절 가능하도록 설정 */
+  height: 300px;
+  resize: vertical;
 }
 
 .row {
   display: flex;
   justify-content: space-between;
+  gap: 16px;
   margin-top: 15px;
 }
 
 .field {
-  width: 48%; /* 필드 크기를 균등하게 나눔 */
+  flex: 1;
 }
 
 .preview-img {
@@ -291,35 +317,42 @@ textarea {
 
 .button-container {
   display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
 }
 
 button {
-  padding: 10px 16px;
+  padding: 10px 18px;
   font-size: 14px;
-  font-weight: bold;
-  background-color: #485ff7;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  font-family: inherit;
 }
-
 button.back {
   background-color: #ccc;
-  color: black;
-}
-
-button:hover {
-  background-color: #5fb7ff;
+  color: #333;
 }
 
 button.back:hover {
-  background-color: #b3b3b3;
+  background-color: #b1b1b1;
 }
-.del{
+
+button.register {
+  background-color: #3ca1ff;
+  color: white;
+  border: none;
+  box-shadow: 0 3px 10px rgba(60, 161, 255, 0.2);
+}
+
+button.register:hover {
+  background-color: #1d8fff;
+}
+
+
+.del {
   padding: 5px 10px;
   font-size: 12px;
   font-weight: bold;
@@ -338,7 +371,7 @@ button.back:hover {
 .line-toggle {
   display: flex;
   align-items: center;
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .line-switch {
