@@ -3,9 +3,11 @@ import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useAssignLevelStore } from '@/stores/assignLevel.js'
+import { useAllowedEmailStore } from '@/stores/allowedEmails';
 import ModalChooseCourse from "@/components/ModalChooseCourse.vue";
 import ModalChooseGroup from "@/components/ModalChooseGroup.vue";
 import TimetableManage from "@/components/TimetableManage.vue";
+import AllowedEmails from "@/components/AllowedEmails.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -15,9 +17,16 @@ const showModal = ref(false);
 const showGroupModal = ref(false);
 const showTimetableModal = ref(false);
 
+const emailStore = useAllowedEmailStore();
+const showEmailModal = ref(false);
+
 // 🔹 승인 및 거절 버튼 액션
 const approveUser = (id) => auth.approveUser(id);
-const rejectUser = (id) => auth.rejectUser(id);
+const rejectUser = (id) => {
+  if (confirm("정말로 이 회원을 삭제하시겠습니까?")) {
+    auth.rejectUser(id);
+  }
+};
 
 const isLoading = ref(true);
 const showOnlyPending = ref(true); // ✅ true면 승인 대기자만, false면 전체
@@ -36,19 +45,20 @@ const handleCourseSelection = ({ courses }) => {
   level.selectedCourses = courses;
   router.push("/assignLevel");
 };
+
 function handleGroupSelection(groupId) {
   showGroupModal.value = false;
   router.push({
-  path: "/assignLevel",
-  query: { group_id: groupId }
-});
-
+    path: "/assignLevel",
+    query: { group_id: groupId }
+  });
 }
 
 
 onMounted(async () => {
   await auth.fetchPendingUsers(); // 전체 유저 목록 불러오기
   isLoading.value = false;
+  emailStore.fetchAllowedEmails();
 });
 </script>
 
@@ -59,7 +69,10 @@ onMounted(async () => {
 
     <!-- 기존 승인 대기 목록 -->
     <div class="approval-container">
-      <h2>가입 승인 대기 목록</h2>
+      <div class="header-row">
+        <h2>가입 승인 대기 목록</h2>
+        <button @click="showEmailModal = true">+ 허용 이메일 추가</button>
+      </div>
       <div class="filter-container">
         <input
           type="checkbox"
@@ -80,7 +93,7 @@ onMounted(async () => {
             <th>학번</th>
             <th>학년</th>
             <th>전화번호</th>
-            <th>유학생 여부</th>
+            <th>유학생</th>
             <th>권한</th>
             <th>승인</th>
             <th>거절</th>
@@ -90,10 +103,10 @@ onMounted(async () => {
           <tr v-for="(user, index) in filteredUsers" :key="user.id">
             <td>{{ index+1 }}</td>
             <td>{{ user.name }}</td>
-            <td>{{ user.email }}</td>
+            <td class="ellipsis">{{ user.email }}</td>
             <td>{{ user.student_id || "-" }}</td>
             <td>{{ user.grade || "-" }}</td>
-            <td>{{ user.phone || "-" }}</td>
+            <td class="ellipsis">{{ user.phone || "-" }}</td>
             <td>{{ user.international }}</td>
             <td>
               <select v-model="user.role" @change="updateRole(user.id, user.role)">
@@ -103,11 +116,14 @@ onMounted(async () => {
               </select>
             </td>
             <td><button v-if="user.approved === 0" @click="approveUser(user.id)">✅ 승인</button></td>
-            <td><button v-if="user.approved === 0" @click="rejectUser(user.id)">❌ 거절</button></td>
+            <td><button v-if="user.approved === 0" @click="rejectUser(user.id)">❌ 거절</button>
+                <button v-else @click="rejectUser(user.id)">❌ 삭제</button>
+            </td>
           </tr>
         </tbody>
       </table>
     </div>
+    <AllowedEmails v-if="showEmailModal" @close="showEmailModal = false" />
 
     <!-- 분반 등록 -->
     <div class="assign-box">
@@ -223,6 +239,11 @@ td {
   border-bottom: 1px solid #eee;
   color: #333;
 }
+.ellipsis{
+  max-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 tbody tr:hover {
   background-color: #f4faff;
@@ -259,7 +280,7 @@ button:hover {
 }
 
 td button:nth-child(1) {
-  background-color: #40a9ff;
+  background-color: #b7dfff;
 }
 td button:nth-child(2) {
   background-color: #ff4d4f;

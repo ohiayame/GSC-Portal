@@ -155,6 +155,43 @@ export const useAuthStore = defineStore('auth', {
       } catch (err) {
         console.error("❌ 역할 업데이트 실패:", err);
       }
+    },
+
+
+    async loginWithGoogleCredential(credential) {
+      try {
+        const res = await fetch("http://localhost:3001/auth/google/callback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          // ✅ 서버에서 403 또는 500 등 에러 응답일 때
+          console.error("❌ 서버 오류 응답:", data.error);
+          return { status: "error", error: data.error };
+        }
+
+        if (data.success) {
+          this.login(data); // ✅ 로그인 상태 저장
+          return { status: "success" };
+        } else if (data.redirect) {
+          return {
+            status: "redirect",
+            redirect: data.redirect,
+            email: data.email,
+            name: data.name,
+          };
+        } else {
+          return { status: "pending" };
+        }
+      } catch (error) {
+        console.error("로그인 요청 오류:", error);
+        return { status: "error", error };
+      }
     }
+
+
   }
 });

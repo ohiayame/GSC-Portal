@@ -13,6 +13,7 @@ import assignLevelRoutes from "./routes/assignLevel.js";
 import lineRoutes from './routes/line.js';
 import holidayRoutes from './routes/holiday.js';
 import calendarRoutes from './routes/calendar.js';
+import allowedEmailRoutes from './routes/allowedEmail.js';
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/assign-level", assignLevelRoutes);
 app.use('/line', lineRoutes);
 app.use('/api/holidays', holidayRoutes);
 app.use('/api/calendar', calendarRoutes);
+app.use('/api/allowed-emails', allowedEmailRoutes);
 
 const PORT = process.env.PORT || 3001;
 

@@ -352,7 +352,7 @@ onMounted(updateCalendar)
 
 /* 일정 리스트 - modern-style */
 .schedule-list.modern-style {
-  width: 75%;
+  width: 50%;
   max-width: 700px;
   background: #ffffffee;
   border-radius: 1rem;

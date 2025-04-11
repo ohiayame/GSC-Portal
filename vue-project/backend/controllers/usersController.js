@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { findUserByEmail, createUser,
         findAllUsers, approveUserById,
         deleteUserById, updateRole } from '../models/Users.js';
-
+import { findAllowedEmail } from '../models/allowedEmails.js';
 dotenv.config();
 
 // ✅ Google 로그인 처리
@@ -23,12 +23,21 @@ export const googleLogin = async (req, res) => {
 
       console.log("🔍 [SERVER] Google 사용자 정보:", decodedUser);
 
-      // ✅ DB에서 사용자 조회
+      if (!email.endsWith('@g.yju.ac.kr')) {
+        const allowed = await findAllowedEmail(email);
+        console.log("allowed", allowed)
+        if (!allowed) {
+          res.status(403).json({ error: "허용되지 않은 외부 이메일입니다." });
+          return;
+        }
+      }
+
+      // DB에서 사용자 조회
       const user = await findUserByEmail(email);
-      console.log("🔍 [SERVER] 사용자 정보:", user);
+      // console.log("🔍 [SERVER] 사용자 정보:", user);
 
       if (!user) {
-          console.log("🆕 [SERVER] 회원 정보 없음 → 회원가입 필요");
+          // console.log("🆕 [SERVER] 회원 정보 없음 → 회원가입 필요");
           const response = {
               success: false,
               needsRegistration: true,
@@ -101,7 +110,16 @@ export const registerUser = async (req, res) => {
 
     } catch (error) {
         console.error("❌ 회원가입 오류:", error.message);
-        res.status(500).json({ error: "회원가입 실패" });
+        if (error.code === 'ER_DUP_ENTRY') {
+          if (error.message.includes('student_id')) {
+            return res.status(409).json({ error: "이미 사용 중인 학번입니다." });
+          }
+          if (error.message.includes('email')) {
+            return res.status(409).json({ error: "이미 사용 중인 이메일입니다." });
+          }
+        }
+
+        res.status(500).json({ error: "회원가입 중 알 수 없는 오류가 발생했습니다." });
     }
 };
 
