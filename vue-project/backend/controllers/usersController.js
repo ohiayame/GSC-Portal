@@ -1,7 +1,7 @@
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import { findUserByEmail, createUser,
+import { findUserByEmail, findUserById, createUser,
         findAllUsers, approveUserById,
         deleteUserById, updateRole } from '../models/Users.js';
 import { findAllowedEmail } from '../models/allowedEmails.js';
@@ -147,21 +147,24 @@ export const registerUser = async (req, res) => {
 };
 
 // ✅ 사용자 정보 조회
-export const getUser = (req, res) => {
+export const getUser = async (req, res) => {
     try {
         // 🔍 쿠키 또는 Authorization 헤더에서 토큰 추출
         const authHeader = req.headers.authorization;
         const tokenFromHeader = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
-        const token = req.cookies.auth_token || tokenFromHeader;
 
-        if (!token) {
+
+        if (!tokenFromHeader) {
             return res.status(401).json({ error: "로그인 정보가 없습니다." });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        res.status(200).json({ user: decoded });
+        const decoded = jwt.verify(tokenFromHeader, process.env.JWT_SECRET);
+        console.log("✅ JWT 디코딩 성공:", decoded.id);
 
+        const user = await findUserById(decoded.id);
+        res.status(200).json({ user: user });
     } catch (error) {
+      console.error("❌ JWT 검증 실패:", error.message);
         res.status(401).json({ error: "인증 실패" });
     }
 };
@@ -169,30 +172,44 @@ export const getUser = (req, res) => {
 // ✅ access token 재발급
 export const refreshAccessToken = async (req, res) => {
   const token = req.cookies.refresh_token;
-  console.log(token)
 
-  if (!token) return res.status(401).json({ error: "Refresh token 없음" });
+  if (!token) {
+    console.warn("❌ [SERVER] refresh_token 없음");
+    return res.status(401).json({ error: "Refresh token 없음" });
+  }
 
   try {
-    // DB에서 유효한 토큰인지 확인
     const stored = await findRefreshToken(token);
-    if (!stored) return res.status(403).json({ error: "Refresh token 무효함" });
+    if (!stored) {
+      console.warn("❌ [SERVER] DB에 저장된 refresh_token 없음");
+      return res.status(403).json({ error: "Refresh token 무효함" });
+    }
 
-    // 유효한 토큰인지 검증
     const payload = jwt.verify(token, process.env.REFRESH_SECRET);
+    const user = await findUserById(payload.id);
 
-    // 새 access token 생성
     const newAccessToken = jwt.sign(
-      { id: payload.id },
+      { id: user.id,
+        name: user.name,
+        grade: user.grade,
+        email: user.email,
+        phone: user.phone,
+        international: user.international,
+        role: user.role,
+        approved: user.approved
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
+    console.log("✅ [SERVER] 새 accessToken 생성:", newAccessToken);
 
     res.status(200).json({ token: newAccessToken });
   } catch (err) {
-    return res.status(403).json({ error: "Refresh token 오류 또는 만료됨" });
+    console.error("❌ [SERVER] refresh 오류:", err);
+    res.status(403).json({ error: "Refresh token 오류 또는 만료됨" });
   }
 };
+
 
 // ✅ 로그아웃 처리
 export const logoutUser = async (req, res) => {

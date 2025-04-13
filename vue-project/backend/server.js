@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 console.log("🔍 authRoutes:", authRoutes);
-app.use('/auth//refresh', refreshRoutes);
+app.use('/refresh', refreshRoutes);
 app.use('/auth', authRoutes);
 app.use('/api/notices', noticesRouter);
 app.use('/api/timetable', timetableRouter); // ✅ 추가

@@ -9,62 +9,78 @@ export const useAuthStore = defineStore('auth', {
     }),
     actions: {
       async fetchUser() {
-          try {
-            const token = this.accessToken;  // ✅ 저장된 토큰 사용
-            console.log("token:", token)
-              if (!token) {
-                  console.warn("🚨 [AUTH] 저장된 토큰 없음 → 로그아웃 상태 유지");
-                  this.user = null;
-                  this.isAuthenticated = false;
-                  return;
-              }
+        try {
+          const token = this.accessToken || localStorage.getItem("auth_token");
+          console.log("🔑 [FRONT] 사용 중인 accessToken:", token);
 
-              const response = await fetch("http://localhost:3001/auth/user", {
-                headers: { Authorization: `Bearer ${token}` },
-                credentials: "include"
-              });
-
-              const data = await response.json();
-              console.log("🔍 서버 응답 데이터:", data); // 서버에서 받은 전체 응답 데이터 출력
-
-              if (response.status === 401 || response.status === 403 || data.error === "인증 실패") {
-                console.log("🔁 Access Token 만료 → Refresh 시도");
-                const refreshRes = await fetch("http://localhost:3001/auth/refresh", {
-                  method: "POST",
-                  credentials: "include"
-                });
-
-                const refreshData = await refreshRes.json();
-
-                if (refreshData.token) {
-                  this.accessToken = refreshData.token;
-                  localStorage.setItem("auth_token", refreshData.token);
-
-                  console.log("🔄 새 accessToken 저장 완료 → fetchUser 재시도");
-                  return await this.fetchUser(); // 다시 재시도
-                } else {
-                  console.warn("❌ Refresh 실패 → 로그아웃 처리");
-                  this.logout(); // Refresh도 실패 → 로그아웃
-                  return;
-                }
-              }
-
-              if (data.user) {
-                  this.user = data.user;
-                  this.isAuthenticated = true;
-                  console.log("✅ 사용자 정보 설정됨:", this.user); // user가 설정될 때 로그 출력
-                  if (data.user.approved === 0) {
-                    console.warn("🚨 승인 대기 중인 사용자 → 페이지 접근 제한");
-                  }
-              } else {
-                this.logout();
-              }
-          } catch (error) {
-              this.user = null;
-              this.isAuthenticated = false;
-              console.error("⚠ fetchUser() 오류 발생:", error); // 오류 발생 시 로그 출력
+          // ✅ accessToken이 없으면 바로 refresh 시도
+          if (!token) {
+            const newToken = await this.tryRefreshToken();
+            if (!newToken) return; // refresh 실패 시 중단
+            return await this.fetchUser(); // 재시도
           }
+
+          console.log("this.accessToken", this.accessToken)
+          // ✅ accessToken으로 사용자 정보 요청
+          const response = await fetch("http://localhost:3001/auth/user", {
+            headers: { Authorization: `Bearer ${token}` },
+            credentials: "include"
+          });
+
+
+          // ✅ 예외 방지용: 먼저 텍스트로 받아서 파싱 시도
+          const raw = await response.json();
+          console.log("📩 응답 원문:", raw.user);
+
+          // ✅ 인증 실패 시 → refresh 시도
+          if (raw.error === "인증 실패"){
+            console.log("raw.error === '인증 실패'")
+          }
+          if (response.status === 401 ) {
+            console.log("🔁 accessToken 만료 → /refresh 시도");
+            return await this.tryRefreshToken();
+          }
+
+          // ✅ 정상 응답 처리
+          if (raw.user) {
+            this.user = raw.user;
+            this.isAuthenticated = true;
+            this.accessToken = token;
+            console.log("✅ user 설정 완료:", this.user);
+          } else {
+            console.warn("❌ user 정보 없음");
+          }
+
+        } catch (error) {
+          console.error("⚠ fetchUser 예외 발생:", error);
+        }
       },
+      async tryRefreshToken() {
+        try {
+          const res = await fetch("http://localhost:3001/refresh", {
+            method: "POST",
+            credentials: "include"
+          });
+          const raw = await res.json();
+          console.log("📩 /refresh 응답 원문:", raw.token);
+
+          if (raw.token) {
+            this.accessToken = raw.token;
+            localStorage.setItem("auth_token", raw.token);
+            console.log("✅ 새 accessToken 저장:", raw.token);
+
+            return await this.fetchUser(); // ✅ 새 토큰으로 재시도
+          } else {
+            console.warn("❌ Refresh 실패 → 로그인 필요");
+            // this.logout(); // 원하면 여기에서 로그아웃 처리
+          }
+
+        } catch (err) {
+          console.error("❌ refresh 요청 실패:", err);
+        }
+      },
+
+
       async logout() {
           try {
               const response = await fetch("http://localhost:3001/auth/logout", {
@@ -84,11 +100,11 @@ export const useAuthStore = defineStore('auth', {
               console.log("✅ 로그아웃 완료: 사용자 정보 초기화됨");
 
               // ✅ 로그아웃 후 0.5초 후 fetchUser 실행하여 로그인 버튼 갱신
-              setTimeout(() => {
-                  console.log("🔄 fetchUser() 실행하여 로그인 상태 갱신");
-                  this.fetchUser();
+              // setTimeout(() => {
+              //     console.log("🔄 fetchUser() 실행하여 로그인 상태 갱신");
+              //     this.fetchUser();
 
-              }, 500);
+              // }, 500);
 
           } catch (error) {
               console.error("⚠ 로그아웃 오류:", error);

@@ -10,7 +10,6 @@ const CLIENT_ID = "987553472207-e5di53499ihc4mi6hg8e0d2oinfqaovj.apps.googleuser
 
 // ✅ 로그인 상태 확인 후 버튼 렌더링
 onMounted(async () => {
-  await auth.fetchUser();  // 로그인 상태 확인
   initializeGoogleLogin(CLIENT_ID, handleCredentialResponse);
 });
 

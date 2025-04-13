@@ -10,6 +10,15 @@ export const findUserByEmail = async (email) => {
         throw error;
     }
 };
+export const findUserById = async (id) => {
+  try {
+      const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
+      return rows.length > 0 ? rows[0] : null;
+  } catch (error) {
+      console.error("❌ DB 조회 오류:", error.message);
+      throw error;
+  }
+};
 
 export const findAllUsers  = async () => {
   const [rows] = await db.query("SELECT * FROM users");
