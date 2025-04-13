@@ -20,6 +20,8 @@ const showTimetableModal = ref(false);
 const emailStore = useAllowedEmailStore();
 const showEmailModal = ref(false);
 
+const academicYear = ref(null);
+
 // 🔹 승인 및 거절 버튼 액션
 const approveUser = (id) => auth.approveUser(id);
 const rejectUser = (id) => {
@@ -54,8 +56,59 @@ function handleGroupSelection(groupId) {
   });
 }
 
+async function promoteGrades() {
+  const confirmMsg = confirm("정말 전체 재학생의 학년을 1씩 올리시겠습니까?");
+  if (!confirmMsg) return;
+
+  const res = await fetch("http://localhost:3001/auth/promote-grade", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" }
+  });
+
+  const data = await res.json();
+  alert(data.message || "학년 승급 완료");
+}
+
+const markAsLeave = async (id) => {
+  const confirmLeave = confirm("이 학생을 휴학 처리하시겠습니까?");
+  if (!confirmLeave) return;
+
+  try {
+    const res = await fetch(`http://localhost:3001/auth/leave/${id}`, {
+      method: "PUT"
+    });
+    const data = await res.json();
+    alert(data.message);
+    await auth.fetchPendingUsers(); // 목록 새로고침
+  } catch (err) {
+    alert("❌ 휴학 처리 실패");
+    console.error(err);
+  }
+};
+const markAsReturn = async (id) => {
+  const confirmReturn = confirm("이 학생을 복학 처리하시겠습니까?");
+  if (!confirmReturn) return;
+
+  try {
+    const res = await fetch(`http://localhost:3001/auth/return/${id}`, {
+      method: "PUT"
+    });
+    const data = await res.json();
+    alert(data.message);
+    await auth.fetchPendingUsers(); // 목록 새로고침
+  } catch (err) {
+    alert("❌ 복학 처리 실패");
+    console.error(err);
+  }
+};
+
+
 
 onMounted(async () => {
+  const res = await fetch("http://localhost:3001/auth/latest-promotion");
+  const data = await res.json();
+  academicYear.value = data.year || new Date().getFullYear();
+
   await auth.fetchPendingUsers(); // 전체 유저 목록 불러오기
   isLoading.value = false;
   emailStore.fetchAllowedEmails();
@@ -71,6 +124,12 @@ onMounted(async () => {
     <div class="approval-container">
       <div class="header-row">
         <h2>가입 승인 대기 목록</h2>
+        <div style="text-align: left; margin-bottom: 10px;">
+          <span style="font-weight: bold; font-size: 16px;">📅 {{ academicYear }}년도 학년 승급</span>
+          <button @click="promoteGrades" style="background-color:#00b894; color:white; padding:10px 16px; border-radius:8px;">
+            🎓 전체 학년 올리기
+          </button>
+        </div>
         <button @click="showEmailModal = true" class="addEmail">+ 허용 이메일 추가</button>
       </div>
       <div class="filter-container">
@@ -95,8 +154,8 @@ onMounted(async () => {
             <th>전화번호</th>
             <th>유학생</th>
             <th>권한</th>
-            <th>승인</th>
-            <th>거절</th>
+            <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -115,7 +174,10 @@ onMounted(async () => {
                 <option value="관리자">관리자</option>
               </select>
             </td>
-            <td><button v-if="user.approved === 0" @click="approveUser(user.id)">✅ 승인</button></td>
+            <td><button v-if="user.approved === 0" @click="approveUser(user.id)">✅ 승인</button>
+              <button v-else-if="user.status == 'active'" @click="markAsLeave(user.id)">✅ 휴학</button>
+              <button v-else-if="user.status == 'leave'" @click="markAsReturn(user.id)">✅ 복학</button>
+            </td>
             <td><button v-if="user.approved === 0" @click="rejectUser(user.id)">❌ 거절</button>
                 <button v-else @click="rejectUser(user.id)">❌ 삭제</button>
             </td>

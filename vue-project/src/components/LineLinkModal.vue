@@ -4,7 +4,7 @@
       <span class="close" @click="close">&times;</span>
 
       <button class="top-btn" @click="goToLine">LINE 연동하기</button>
-
+      <h3 v-if="isAlready">이미 등록 되어있습니다.</h3>
       <div class="qr-box">
         <img
           class="qr"
@@ -27,7 +27,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useAuthStore } from "@/stores/auth";
+
+const auth = useAuthStore();
+const user = computed(() => auth.user);
+const isAlready = ref(false);
+
+if (user.value.line_id){
+  isAlready.value = true;
+};
 
 const props = defineProps({
   show: Boolean,

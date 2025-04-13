@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { findUserByEmail, findUserById, createUser,
         findAllUsers, approveUserById,
-        deleteUserById, updateRole } from '../models/Users.js';
+        deleteUserById, updateRole} from '../models/Users.js';
 import { findAllowedEmail } from '../models/allowedEmails.js';
 import { insertRefreshToken, findRefreshToken, deleteRefreshToken } from '../models/refreshTokens.js';
 
@@ -70,7 +70,8 @@ export const googleLogin = async (req, res) => {
           phone: user.phone,
           international: user.international,
           role: user.role,
-          approved: user.approved
+          approved: user.approved,
+          line_id : user.line_id
         },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
@@ -110,7 +111,8 @@ export const googleLogin = async (req, res) => {
           phone: user.phone,
           international: user.email,
           role: user.role,
-          approved: user.approved
+          approved: user.approved,
+          line_id : user.line_id
         }
     });
 
@@ -196,7 +198,8 @@ export const refreshAccessToken = async (req, res) => {
         phone: user.phone,
         international: user.international,
         role: user.role,
-        approved: user.approved
+        approved: user.approved,
+        line_id : user.line_id
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
@@ -280,3 +283,99 @@ export const Role = async (req, res) => {
   await updateRole(id, role)
   res.status(200).json({ message: "권한 수정 완료" });
 }
+
+
+import db from '../config/db.js';
+
+
+export const promoteAllStudents = async (req, res) => {
+  const conn = await db.getConnection(); // 트랜잭션 사용 추천
+  try {
+    await conn.beginTransaction();
+
+    // 1️⃣ 졸업 처리 (grade = 3인 학생 → status = 'graduated')
+    const [graduated] = await conn.query(`
+      UPDATE users
+      SET status = 'graduated'
+      WHERE grade = 3 AND role = '학생' AND approved = 1 AND status = 'active'
+    `);
+
+    // 2️⃣ 나머지 재학생 학년 +1
+    const [promoted] = await conn.query(`
+      UPDATE users
+      SET grade = grade + 1
+      WHERE grade < 3 AND role = '학생' AND approved = 1 AND (status = 'active' OR status IS NULL)
+    `);
+
+    // 3️⃣ 승급 로그 저장
+    await conn.query(`
+      INSERT INTO grade_promotions (promoted_at) VALUES (NOW())
+    `);
+
+    await conn.commit();
+
+    res.status(200).json({
+      message: `🎓 학년 승급 완료: ${promoted.affectedRows}명 승급, ${graduated.affectedRows}명 졸업 처리됨`,
+    });
+
+  } catch (err) {
+    await conn.rollback();
+    console.error("❌ 학년 승급 실패:", err);
+    res.status(500).json({ error: "학년 승급 중 오류 발생" });
+  } finally {
+    conn.release();
+  }
+};
+
+
+export const getLatestPromotion = async (req, res) => {
+  try {
+    const [rows] = await db.query(`
+      SELECT promoted_at FROM grade_promotions
+      ORDER BY promoted_at DESC LIMIT 1
+    `);
+
+    if (rows.length === 0) {
+      return res.status(200).json({ year: null }); // 아직 승급 이력 없음
+    }
+
+    const year = new Date(rows[0].promoted_at).getFullYear();
+    res.status(200).json({ year });
+  } catch (err) {
+    console.error("❌ 승급 기록 조회 실패:", err);
+    res.status(500).json({ error: "승급 기록 불러오기 실패" });
+  }
+};
+
+
+export const markUserOnLeave = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    await db.query(`
+      UPDATE users
+      SET status = 'leave'
+      WHERE id = ?
+    `, [userId]);
+
+    res.status(200).json({ message: '✅ 휴학 처리 완료' });
+  } catch (error) {
+    console.error("❌ 휴학 처리 실패:", error);
+    res.status(500).json({ error: "휴학 처리 중 오류 발생" });
+  }
+};
+
+export const markUserAsReturned = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    await db.query(`
+      UPDATE users
+      SET status = 'active'
+      WHERE id = ?
+    `, [userId]);
+
+    res.status(200).json({ message: '✅ 복학 처리 완료' });
+  } catch (error) {
+    console.error("❌ 복학 처리 실패:", error);
+    res.status(500).json({ error: "복학 처리 중 오류 발생" });
+  }
+};
