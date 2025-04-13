@@ -5,6 +5,8 @@ import { findUserByEmail, createUser,
         findAllUsers, approveUserById,
         deleteUserById, updateRole } from '../models/Users.js';
 import { findAllowedEmail } from '../models/allowedEmails.js';
+import { insertRefreshToken, findRefreshToken, deleteRefreshToken } from '../models/refreshTokens.js';
+
 dotenv.config();
 
 // ✅ Google 로그인 처리
@@ -75,6 +77,27 @@ export const googleLogin = async (req, res) => {
     );
 
     res.cookie("auth_token", jwtToken, { httpOnly: true });
+
+    // 🔐 refresh token 생성
+    const refreshToken = jwt.sign(
+      { id: user.id },
+      process.env.REFRESH_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // ✅ DB 저장 (예: insertRefreshToken(user.id, refreshToken, expiresAt))
+    await insertRefreshToken(
+      user.id, refreshToken, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
+
+    // ✅ httpOnly 쿠키로 저장
+    res.cookie("refresh_token", refreshToken, {
+      httpOnly: true,
+      secure: false, // 프로덕션에서는 true로 (HTTPS 필요)
+      sameSite: "Lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     console.log("✅ [SERVER] 로그인 성공 → 메인 화면 이동");
 
     res.status(200).json({
@@ -143,15 +166,63 @@ export const getUser = (req, res) => {
     }
 };
 
+// ✅ access token 재발급
+export const refreshAccessToken = async (req, res) => {
+  const token = req.cookies.refresh_token;
+  console.log(token)
+
+  if (!token) return res.status(401).json({ error: "Refresh token 없음" });
+
+  try {
+    // DB에서 유효한 토큰인지 확인
+    const stored = await findRefreshToken(token);
+    if (!stored) return res.status(403).json({ error: "Refresh token 무효함" });
+
+    // 유효한 토큰인지 검증
+    const payload = jwt.verify(token, process.env.REFRESH_SECRET);
+
+    // 새 access token 생성
+    const newAccessToken = jwt.sign(
+      { id: payload.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.status(200).json({ token: newAccessToken });
+  } catch (err) {
+    return res.status(403).json({ error: "Refresh token 오류 또는 만료됨" });
+  }
+};
+
 // ✅ 로그아웃 처리
-export const logoutUser = (req, res) => {
+export const logoutUser = async (req, res) => {
+  try {
+    const token = req.cookies.refresh_token;
+    console.log(token)
+    if (token) {
+      await deleteRefreshToken(token); // ✅ DB에서 삭제
+    }
+
+    // ✅ 쿠키에서 access + refresh 토큰 모두 제거
     res.clearCookie("auth_token", {
-        httpOnly: true,
-        secure: false,
-        sameSite: "Lax"
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax"
     });
-    console.log("✅ 로그아웃 완료");
+
+    res.clearCookie("refresh_token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "Lax"
+    });
+
+    console.log("✅ 로그아웃 완료: access + refresh token 삭제");
     res.status(200).json({ success: true, message: "로그아웃 완료" });
+
+  } catch (err) {
+    console.error("❌ 로그아웃 중 오류:", err);
+    res.status(500).json({ error: "로그아웃 실패" });
+  }
 };
 
 // ✅ 관리자 - 전체 사용자 목록 (프론트에서 필터링)

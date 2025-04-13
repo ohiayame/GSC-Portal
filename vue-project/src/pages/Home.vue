@@ -45,7 +45,7 @@
           <thead>
             <tr>
               <th></th>
-              <th v-for="day in weekDays" :key="day">{{ day }}</th>
+              <th v-for="day in week" :key="day">{{ day }}</th>
             </tr>
           </thead>
           <tbody>
@@ -125,7 +125,8 @@ const timetableStore = useTimetableStore();
 const { timetables } = storeToRefs(timetableStore);
 console.log("timetables", timetables.value);
 
-const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const week = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const weekDays = ["월", "화", "수", "목", "금"];
 const periods = [1, 2, 3, 4, 5, 6, 7, 8];
 
 onMounted(() => {

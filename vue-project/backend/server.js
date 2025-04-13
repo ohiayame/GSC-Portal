@@ -4,6 +4,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
+import refreshRoutes from './routes/refresh.js';
 import authRoutes from './routes/users.js'; // 사용자 인증 라우트
 import noticesRouter from './routes/notices.js'; // 공지사항 라우트
 import timetableRouter from './routes/timetable.js'; // ✅ 시간표 라우트 추가
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 console.log("🔍 authRoutes:", authRoutes);
+app.use('/auth//refresh', refreshRoutes);
 app.use('/auth', authRoutes);
 app.use('/api/notices', noticesRouter);
 app.use('/api/timetable', timetableRouter); // ✅ 추가
@@ -33,6 +35,7 @@ app.use('/line', lineRoutes);
 app.use('/api/holidays', holidayRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/allowed-emails', allowedEmailRoutes);
+
 
 const PORT = process.env.PORT || 3001;
 
