@@ -10,9 +10,11 @@ export const useAllowedEmailStore = defineStore('allowedEmails', {
       const res = await axios.get('http://localhost:3001/api/allowed-emails');
       this.emails = res.data;
     },
-    async addAllowedEmail(email) {
-      const res = await axios.post('http://localhost:3001/api/allowed-emails', { email });
-      this.emails.push({ email }); // 또는 await this.fetchAllowedEmails();
+    async addAllowedEmail(email, memo) {
+      console.log(email, memo)
+      const res = await axios.post('http://localhost:3001/api/allowed-emails', {
+        email, memo });
+      this.emails.push({ email, memo }); // 또는 await this.fetchAllowedEmails();
       return res.data;
     },
     async deleteAllowedEmail(email) {

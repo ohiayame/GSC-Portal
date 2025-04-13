@@ -71,7 +71,7 @@ onMounted(async () => {
     <div class="approval-container">
       <div class="header-row">
         <h2>가입 승인 대기 목록</h2>
-        <button @click="showEmailModal = true">+ 허용 이메일 추가</button>
+        <button @click="showEmailModal = true" class="addEmail">+ 허용 이메일 추가</button>
       </div>
       <div class="filter-container">
         <input
@@ -284,6 +284,22 @@ td button:nth-child(1) {
 }
 td button:nth-child(2) {
   background-color: #ff4d4f;
+}
+.addEmail{
+  float: right;
+  margin-bottom: 12px;
+  background-color: #3ca1ff;
+  color: #e8f0ff;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.addEmail:hover{
+  background-color: #51a5ff;
 }
 .assign-box {
   padding: 30px;

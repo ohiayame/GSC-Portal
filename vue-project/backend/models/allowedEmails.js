@@ -5,8 +5,9 @@ export async function findAllowedEmail(email) {
   return rows[0];
 }
 
-export async function insertAllowedEmail(email) {
-  return db.query("INSERT INTO allowed_emails (email) VALUES (?)", [email]);
+export async function insertAllowedEmail(email, memo) {
+  return db.query("INSERT INTO allowed_emails (email, memo) VALUES (?, ?)",
+        [email, memo]);
 }
 
 export async function deleteAllowedEmail(email) {

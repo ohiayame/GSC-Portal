@@ -18,7 +18,7 @@ export const getAll = async (req, res) => {
 
 // 🔹 2. 이메일 추가
 export const add = async (req, res) => {
-  const { email } = req.body;
+  const { email, memo } = req.body;
   console.log("add -> req.body", req.body)
 
   if (!email) {
@@ -31,7 +31,7 @@ export const add = async (req, res) => {
       return res.status(409).json({ error: '이미 등록된 이메일입니다.' });
     }
 
-    await insertAllowedEmail(email);
+    await insertAllowedEmail(email, memo);
     res.status(201).json({ message: '이메일 추가 완료', email });
   } catch (err) {
     console.error('❌ 이메일 추가 실패:', err);
