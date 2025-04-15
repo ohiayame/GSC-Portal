@@ -31,7 +31,7 @@ export const getAssignmentsCourse = async (student_id) =>{
 // 그룹 단위로 과목 조회
 export const getGroupSummaries = async () => {
   const [rows] = await db.query(`
-    SELECT ca.group_id, c.course_name, c.class_section
+    SELECT DISTINCT ca.group_id, c.course_name, c.class_section
     FROM course_assignments ca
     JOIN courses c ON ca.course_id = c.course_id
     ORDER BY ca.group_id ASC
