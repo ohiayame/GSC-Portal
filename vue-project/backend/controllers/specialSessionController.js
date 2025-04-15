@@ -19,7 +19,7 @@ export const getAllSpecialSessions = async (req, res) => {
 // ✅ 휴·보강 추가
 export const createSpecialSession = async (req, res) => {
   try {
-    const { course_id, course_name, type, date, start_period, duration, location , send_line } = req.body;
+    const { course_id, course_name, type, date, start_period, duration, location, grade, send_line } = req.body;
     // db저장
     const result = await SpecialSession.create(
       { course_id, type, date, start_period, duration, location }
@@ -56,7 +56,7 @@ export const createSpecialSession = async (req, res) => {
 
     const startDateTime = `${date}T${String(startHour).padStart(2, '0')}:00:00`;
     const endDateTime = `${date}T${String(endHour).padStart(2, '0')}:00:00`;
-    const msg = `[${typeLabel}] ${course_name}`
+    const msg = `[${typeLabel}] ${grade}학년 : ${course_name}`
     await insertEvent({
       summary: msg,
       location: location,

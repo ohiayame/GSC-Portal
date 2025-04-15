@@ -30,10 +30,11 @@ onMounted(async () => {
   await specialStore.fetchSessions(); // 휴보강 목록 불러오기
   console.log("📌 초기 시간표 데이터:", store.timetables);
   console.log("📌 휴보강 시간표 데이터:", specialStore.sessions);
-  console.log("📌 공휴일 데이터:", selectedDate.value.getFullYear());
+  console.log("📌 공휴일 데이터:",  new Date(selectedDate.value).getFullYear());
   if (user.value.role === '학생') {
     // 학생 해당 반만 가져오기
     await assignStore.fetchAssignedCourses(user.value.id);
+    console.log("🧾 배정된 course_id 목록:", assignStore.assignedCourses.map(a => a.course_id));
   }
 });
 
@@ -250,6 +251,7 @@ const goToSpecialSession = (courseList) => {
       duration: course.duration,
       course_name: course.course_name,
       type: "휴강",
+      grade: course.grade
     },
   });
 };

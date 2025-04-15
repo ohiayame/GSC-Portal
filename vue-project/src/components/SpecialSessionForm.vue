@@ -102,6 +102,7 @@ export default {
       start_period: null,
       duration: null,
       location: "",
+      grade: "",
       send_line: true
     });
 
@@ -110,7 +111,7 @@ export default {
 
     // ✅ 페이지 진입 시 데이터 가져오기
     onMounted(() => {
-      const { course_id, course_name, date, start_period, duration, type } = route.query;
+      const { course_id, course_name, date, start_period, duration, type, grade } = route.query;
       if (course_id) {
         form.value.course_id = course_id;
         form.value.course_name = course_name;
@@ -118,6 +119,7 @@ export default {
         form.value.duration = Number(duration);
         form.value.type = type || "보강";
         form.value.date = date || "";
+        form.value.grade = grade || "";
       }
     });
 
@@ -141,6 +143,7 @@ export default {
         form.value.start_period = selectedCourse.period;
         form.value.duration = selectedCourse.duration;
         form.value.location = selectedCourse.location;
+        form.value.grade = selectedCourse.grade;
       }
       console.log("📌 선택된 과목 정보:", form.value);
     };
