@@ -339,7 +339,7 @@ export const getLatestPromotion = async (req, res) => {
       return res.status(200).json({ year: null }); // 아직 승급 이력 없음
     }
 
-    const year = new Date(rows[0].promoted_at).getFullYear();
+    const year = rows[0].promoted_at
     res.status(200).json({ year });
   } catch (err) {
     console.error("❌ 승급 기록 조회 실패:", err);
