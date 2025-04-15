@@ -8,6 +8,7 @@ import ModalChooseCourse from "@/components/ModalChooseCourse.vue";
 import ModalChooseGroup from "@/components/ModalChooseGroup.vue";
 import TimetableManage from "@/components/TimetableManage.vue";
 import AllowedEmails from "@/components/AllowedEmails.vue";
+import AssignPreview from "@/components/AssignPreview.vue";
 
 const router = useRouter();
 const auth = useAuthStore();
@@ -16,11 +17,13 @@ const level= useAssignLevelStore();
 const showModal = ref(false);
 const showGroupModal = ref(false);
 const showTimetableModal = ref(false);
+const showAssignPreview = ref(false);
 
 const emailStore = useAllowedEmailStore();
 const showEmailModal = ref(false);
 
 const academicYear = ref(null);
+const lastUpdated = ref(null);
 
 // 🔹 승인 및 거절 버튼 액션
 const approveUser = (id) => auth.approveUser(id);
@@ -32,11 +35,17 @@ const rejectUser = (id) => {
 
 const isLoading = ref(true);
 const showOnlyPending = ref(true); // ✅ true면 승인 대기자만, false면 전체
+const onlyActive = ref(false);
+
 const filteredUsers = computed(() => {
+  let users = auth.pendingUsers;
   if (showOnlyPending.value) {
-    return auth.pendingUsers.filter(user => user.approved === 0);
+    users = users.filter(user => user.approved === 0);
+  } else if (onlyActive.value) {
+    users = users.filter(user => user.approved === 1 && user.status === 'active');
   }
-  return auth.pendingUsers;
+
+  return users;
 });
 
 // stores/auth.js의 updateRole(id, role)에 선택된 정보 전달
@@ -107,7 +116,9 @@ const markAsReturn = async (id) => {
 onMounted(async () => {
   const res = await fetch("http://localhost:3001/auth/latest-promotion");
   const data = await res.json();
-  academicYear.value = data.year || new Date().getFullYear();
+  console.log("data", data)
+  academicYear.value = new Date(data.year).getFullYear();
+  lastUpdated.value = new Date().toLocaleString();
 
   await auth.fetchPendingUsers(); // 전체 유저 목록 불러오기
   isLoading.value = false;
@@ -122,25 +133,32 @@ onMounted(async () => {
 
     <!-- 기존 승인 대기 목록 -->
     <div class="approval-container">
-      <div class="header-row">
-        <h2>가입 승인 대기 목록</h2>
-        <div style="text-align: left; margin-bottom: 10px;">
-          <span style="font-weight: bold; font-size: 16px;">📅 {{ academicYear }}년도 학년 승급</span>
-          <button @click="promoteGrades" style="background-color:#00b894; color:white; padding:10px 16px; border-radius:8px;">
-            🎓 전체 학년 올리기
-          </button>
+
+        <h2>회원 목록</h2>
+        <div class="promotion-header">
+
+          <div class="row">
+            <span class="title">🎓{{ academicYear }}년도</span>
+            <button @click="showEmailModal = true" class="addEmail">+ 허용 이메일 추가</button>
+          </div>
+
+          <div class="row">
+            <div class="filter-group">
+              <label class="pending-filter">
+              <input type="checkbox" v-model="showOnlyPending" />
+              승인 대기자만 보기
+              </label>
+              <label class="pending-filter">
+                <input type="checkbox" v-model="onlyActive" />
+                재학생만 보기
+              </label>
+            </div>
+            <div class="right-actions">
+              <button @click="promoteGrades" class="promote-btn">학년 승급</button>
+              <span class="updated-time">🕓 {{ lastUpdated }}</span>
+            </div>
+          </div>
         </div>
-        <button @click="showEmailModal = true" class="addEmail">+ 허용 이메일 추가</button>
-      </div>
-      <div class="filter-container">
-        <input
-          type="checkbox"
-          id="togglePending"
-          v-model="showOnlyPending"
-          class="toggle-filter"
-        />
-        <label for="togglePending">승인 대기자만 보기</label>
-      </div>
 
       <div v-if="isLoading">불러오는 중...</div>
       <table v-else>
@@ -174,12 +192,14 @@ onMounted(async () => {
                 <option value="관리자">관리자</option>
               </select>
             </td>
-            <td><button v-if="user.approved === 0" @click="approveUser(user.id)">✅ 승인</button>
-              <button v-else-if="user.status == 'active'" @click="markAsLeave(user.id)">✅ 휴학</button>
-              <button v-else-if="user.status == 'leave'" @click="markAsReturn(user.id)">✅ 복학</button>
+            <td>
+              <button v-if="user.approved === 0" @click="approveUser(user.id)" class="btn-approve">승인</button>
+              <button v-else-if="user.status == 'active'" @click="markAsLeave(user.id)" class="btn-leave">휴학</button>
+              <button v-else-if="user.status == 'leave'" @click="markAsReturn(user.id)" class="btn-return">복학</button>
             </td>
-            <td><button v-if="user.approved === 0" @click="rejectUser(user.id)">❌ 거절</button>
-                <button v-else @click="rejectUser(user.id)">❌ 삭제</button>
+            <td>
+              <button v-if="user.approved === 0" @click="rejectUser(user.id)" class="btn-reject">❌ 거절</button>
+              <button v-else @click="rejectUser(user.id)" class="btn-delete">❌ 삭제</button>
             </td>
           </tr>
         </tbody>
@@ -197,6 +217,17 @@ onMounted(async () => {
         <button @click="showModal = true" class="mode-btn new">➕ 신규 등록</button>
         <button @click="showGroupModal = true" class="mode-btn edit">✏️ 기존 수정</button>
       </div>
+
+      <div class="card-header" @click="showAssignPreview = !showAssignPreview">
+        <h2>📘 분반 확인</h2>
+        <span class="toggle-icon">{{ showAssignPreview  ? '∧' : '∨' }}</span>
+      </div>
+      <transition name="expand">
+        <div v-if="showAssignPreview" class="card-body">
+          <AssignPreview mode="modal" />
+        </div>
+      </transition>
+
       <ModalChooseCourse v-if="showModal" @close="showModal = false" @confirm="handleCourseSelection" />
       <ModalChooseGroup v-if="showGroupModal" @close="showGroupModal = false" @confirm="handleGroupSelection" />
     </div>
@@ -265,13 +296,80 @@ h2 {
   margin-bottom: 16px;
 }
 
-.filter-container {
+.promotion-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.filter-group {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
-  font-weight: 500;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pending-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 14px;
+  white-space: nowrap;
+}
+
+.right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.updated-time {
+  font-size: 13px;
+  color: #666;
+  margin-top: 2px;
+}
+
+
+.addEmail {
+  background-color: #3ca1ff;
+  color: #e8f0ff;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.addEmail:hover {
+  background-color: #51a5ff;
+}
+
+.promote-btn {
+  background-color: #00b894;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.promote-btn:hover {
+  background-color: #00a17a;
 }
 
 .toggle-filter {
@@ -336,33 +434,32 @@ button {
   transition: background-color 0.2s;
   color: rgb(0, 0, 0);
 }
+.btn-approve {
+  background-color: #c9e4ff; /* 밝은 파랑 */
+  color: rgb(25, 51, 99);
+}
+.btn-leave {
+  background-color: #eed0ff; /* 연한 노랑 */
+  color: #444;
+}
+.btn-return {
+  background-color: #fffcd1; /* 연한 민트 */
+  color: rgb(70, 69, 12);
+}
+.btn-reject {
+  background-color: #ffd1e1; /* 진한 빨강 */
+  color: rgb(196, 18, 18);
+}
+.btn-delete {
+  background-color: #ff9e9e; /* 연한 주황/빨강 */
+  color: rgb(255, 255, 255);
+}
 
 button:hover {
   filter: brightness(1.05);
 }
 
-td button:nth-child(1) {
-  background-color: #b7dfff;
-}
-td button:nth-child(2) {
-  background-color: #ff4d4f;
-}
-.addEmail{
-  float: right;
-  margin-bottom: 12px;
-  background-color: #3ca1ff;
-  color: #e8f0ff;
-  padding: 10px 16px;
-  font-weight: 600;
-  font-size: 14px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-.addEmail:hover{
-  background-color: #51a5ff;
-}
+
 .assign-box {
   padding: 30px;
   max-width: 80%;

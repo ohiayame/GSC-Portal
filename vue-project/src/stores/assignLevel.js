@@ -9,7 +9,8 @@ export const useAssignLevelStore = defineStore("assignLevel", {
     selectedCourses: [], // 분반 과목 목록
     assignedCourses: [], // 분반 학생 목록
     assigned: {}, // course_id별로 학생 리스트 저장
-    groups: [], // 그룹 목록
+    chooseGroups: [], // 그룹 목록
+    groups: []
   }),
   actions: {
     async submitAssignments( assignments) {
@@ -43,7 +44,7 @@ export const useAssignLevelStore = defineStore("assignLevel", {
         const res = await fetch("http://localhost:3001/api/assign-level/groups");
         if (!res.ok) throw new Error("그룹 목록 조회 실패");
         const data = await res.json();
-        this.groups = data;
+        this.chooseGroups = data;
         console.log("✅ 그룹 목록 불러오기 완료:", data);
       } catch (err) {
         console.error("🚨 그룹 목록 요청 실패:", err);
@@ -53,28 +54,40 @@ export const useAssignLevelStore = defineStore("assignLevel", {
 
      // ✅ 그룹별 배정 정보 가져오기
     async fetchAssignmentsByGroup(groupId) {
-        const res = await fetch(`http://localhost:3001/api/assign-level/group/${groupId}`);
-        if (!res.ok) throw new Error("불러오기 실패");
-        const rows = await res.json();
+      const res = await fetch(`http://localhost:3001/api/assign-level/group/${groupId}`);
+      if (!res.ok) throw new Error("불러오기 실패");
+      const rows = await res.json();
 
-        const courseMap = {};
-        const grouped = {};
-        console.log("rows", rows)
+      const courseMap = {};
+      const grouped = {};
+      console.log("rows", rows)
 
-        rows.forEach(({ course_id, course_name, class_section, course_grade, student_grade , student_id, student_name }) => {
+      rows.forEach(({ course_id, course_name, class_section, course_grade, student_grade , student_id, student_name }) => {
 
-          if (!courseMap[course_id]) {
-            courseMap[course_id] = { course_id, course_name, class_section, course_grade };
-          }
+        if (!courseMap[course_id]) {
+          courseMap[course_id] = { course_id, course_name, class_section, course_grade };
+        }
 
-          if (!grouped[course_id]) grouped[course_id] = [];
-          grouped[course_id].push({ id: student_id, name: student_name, grade: student_grade });
+        if (!grouped[course_id]) grouped[course_id] = [];
+        grouped[course_id].push({ id: student_id, name: student_name, grade: student_grade });
 
-        });
+      });
 
-        this.selectedCourses = Object.values(courseMap); // ✅ 중복 제거한 과목 배열
-        this.assigned = grouped;
-        this.group_id = groupId;
+      this.selectedCourses = Object.values(courseMap); // ✅ 중복 제거한 과목 배열
+      this.assigned = grouped;
+      this.group_id = groupId;
+    },
+
+    async fetchAllGroupAssignments() {
+      try {
+        const res = await fetch("http://localhost:3001/api/assign-level/groups/with-students");
+        if (!res.ok) throw new Error("전체 그룹 정보 불러오기 실패");
+        const data = await res.json();
+        this.groups = data;
+      } catch (err) {
+        console.error("🚨 전체 그룹 배정 요청 실패:", err);
       }
+    }
+
   },
 });

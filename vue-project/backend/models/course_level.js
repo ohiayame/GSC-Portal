@@ -75,3 +75,23 @@ export const getAssignmentsByGroupId = async (group_id) => {
   );
   return rows;
 };
+
+
+export const getAllGroupAssignments = async () => {
+  const [rows] = await db.query(`
+    SELECT
+      ca.group_id,
+      ca.course_id,
+      u.id AS student_id,
+      u.name AS student_name,
+      u.grade AS student_grade,
+      c.course_name,
+      c.class_section,
+      c.grade AS course_grade
+    FROM course_assignments ca
+    JOIN users u ON ca.student_id = u.id
+    JOIN courses c ON ca.course_id = c.course_id
+    ORDER BY ca.group_id, ca.course_id;
+  `);
+  return rows;
+};

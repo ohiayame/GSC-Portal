@@ -43,6 +43,7 @@ export const deleteTimetable = async (req, res) => {
   }
 };
 
+// 분반 해당 과목 조회
 export const getAvailableCourses = async (req, res) => {
   const { grade } = req.query;
   try {

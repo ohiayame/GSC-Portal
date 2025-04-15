@@ -1,9 +1,10 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 import { useAssignLevelStore } from "@/stores/assignLevel";
 
 const assignStore = useAssignLevelStore();
 const emit = defineEmits(["confirm", "close"]);
+const chooseGroups = computed(() => assignStore.chooseGroups);
 
 onMounted(() => {
   assignStore.fetchGroupList(); // ✅ 그룹 리스트 불러오기
@@ -22,7 +23,7 @@ function confirmSelection() {
       <h2>📋 분반 수정 선택</h2>
       <ul class="group-list">
         <li
-          v-for="group in assignStore.groups"
+          v-for="group in chooseGroups"
           :key="group.group_id"
           class="group-item"
         >

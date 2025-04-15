@@ -39,17 +39,19 @@ const Course = {
   // 분반 조회
   async getUnassignedCourses(grade) {
     const [rows] = await db.query(
-      `SELECT * FROM courses
-        WHERE (type = 'special'
-        OR class_section IS NOT NULL)
-        AND grade = ?
-        AND course_id NOT IN (
-        SELECT DISTINCT course_id FROM course_assignments
+      `SELECT c.* FROM courses c
+      JOIN timetable t ON c.course_id = t.course_id
+      WHERE (c.type = 'special' OR c.class_section IS NOT NULL)
+        AND c.grade = ?
+        AND t.end_date >= CURDATE()
+        AND c.course_id NOT IN (
+          SELECT DISTINCT course_id FROM course_assignments
         )`,
       [grade]
     );
     return rows;
-  },
+  }
+
 
 };
 

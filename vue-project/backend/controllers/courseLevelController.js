@@ -1,6 +1,6 @@
 import { getNextGroupId, insertCourseLevel,
   deleteAssignmentsByGroupId, getAssignmentsCourse,
-  getGroupSummaries, getAssignmentsByGroupId } from "../models/course_level.js";
+  getGroupSummaries, getAssignmentsByGroupId, getAllGroupAssignments } from "../models/course_level.js";
 
 export const saveAssignments = async (req, res) => {
   try {
@@ -69,6 +69,37 @@ export const getAssignmentsByGroup = async (req, res) => {
     res.status(200).json(rows);
   } catch (err) {
     console.error("❌ 그룹 배정 조회 실패:", err);
+    res.status(500).json({ message: "서버 오류" });
+  }
+};
+
+export const getAllGroupAssignmentsHandler = async (req, res) => {
+  try {
+    const rows = await getAllGroupAssignments();
+
+    const result = {};
+
+    for (const row of rows) {
+      const gid = row.group_id;
+      if (!result[gid]) result[gid] = [];
+
+      result[gid].push({
+        id: row.student_id,
+        name: row.student_name,
+        grade: row.student_grade,
+        course_name: row.course_name,
+        class_section: row.class_section
+      });
+    }
+
+    const formatted = Object.entries(result).map(([group_id, students]) => ({
+      group_id: Number(group_id),
+      students
+    }));
+
+    res.status(200).json(formatted);
+  } catch (err) {
+    console.error("❌ 그룹 통합 출력 실패:", err);
     res.status(500).json({ message: "서버 오류" });
   }
 };
