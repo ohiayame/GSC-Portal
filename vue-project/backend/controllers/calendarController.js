@@ -18,7 +18,7 @@ export async function getMergedCalendar(req, res) {
       type:
         e.summary.includes('보강') ? '보강' :
         e.summary.includes('휴강') ? '휴강' :
-        '기타',
+        '학과 공지',
       title: e.summary,
       time: new Date(e.start.dateTime).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
       date: e.start.dateTime.slice(0, 10),
