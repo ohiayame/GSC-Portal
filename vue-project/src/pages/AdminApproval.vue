@@ -45,6 +45,14 @@ const filteredUsers = computed(() => {
     users = users.filter(user => user.approved === 1 && user.status === 'active');
   }
 
+  users.sort((a, b) => {
+    if (a.role === '관리자' && b.role !== '관리자') return -1;
+    if (a.role !== '관리자' && b.role === '관리자') return 1;
+    if (a.grade == null) return 1;
+    if (b.grade == null) return -1;
+    return a.grade - b.grade;
+  });
+
   return users;
 });
 
