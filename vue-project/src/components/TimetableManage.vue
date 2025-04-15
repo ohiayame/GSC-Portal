@@ -14,7 +14,7 @@ const hidePastSchedules = ref(false);
 
 
 const selectedGrade = ref("");
-const sortOrder = ref("desc");
+const sortOrder = ref("grade");
 
 const props = defineProps({
   mode: {
@@ -32,6 +32,9 @@ const filteredSortedTimetables = computed(() => {
       return matchGrade && matchTime;
     })
     .sort((a, b) => {
+      if (sortOrder.value === "grade") {
+        return a.grade - b.grade;
+      }
       const dateA = new Date(a.end_date);
       const dateB = new Date(b.end_date);
       return sortOrder.value === "asc" ? dateA - dateB : dateB - dateA;
@@ -118,6 +121,7 @@ const editTimetable = (timetable) => {
       </select>
 
       <select v-model="sortOrder">
+        <option value="grade">학년순</option>
         <option value="desc">최신순</option>
         <option value="asc">오래된 순</option>
       </select>
@@ -232,11 +236,10 @@ const editTimetable = (timetable) => {
         </tbody>
       </table>
     </div>
-  </div>
 
-
-  <div v-if="props.mode !== 'modal'" class="bottom-button-container">
-    <button @click="router.push('/timetable')" class="back">돌아가기</button>
+    <div v-if="props.mode !== 'modal'" class="bottom-button-container">
+      <button @click="router.push('/timetable')" class="back">돌아가기</button>
+    </div>
   </div>
 </div>
 </template>
