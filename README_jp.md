@@ -29,7 +29,7 @@ GSC学科ポータルは、**学生、教授、管理者**の役割に応じて�
 |-------------|----------------------------------------------------------------|
 | **Frontend** | Vue 3 + Vite, Pinia, Vue Router, Axios                        |
 | **Backend**  | Express.js, MySQL, JWT認証, dotenv                             |
-| **外部連携** | Google Calendar API, LINE Messaging API, 政府24休日API        |
+| **外部連携** | Google Calendar API, LINE Messaging API, 政府24祝日API        |
 | **認証方式** | Google OAuth2.0 + JWTトークン + Refresh Tokenクッキー管理    |
 | **デプロイ環境** | 未定                                                          |
 
@@ -47,8 +47,8 @@ GSC学科ポータルは、**学生、教授、管理者**の役割に応じて�
 ### 📅 時間割管理
 - 学年別の正規時間割登録/修正  
 - 補講、休講の視覚的区別  
-- 学生別分班・特講フィルタリング  
-- 週間単位のフィルタリング + 公休日自動反映  
+- 学生別クラス分け・特講フィルタリング  
+- 週間単位のフィルタリング + 祝日自動反映  
 - 教授別フィルタリング  
 - 授業重複時に`+n`表示および詳細モーダル提供  
 
@@ -70,7 +70,7 @@ GSC学科ポータルは、**学生、教授、管理者**の役割に応じて�
 - **出力対象項目**
   - 補講予定  
   - 休講予定  
-  - 公休日情報：Google公休日API基づき自動反映  
+  - 祝日情報：Google祝日API基づき自動反映  
   - 学科予定：お知らせ作成時に登録した日付に基づくイベント表示  
 - スケジュール種類別に色分け表示  
 
@@ -83,7 +83,7 @@ vue-project/
 │   ├── routes/           # APIエンドポイント
 │   ├── models/           # データベースクエリモジュール（直接SQL使用、ORM未使用）
 │   ├── middleware/       # 認証処理
-│   └── utils/            # LINE、GoogleCalendar、政府APIユーティリティ
+│   └── utils/            # LINE、GoogleCalendar、政府祝日APIユーティリティ
 │ 
 ├── src/                  # Vueフロントエンド
 │   ├── App.vue           # ルートコンポーネント（ルーティング分岐、レイアウト定義）
@@ -93,4 +93,5 @@ vue-project/
 │   ├── stores/           # Pinia状態管理
 │   ├── router/           # Vue Router設定
 │   └── services/         # APIリクエストユーティリティ
+
 ---
