@@ -16,6 +16,27 @@ import TimetableManage from "@/components/TimetableManage.vue";
 
 import CalendarPage from '@/pages/CalendarPage.vue'
 
+
+
+// 일본어
+// 일본어 페이지 (jp 폴더에서 import)
+import JpHomePage from "@/pages/jp/Home.vue";
+import JpRegisterPage from "@/pages/jp/Register.vue";
+import JpAdminApprovalPage from "@/pages/jp/AdminApproval.vue";
+import JpAssignLevelPage from "@/components/jp/AssignLevel.vue";
+
+import JpNoticesPage from "@/pages/jp/Notices.vue";
+import JpNoticeItem from "@/components/jp/NoticeItem.vue";
+import JpNoticeForm from "@/components/jp/NoticeForm.vue";
+
+import JpTimetablePage from "@/pages/jp/Timetable.vue";
+import JpTimetableForm from "@/components/jp/TimetableForm.vue";
+import JpSpecialSessionForm from "@/components/jp/SpecialSessionForm.vue";
+import JpTimetableManage from "@/components/jp/TimetableManage.vue";
+
+import JpCalendarPage from "@/pages/jp/CalendarPage.vue";
+
+
 const routes = [
   { path: "/", component: HomePage },
   { path: "/register", component: RegisterPage },
@@ -33,6 +54,24 @@ const routes = [
   { path: "/timetable/special", component: SpecialSessionForm }, // 보강/휴강 추가
   { path: "/timetable/manage", component: TimetableManage },
   { path: '/calendar', component: CalendarPage },
+
+  // 일본어 라우트
+  { path: "/jp", component: JpHomePage },
+  { path: "/jp/register", component: JpRegisterPage },
+  { path: "/jp/approval", component: JpAdminApprovalPage },
+  { path: "/jp/assignLevel", component: JpAssignLevelPage },
+
+  { path: "/jp/notices", component: JpNoticesPage },
+  { path: "/jp/notices/:id", component: JpNoticeItem, props: true },
+  { path: "/jp/notices/new", component: JpNoticeForm },
+  { path: "/jp/notices/edit/:id", component: JpNoticeForm, props: true },
+
+  { path: "/jp/timetable", component: JpTimetablePage },
+  { path: "/jp/timetable/new", component: JpTimetableForm },
+  { path: "/jp/timetable/edit/:id", component: JpTimetableForm, props: true },
+  { path: "/jp/timetable/special", component: JpSpecialSessionForm },
+  { path: "/jp/timetable/manage", component: JpTimetableManage },
+  { path: "/jp/calendar", component: JpCalendarPage },
 ];
 
 const router = createRouter({
