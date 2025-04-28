@@ -1,4 +1,3 @@
-# 学科ポータルWebサービス
 このプロジェクトの README は日本語と韓国語で提供いたします。
 <br>
 이 프로젝트의 README는 한국어와 일본어로 제공됩니다.
@@ -6,6 +5,9 @@
 - [日本語 (Japanese)](README_jp.md)
 - [한국어 (Korean)](README.md)
 
+
+
+# 学科ポータルWebサービス
 
 > Vue 3 + Express + MySQLベースの**大学学科運営システム**  
 > Google Calendar連携、LINE通知、Drag & Dropなど最新Web機能を活用した**実務型統合プラットフォーム**
