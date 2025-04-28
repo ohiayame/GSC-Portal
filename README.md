@@ -1,3 +1,12 @@
+このプロジェクトの README は日本語と韓国語で提供いたします。
+<br>
+이 프로젝트의 README는 한국어와 일본어로 제공됩니다.
+
+- [日本語 (Japanese)](README_jp.md)
+- [한국어 (Korean)](README.md)
+
+
+
 # 학과 포털 웹서비스
 
 > Vue 3 + Express + MySQL 기반의 **대학 학과 운영 시스템**  
