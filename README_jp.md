@@ -74,9 +74,9 @@ GSC学科ポータルは、**学生、教授、管理者**の役割に応じて�
   - 学科予定：お知らせ作成時に登録した日付に基づくイベント表示  
 - スケジュール種類別に色分け表示  
 
----
 
 ## ⚙️ プロジェクト構造 (Project Structure)
+```
 vue-project/
 ├── backend/              # Expressサーバー
 │   ├── controllers/      # 機能別ロジック
@@ -94,4 +94,4 @@ vue-project/
 │   ├── router/           # Vue Router設定
 │   └── services/         # APIリクエストユーティリティ
 
----
+```
