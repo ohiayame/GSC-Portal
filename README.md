@@ -43,6 +43,7 @@ GSC 학과 포털은 **학생, 교수, 관리자**의 역할에 따라 학사 �
 - 관리자 / 교수 / 학생 기능 분리
 -  **등록된 학교 이메일(@g.yju.ac.kr) 또는 사전에 승인된 Gmail만 로그인 허용**
 -  **관리자 승인 후 시스템 접근 가능**
+ <img src="assets/Main.png" alt="Main" width="500px">
 
 ### 📅 시간표 관리
 - 학년별 정규 시간표 등록/수정  
@@ -50,14 +51,15 @@ GSC 학과 포털은 **학생, 교수, 관리자**의 역할에 따라 학사 �
 - 학생별 분반 및 특강 필터링  
 - 주간 단위 필터링 + 공휴일 자동 반영
 - 교수별 필터링  
-- 수업 겹침 시 `+n` 표시 및 상세 모달 제공  
+- 수업 겹침 시 `+n` 표시 및 상세 모달 제공
+ <img src="assets/TimeTable.png" alt="TimeTable" width="500px">
 
 ### 🎯 레벨 수업 분반 시스템
 - 유학생 전용 필터링 (grade 4 대상)  
 - 그룹 기반 과목-학생 연결 (group_id 기준)  
 - Drag & Drop UI로 배정  
 - 기존 그룹 수정 기능 지원
--   
+<img src="assets/Level.gif" alt="Level Video" width="300px">
 
 ### 📢 공지사항 관리
 - 공지 작성 / 수정 / 삭제
@@ -65,6 +67,7 @@ GSC 학과 포털은 **학생, 교수, 관리자**의 역할에 따라 학사 �
 - LINE 메시지 전송 옵션 포함  
 - 학년별, 과목별, 키워드 필터링
 - 내용 복사 기능 지원
+ <img src="assets/Notices.png" alt="Notices" width="500px">
 
 ### 📆 학사 일정 통합 스케줄
 - Google Calendar API 연동
@@ -74,6 +77,8 @@ GSC 학과 포털은 **학생, 교수, 관리자**의 역할에 따라 학사 �
   - 공휴일 정보 : Google 공휴일 API 기반 자동 반영
   - 학과 일정 : 공지사항 작성 시 등록한 날짜 기반 이벤트 출력  
 - 일정 종류별 색상 표시  
+<img src="assets/Schedule.png" alt="Schedule" width="500px">
+
 
 ---
 
