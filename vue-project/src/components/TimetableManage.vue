@@ -68,10 +68,10 @@ const filteredCancels = computed(() => {
 
 
 // ✅ 시간표 삭제 함수
-const deleteTt = async (course_id) => {
+const deleteTt = async (id) => {
   if (!confirm("정말 삭제하시겠습니까?")) return;
-  await store.deleteTimetable(course_id);
-  console.log("📌 id값 :", course_id);
+  await store.deleteTimetable(id);
+  console.log("📌 id값 :", id);
   alert("삭제 완료!");
 };
 
@@ -151,7 +151,7 @@ const editTimetable = (timetable) => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="timetable in filteredSortedTimetables" :key="timetable.course_id">
+          <tr v-for="timetable in filteredSortedTimetables" :key="timetable.id">
             <td>{{ timetable.grade }}</td>
             <td>{{ timetable.course_name }}</td>
             <td>{{ timetable.professor }}</td>
@@ -161,7 +161,7 @@ const editTimetable = (timetable) => {
             <td>{{ timetable.location }}</td>
             <td>{{ timetable.start_date.split("T")[0] }} ~ <br>{{ timetable.end_date.split("T")[0] }}</td>
             <td><button class="edit-btn" @click="editTimetable(timetable)">✏️ 수정</button></td>
-            <td><button class="delete-btn" @click="deleteTt(timetable.course_id)">🗑 삭제</button></td>
+            <td><button class="delete-btn" @click="deleteTt(timetable.id)">🗑 삭제</button></td>
           </tr>
         </tbody>
       </table>

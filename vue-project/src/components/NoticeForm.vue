@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useNoticesStore } from "../stores/notices";
 import { useRoute, useRouter } from "vue-router";
 import { useTimetableStore } from "../stores/timetable";
@@ -56,7 +56,7 @@ onMounted(() => {
 
 const filteredCourses = computed(() => {
   if(target.value === 0){
-    return;
+    return ;
   }
   const today = new Date();
   console.log("today:", today)
@@ -113,7 +113,11 @@ const removeFile = () => {
   }
 };
 
-
+watch(target, (newTarget) => {
+  if (newTarget === 0) {
+    selectedCourse.value = null;
+  }
+});
 
 
 const saveNotice = async () => {
@@ -177,7 +181,7 @@ const saveNotice = async () => {
           <option value="pinned">중요 공지</option>
         </select>
 
-        <label for="date">📅 학과행사 날짜 (선택)</label>
+        <label for="date">📅 학과행사 스케줄 등록</label>
         <input type="date" v-model="eventDate" />
 
       </div>
@@ -188,7 +192,7 @@ const saveNotice = async () => {
         <!-- 학년별 과목 -->
         <label for="course">과목 선택</label>
         <select id="course" v-model="selectedCourse">
-          <option value="">과목 선택 없음</option>
+          <option :value="null">과목 선택 없음</option>
           <option
             v-for="course in filteredCourses"
             :key="course.course_id"

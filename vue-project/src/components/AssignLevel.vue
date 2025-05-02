@@ -13,6 +13,7 @@
           group="students"
           itemKey="id"
           class="draggable-list"
+          tag="div"
         >
           <template #item="{ element }">
             <div class="student-item" :class="`grade-${element.grade}`">
@@ -41,6 +42,7 @@
       group="students"
       itemKey="id"
       class="drop-zone"
+      tag="div"
     >
       <template #item="{ element }">
         <div class="student-item" :class="`grade-${element.grade}`">
@@ -138,9 +140,46 @@ const updateStudentList = () => {
   console.log("🎯 적용된 학생 목록:", students.value);
 };
 
+// onMounted(async () => {
+//   await auth.fetchPendingUsers();
+//   console.log("📦 pendingUsers loaded:", auth.pendingUsers);
+
+//   if (groupId.value) {
+//     await assignStore.fetchAssignmentsByGroup(groupId.value);
+//   } else {
+//     selectedCourses.value.forEach(course => {
+//       assigned.value[course.course_id] = [];
+//     });
+//   }
+
+//   // ✅ 여기에 selectedCourses가 채워졌는지 확인
+//   console.log("🚩 selectedCourses onMounted:", selectedCourses.value);
+
+//   // ✅ selectedCourses가 비어있지 않을 때만 업데이트 수행
+//   if (selectedCourses.value.length > 0) {
+//     updateStudentList();
+//   } else {
+//     // selectedCourses가 비어있으면 반응형 watch로 fallback
+//     watch(selectedCourses, (newVal) => {
+//       if (newVal.length > 0) {
+//         updateStudentList();
+//       }
+//     });
+//   }
+// });
+
 onMounted(async () => {
-  await auth.fetchPendingUsers();
-  console.log("📦 pendingUsers loaded:", auth.pendingUsers);
+  // 테스트용 1학년 20명 추가
+  auth.pendingUsers = Array.from({ length: 20 }, (_, i) => ({
+    id: i + 1,
+    name: `학생${i + 1}`,
+    grade: 1,
+    role: '학생',
+    approved: 1,
+    international: 'no',
+  }));
+
+  console.log("📦 테스트용 pendingUsers 로드됨:", auth.pendingUsers);
 
   if (groupId.value) {
     await assignStore.fetchAssignmentsByGroup(groupId.value);
@@ -150,14 +189,9 @@ onMounted(async () => {
     });
   }
 
-  // ✅ 여기에 selectedCourses가 채워졌는지 확인
-  console.log("🚩 selectedCourses onMounted:", selectedCourses.value);
-
-  // ✅ selectedCourses가 비어있지 않을 때만 업데이트 수행
   if (selectedCourses.value.length > 0) {
     updateStudentList();
   } else {
-    // selectedCourses가 비어있으면 반응형 watch로 fallback
     watch(selectedCourses, (newVal) => {
       if (newVal.length > 0) {
         updateStudentList();
@@ -165,7 +199,6 @@ onMounted(async () => {
     });
   }
 });
-
 
 
 
@@ -287,7 +320,7 @@ onMounted(async () => {
 .draggable-list {
   display: flex;
   flex-wrap: wrap; /* ✅ 여러 줄 허용 */
-  gap: 30px;
+  gap: 15px;
   min-height: 300px;
   max-height: 400px;
   overflow-y: auto;

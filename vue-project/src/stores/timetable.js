@@ -34,15 +34,17 @@ export const useTimetableStore = defineStore("timetable", {
     },
 
     // ✅ 보강/휴강 데이터 불러오기
-    // async fetchSpecialSessions() {
-    //   try {
-    //     const response = await fetch("http://localhost:3001/api/timetable/special");
-    //     if (!response.ok) throw new Error("보강/휴강 데이터를 불러오는 데 실패했습니다.");
-    //     this.specialSessions = await response.json();
-    //   } catch (error) {
-    //     console.error("🚨 보강/휴강 데이터 불러오기 오류:", error);
-    //   }
-    // },
+    async fetchCourses() {
+      try {
+        const res = await fetch("http://localhost:3001/api/courses");
+        if (!res.ok) throw new Error("과목 목록 불러오기 실패");
+        const data = await res.json();
+        return data; // [{ course_id, course_name, ... }, ...]
+      } catch (err) {
+        console.error("❌ 과목 목록 조회 실패:", err);
+        return [];
+      }
+    },
 
     // ✅ 시간표 추가
     async addCourse(courseData) {
@@ -89,19 +91,19 @@ export const useTimetableStore = defineStore("timetable", {
 
 
     // ✅ 시간표 삭제
-    async deleteTimetable(course_id) {
+    async deleteTimetable(id) {
       try {
-        const response = await fetch(`http://localhost:3001/api/courses/${course_id}`, {
+        const response = await fetch(`http://localhost:3001/api/timetable/${id}`, {
           method: "DELETE",
         });
         if (!response.ok) throw new Error("시간표 삭제 실패");
-        this.timetables = this.timetables.filter(item => item.course_id !== course_id);
+        this.timetables = this.timetables.filter(item => item.course_id !== id);
       } catch (error) {
         console.error("🚨 시간표 삭제 오류:", error);
       }
     },
 
-    //
+    // 분반 과목 선택시 사용
     async fetchAvailableCourses(grade) {
       try {
         const response = await fetch(`http://localhost:3001/api/courses/available?grade=${grade}`);

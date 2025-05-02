@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useTimetableStore } from "../stores/timetable";
 
@@ -7,7 +7,9 @@ const store = useTimetableStore();
 const route = useRoute();
 const router = useRouter();
 
-const isEditMode = ref(false); // ✅ 수정 모드인지 여부 확인
+const isEditMode = ref(false);
+const selectedCourse = ref(null); // ✅ 기존 과목 선택 여부
+const filteredCourses = ref([]); // ✅ 백엔드에서 불러올 예정
 
 const form = ref({
   course_id: "",
@@ -24,48 +26,82 @@ const form = ref({
   end_date: null,
 });
 
-// ✅ 페이지 로드시 기존 데이터가 있으면 자동 입력 (수정 모드)
-onMounted(() => {
+onMounted(async () => {
+  // ✅ 시간표 수정 모드일 경우 초기 데이터 채움
   if (route.query.course_id) {
     isEditMode.value = true;
     form.value = { ...route.query };
-    console.log("🚀 등록 데이터:", form.value);
+    selectedCourse.value = Number(route.query.course_id);
+  }
+  // ✅ 기존 과목 목록 불러오기
+  filteredCourses.value = await store.fetchCourses();
+});
+
+// ✅ 과목 선택 시 자동 채움 or 초기화
+watch(selectedCourse, (newVal) => {
+  if (newVal !== null) {
+    const course = filteredCourses.value.find((c) => c.course_id === newVal);
+    if (course) {
+      form.value = {
+        ...form.value,
+        course_id: course.course_id,
+        course_name: course.course_name,
+        professor: course.professor,
+        grade: course.grade,
+        class_section: course.class_section,
+        type: course.type,
+      };
+    }
+  } else {
+    form.value = {
+      ...form.value,
+      course_id: "",
+      course_name: "",
+      professor: "정영철",
+      grade: null,
+      class_section: null,
+      type: "regular",
+    };
   }
 });
 
-
-
 const saveTimetable = async () => {
-  if (!form.value.course_name || !form.value.day || !form.value.period || !form.value.duration) {
+  if (!form.value.day || !form.value.period || !form.value.duration) {
     alert("📌 모든 필수 항목을 입력하세요!");
     return;
   }
-  // if (!checkDuplicateTimetable()) {
-  //   return;
-  // }
-  try{
+
+  try {
     if (isEditMode.value) {
-      // ✅ 수정 요청 시 과목 정보도 함께 보냄
-      console.log("🚀 등록 요청 데이터:", form.value);
       await store.updateTimetable(form.value);
       alert("✅ 시간표 및 과목 수정 완료!");
-
+    } else if (selectedCourse.value !== null) {
+      // ✅ 기존 과목 → timetable만 추가
+      const timetableData = {
+        course_id: selectedCourse.value,
+        day: form.value.day,
+        period: form.value.period,
+        duration: form.value.duration,
+        location: form.value.location,
+        start_date: form.value.start_date,
+        end_date: form.value.end_date,
+      };
+      await store.addTimetable(timetableData);
+      alert("✅ 기존 과목 시간표 등록 완료!");
     } else {
-      // ✅ 새 과목 추가
+      // ✅ 새 과목 등록 + timetable 등록
       const courseData = {
         course_name: form.value.course_name,
         professor: form.value.professor,
         grade: form.value.grade,
-        class_section: form.value.class_section || null,
+        class_section: form.value.class_section,
         type: form.value.type,
       };
-
       const courseResponse = await store.addCourse(courseData);
       if (!courseResponse || !courseResponse.course_id) {
         alert("❌ 과목 추가 실패!");
         return;
       }
-
       const timetableData = {
         course_id: courseResponse.course_id,
         day: form.value.day,
@@ -75,55 +111,74 @@ const saveTimetable = async () => {
         start_date: form.value.start_date,
         end_date: form.value.end_date,
       };
-
       await store.addTimetable(timetableData);
-      alert("✅ 새 시간표 등록 완료!");
+      alert("✅ 새 과목 시간표 등록 완료!");
     }
     router.push("/timetable");
-
   } catch (err) {
     console.error("🚨 등록 오류:", err);
     alert("❌ 시간표 추가 중 오류가 발생했습니다.");
   }
 };
-
-
 </script>
 
 <template>
   <div class="page">
-  <div class="timetable-form">
-    <h2>{{ isEditMode ? "시간표 수정" : "시간표 등록" }}</h2>
+    <div class="timetable-form">
+      <h2>{{ isEditMode ? "시간표 수정" : "시간표 등록" }}</h2>
 
-    <!-- 새로운 과목 입력 -->
-    <div class="form-group">
-      <label for="course_name">과목명</label>
-      <input id="course_name" type="text" v-model="form.course_name" placeholder="과목 입력" />
-    </div>
-
-    <div class="form-group">
-      <label for="professor">교수</label>
-      <input id="professor" type="text" v-model="form.professor" placeholder="정영철" />
-    </div>
-
-    <div class="inline-group">
+      <!-- ✅ 기존 과목 선택 -->
       <div class="form-group">
-        <label for="grade">학년</label>
-        <select id="grade" v-model="form.grade">
-          <option value="1">1학년</option>
-          <option value="2">2학년</option>
-          <option value="3">3학년</option>
-          <option value="0">레벨 별</option>
-          <option value="4">한국어</option>
+        <label for="course">과목 선택</label>
+        <select id="course" v-model="selectedCourse">
+          <option :value="null">새로 등록</option>
+          <option
+            v-for="course in filteredCourses"
+            :key="course.course_id"
+            :value="course.course_id"
+          >
+            {{ course.course_name }}
+            <template v-if="course.class_section !== null"> ({{ course.class_section }}반)</template>
+          </option>
         </select>
       </div>
 
-      <div class="form-group">
-        <label for="class_section">분반</label>
-        <input id="class_section" type="number" v-model="form.class_section" min="1" />
-      </div>
-    </div>
-    <div class="inline-group">
+      <!-- ✅ 새 과목일 경우만 표시 -->
+        <div class="form-group" v-if="selectedCourse === null">
+          <label for="course_name">과목명</label>
+          <input id="course_name" type="text" v-model="form.course_name" placeholder="과목 입력" />
+        </div>
+
+        <div class="form-group">
+          <label for="professor">교수</label>
+          <input id="professor" type="text" v-model="form.professor" placeholder="정영철"  :disabled="selectedCourse !== null"/>
+        </div>
+        <div class="inline-group">
+          <div class="form-group">
+            <label for="grade">학년</label>
+            <select id="grade" v-model="form.grade"  :disabled="selectedCourse !== null">
+              <option value="1">1학년</option>
+              <option value="2">2학년</option>
+              <option value="3">3학년</option>
+              <option value="0">레벨 별</option>
+              <option value="4">한국어</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="class_section">분반</label>
+            <input id="class_section" type="number" v-model="form.class_section" min="1" :disabled="selectedCourse !== null"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="type">수업 종류</label>
+          <select id="type" v-model="form.type"  :disabled="selectedCourse !== null">
+            <option value="regular">정규수업</option>
+            <option value="special">특강</option>
+          </select>
+        </div>
+
+      <!-- ✅ 공통 입력 -->
+      <div class="inline-group">
         <div class="form-group">
           <label for="day">요일</label>
           <select id="day" v-model="form.day">
@@ -135,53 +190,39 @@ const saveTimetable = async () => {
           </select>
         </div>
         <div class="form-group">
-          <label for="type">수업 종류</label>
-          <select id="type" v-model="form.type">
-            <option value="regular">정규수업</option>
-            <option value="special">특강</option>
-          </select>
+          <label for="period">시작 교시</label>
+          <input id="period" type="number" v-model="form.period" min="1" />
         </div>
-    </div>
-
-
-    <div class="inline-group">
-      <div class="form-group">
-        <label for="period">시작 교시</label>
-        <input id="period" type="number" v-model="form.period" min="1" />
+        <div class="form-group">
+          <label for="duration">수업 시간</label>
+          <input id="duration" type="number" v-model="form.duration" min="1" />
+        </div>
       </div>
 
       <div class="form-group">
-        <label for="duration">수업 시간</label>
-        <input id="duration" type="number" v-model="form.duration" min="1" />
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label for="location">강의실</label>
-      <input id="location" type="text" v-model="form.location" placeholder="강의실 입력" />
-    </div>
-
-    <div class="inline-group">
-      <div class="form-group">
-        <label for="start_date">개강일</label>
-        <input id="start_date" type="date" v-model="form.start_date" />
+        <label for="location">강의실</label>
+        <input id="location" type="text" v-model="form.location" placeholder="강의실 입력" />
       </div>
 
-      <div class="form-group">
-        <label for="end_date">종강일</label>
-        <input id="end_date" type="date" v-model="form.end_date" />
+      <div class="inline-group">
+        <div class="form-group">
+          <label for="start_date">개강일</label>
+          <input id="start_date" type="date" v-model="form.start_date" />
+        </div>
+        <div class="form-group">
+          <label for="end_date">종강일</label>
+          <input id="end_date" type="date" v-model="form.end_date" />
+        </div>
       </div>
-    </div>
 
-    <div class="button-container">
-      <button @click="router.back();" class="back">
-        돌아가기
-      </button>
-      <button @click="saveTimetable" class="register">{{ isEditMode ? "수정" : "등록" }}</button>
+      <div class="button-container">
+        <button @click="router.back();" class="back">돌아가기</button>
+        <button @click="saveTimetable" class="register">{{ isEditMode ? "수정" : "등록" }}</button>
+      </div>
     </div>
   </div>
-</div>
 </template>
+
 
 <style scoped>
 .page{
