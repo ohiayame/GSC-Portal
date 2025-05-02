@@ -77,7 +77,7 @@ GSC学科ポータルは、**学生、教授、管理者**の役割に応じて�
   - 祝日情報：Google祝日API基づき自動反映  
   - 学科予定：お知らせ作成時に登録した日付に基づくイベント表示  
 - スケジュール種類別に色分け表示
-<img src="assets/Schedule.png" alt="Schedule" width="500px">
+<img src="assets/Schedule.gif" alt="Schedule" width="400px">
 
 
 ## ⚙️ プロジェクト構造 (Project Structure)

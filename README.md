@@ -77,7 +77,7 @@ GSC 학과 포털은 **학생, 교수, 관리자**의 역할에 따라 학사 �
   - 공휴일 정보 : Google 공휴일 API 기반 자동 반영
   - 학과 일정 : 공지사항 작성 시 등록한 날짜 기반 이벤트 출력  
 - 일정 종류별 색상 표시  
-<img src="assets/Schedule.png" alt="Schedule" width="500px">
+<img src="assets/Schedule.gif" alt="Schedule" width="400px">
 
 
 ---
